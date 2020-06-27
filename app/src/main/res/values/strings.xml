@@ -1,0 +1,83 @@
+<resources>
+    <!-- Global -->
+    <string name="app_name">Delivery</string>
+
+    <!-- NewDeliveryActivity -->
+    <string name="fragment_select_products_title">Sélection des produits</string>
+    <string name="fragment_new_delivery_title">Création d\'une livraison</string>
+    <string name="fragment_new_delivery_divider_pod">Point de livraison</string>
+    <string name="fragment_new_delivery_hint_pod">Selection du magasin...</string>
+    <string name="fragment_new_delivery_hint_receiver">Nom...</string>
+    <string name="fragment_new_delivery_button_finished">Envoyer</string>
+    <string name="fragment_new_delivery_empty_not_saved">Word not saved because it is empty.</string>
+    <string name="fragment_new_delivery_divider_products">Selection des dépots/reprises</string>
+    <string name="fragment_new_delivery_button_deposit_text">Déposer des produits</string>
+    <string name="fragment_new_delivery_button_take_text">Reprendre des produits</string>
+    <string name="fragment_new_delivery_">Selection des dépots/reprises</string>
+    <string name="fragment_new_delivery_divider_deliver">Livreur</string>
+    <string name="fragment_new_delivery_hint_deliver_comment">Remarques...</string>
+    <string name="fragment_new_delivery_divider_receiver">Réceptionniste</string>
+    <string name="fragment_new_delivery_hint_receiver_comment">Remarques...</string>
+    <string name="fragment_new_delivery_hint_signature">Signer les documents</string>
+    <string name="fragment_new_delivery_divider_documens">Documents</string>
+    <string name="fragment_new_delivery_divider_signature">Signature</string>
+    <string name="fragment_new_delivery_hint_note">Note d\'envoi</string>
+
+    <!-- note -->
+    <string name="pdf_note_creator_file_generated">Fichier PDF créé!</string>
+    <string name="pdf_note_creator_file_not_generated">ERREUR lors de la création du fichier PDF!</string>
+    <string name="pdf_note_comments_receiver_label">Commentaire réceptionniste:</string>
+    <string name="pdf_note_comments_delivery_label">Commentaire livreur:</string>
+    <string name="pdf_note_name_delivery_label">Livreur:</string>
+    <string name="pdf_note_name_receiver_label">Réceptionniste:</string>
+
+
+
+    <!--Acra -->
+    <string name="acra_dialog_errormessage"> Une erreur innatendue est survenue. Vous pouvez prévenir l\'équipe de développement</string>
+    <string name="acra_mail_subject"> Crash report - Delivery application</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Signature dialog-->
+    <string name="fragment_signature_save_button">Valider</string>
+    <string name="fragment_signature_dialog_title">Signature...</string>
+    <string name="pdf_note_product_list_title_type" />
+    <string name="pdf_note_product_detail_header_product_name">Description</string>
+    <string name="pdf_note_product_detail_header_type">Depos/Reprise</string>
+    <string name="pdf_note_product_detail_header_quantity">Quantité</string>
+    <string name="pdf_note_product_detail_header_price">Prix U TTC</string>
+
+    <!-- menu -->
+    <string name="menu_action_settings_title">Paramètres</string>
+
+    <!-- main_activity_preferences -->
+    <string name="preference_organisation_title">Organisation</string>
+    <string name="preference_organisation_summary">Signalétique de votre organisation </string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="preference_organisation_name">Nom de l\'entreprise</string>
+    <string name="preference_organisation_address">Adresse de l\'entreprise</string>
+    <string name="preference_organisation_phone1">Numéro de téléphonne 1</string>
+    <string name="preference_organisation_phone2">Numéro de téléphonne 2</string>
+    <string name="preference_organisation_email">Mail</string>
+    <string name="preference_organisation_vat">Numéro TVA</string>
+    <string name="preference_organisation_bank">Numéro de compte bancaire</string>
+    <string name="preference_employee_title">Gestion des livreurs</string>
+    <string name="preference_products_title">Gestion des produits</string>
+
+
+
+</resources>

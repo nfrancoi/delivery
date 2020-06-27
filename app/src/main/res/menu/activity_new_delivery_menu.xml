@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:title="Refresh"
+        android:icon="@drawable/ic_launcher_background"
+        android:id="@+id/action_refresh"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_action_settings"
+        android:title="@string/menu_action_settings_title"
+        app:showAsAction="never">
+    </item>
+    <item
+        android:id="@+id/action_network"
+        android:title="Network Setting"
+        app:showAsAction="never">
+    </item>
+</menu>

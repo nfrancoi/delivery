@@ -1,0 +1,63 @@
+<?xml version ="1.0" encoding ="utf-8"?><!--  Learn More about how to use App Actions: https://developer.android.com/guide/actions/index.html -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <PreferenceCategory
+        android:icon="@android:drawable/ic_menu_edit"
+        android:key="company"
+        android:summary="@string/preference_organisation_summary"
+        android:title="@string/preference_organisation_title"
+        app:initialExpandedChildrenCount="0">
+        <EditTextPreference
+            android:key="company_name"
+            android:title="@string/preference_organisation_name"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="company_address"
+            android:title="@string/preference_organisation_address"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="company_phone1"
+            android:title="@string/preference_organisation_phone1"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="company_phone2"
+            android:title="@string/preference_organisation_phone2"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="company_email"
+            android:title="@string/preference_organisation_email"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="company_vat"
+            android:title="@string/preference_organisation_vat"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="company_bank"
+            android:title="@string/preference_organisation_bank"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:icon="@drawable/ic_employee"
+        android:key="employees"
+        android:title="@string/preference_employee_title">
+        <EditTextPreference
+            android:key="employees_modify"
+            android:title="modif "
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:defaultValue=""
+        android:icon="@drawable/ic_products"
+        android:key="products"
+        android:title="@string/preference_products_title" />
+
+
+</PreferenceScreen>

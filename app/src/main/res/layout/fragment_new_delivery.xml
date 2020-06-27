@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/fragment_new_delivery_divider_pod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:padding="@dimen/small_padding"
+                android:text="@string/fragment_new_delivery_divider_pod"
+                android:textAlignment="viewStart"
+                android:textColor="@color/buttonLabel"
+                android:textSize="@dimen/text_medium" />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_new_delivery_layout_pod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/fragment_new_delivery_text_select_pod"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="@string/fragment_new_delivery_hint_pod"
+                    android:imeOptions="actionGo"
+                    android:inputType="textAutoComplete"
+                    android:paddingHorizontal="@dimen/small_padding"
+                    android:paddingVertical="@dimen/small_padding"
+                    android:textSize="18sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/fragment_new_delivery_divider_products"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:padding="@dimen/small_padding"
+                android:text="@string/fragment_new_delivery_divider_products"
+                android:textAlignment="viewStart"
+                android:textColor="@color/buttonLabel"
+                android:textSize="@dimen/text_medium" />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_new_delivery_layout_products"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/fragment_new_delivery_button_deposit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_new_delivery_button_deposit_text"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline6"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/fragment_new_delivery_text_deposit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/small_padding"
+                    android:text="Qty"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintBottom_toBottomOf="@+id/fragment_new_delivery_button_deposit"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline7"
+                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_button_deposit"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <TextView
+                    android:id="@+id/fragment_new_delivery_text_deposit_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/small_padding"
+                    android:text="D_Price"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintBottom_toBottomOf="@+id/fragment_new_delivery_button_deposit"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_text_deposit"
+                    app:layout_constraintTop_toTopOf="@+id/fragment_new_delivery_button_deposit" />
+
+                <Button
+                    android:id="@+id/fragment_new_delivery_button_take"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_new_delivery_button_take_text"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline6"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_button_deposit" />
+
+                <TextView
+                    android:id="@+id/fragment_new_delivery_text_take"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:padding="@dimen/small_padding"
+                    android:text="Qty"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintBottom_toBottomOf="@+id/fragment_new_delivery_button_take"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline7"
+                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_button_take"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_button_deposit" />
+
+                <TextView
+                    android:id="@+id/fragment_new_delivery_text_take_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/small_padding"
+                    android:text="T_Price"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintBottom_toBottomOf="@+id/fragment_new_delivery_button_take"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.516"
+                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_text_take"
+                    app:layout_constraintTop_toTopOf="@+id/fragment_new_delivery_button_take" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.63503647" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.76642334" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_new_delivery_layout_total"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/fragment_new_delivery_text_total_amount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/small_padding"
+                    android:text="TextView"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.545"
+                    tools:text="TotalAmount" />
+
+                <TextView
+                    android:id="@+id/fragment_new_delivery_total_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/small_padding"
+                    android:paddingVertical="@dimen/small_padding"
+                    android:text="Total"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/fragment_new_delivery_divider_deliver"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:padding="@dimen/small_padding"
+                android:text="@string/fragment_new_delivery_divider_deliver"
+                android:textAlignment="viewStart"
+                android:textColor="@color/buttonLabel"
+                android:textSize="@dimen/text_medium" />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_new_delivery_layout_deliver"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <EditText
+                    android:id="@+id/fragment_new_delivery_text_deliver_name"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:hint="@string/fragment_new_delivery_hint_receiver"
+                    android:imeOptions="actionGo"
+                    android:inputType="textPersonName"
+                    android:paddingHorizontal="@dimen/small_padding"
+                    android:paddingVertical="@dimen/small_padding"
+                    android:singleLine="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/fragment_new_delivery_text_delivery_comment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:hint="@string/fragment_new_delivery_hint_deliver_comment"
+                    android:imeOptions="actionGo"
+                    android:inputType="textMultiLine"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_text_deliver_name" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/fragment_new_delivery_divider_receiver"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:padding="@dimen/small_padding"
+                android:text="@string/fragment_new_delivery_divider_receiver"
+                android:textAlignment="viewStart"
+                android:textColor="@color/buttonLabel"
+                android:textSize="@dimen/text_medium" />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_new_delivery_layout_receiver"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/fragment_new_delivery_text_receiver_name"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:hint="@string/fragment_new_delivery_hint_receiver"
+                    android:imeOptions="actionGo"
+                    android:inputType="textPersonName"
+                    android:paddingHorizontal="@dimen/small_padding"
+                    android:paddingVertical="@dimen/small_padding"
+                    android:singleLine="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <EditText
+                    android:id="@+id/fragment_new_delivery_text_receiver_comment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:hint="@string/fragment_new_delivery_hint_receiver_comment"
+                    android:imeOptions="actionGo"
+                    android:inputType="textMultiLine"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_text_receiver_name" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/fragment_new_delivery_divider_documents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@color/colorPrimary"
+                android:padding="@dimen/small_padding"
+                android:text="@string/fragment_new_delivery_divider_documens"
+                android:textAlignment="viewStart"
+                android:textColor="@color/buttonLabel"
+                android:textSize="@dimen/text_medium" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_new_delivery_layout_documents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@id/fragment_new_delivery_divider_pod">
+
+
+                <ImageButton
+                    android:id="@+id/fragment_new_delivery_button_note"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="36dp"
+                    android:tooltipText="@string/fragment_new_delivery_hint_note"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_icon_pdf" />
+
+                <TextView
+                    android:id="@+id/fragment_new_delivery_note_under_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/small_padding"
+                    android:text="@string/fragment_new_delivery_hint_note"
+                    android:textAlignment="viewStart"
+                    android:textSize="@dimen/text_small"
+                    app:layout_constraintEnd_toEndOf="@+id/fragment_new_delivery_button_note"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="@+id/fragment_new_delivery_button_note"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_button_note" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <TextView
+                android:id="@+id/fragment_new_delivery_divider_signature"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:padding="@dimen/small_padding"
+                android:text="@string/fragment_new_delivery_divider_signature"
+                android:textAlignment="viewStart"
+                android:textColor="@color/buttonLabel"
+                android:textSize="@dimen/text_medium" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_new_delivery_layout_signature"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <ImageView
+                    android:id="@+id/fragment_new_delivery_signature"
+                    android:layout_width="0dp"
+                    android:layout_height="91dp"
+                    android:hint="Signature"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+                <TextView
+                    android:id="@+id/fragment_new_delivery_signature_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="@string/fragment_new_delivery_hint_signature"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/fragment_new_delivery_layout_signature" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <Button
+                android:id="@+id/fragment_new_delivery_button_finished"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:text="@string/fragment_new_delivery_button_finished"
+                android:textColor="@color/buttonLabel"
+                android:textSize="@dimen/text_large"
+                app:layout_constraintTop_toBottomOf="@+id/imageButton"
+                tools:layout_editor_absoluteX="0dp" />
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+</LinearLayout>
+

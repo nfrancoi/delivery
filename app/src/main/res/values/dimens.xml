@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="small_padding">6dp</dimen>
+    <dimen name="big_padding">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_small">10sp</dimen>
+    <dimen name="text_medium">16sp</dimen>
+    <dimen name="text_large">20sp</dimen>
+
+    <!-- PDF -->
+    <dimen name="pdf_page_a5_width_pixel_300dpi">1754</dimen>
+    <dimen name="pdf_page_a5_height_pixel_300dpi">2480</dimen>
+
+    --mm2ps=*2.83465
+    <dimen name="pdf_page_a5_width_ps">420</dimen>
+    <dimen name="pdf_page_a5_height_ps">595</dimen>
+
+</resources>
