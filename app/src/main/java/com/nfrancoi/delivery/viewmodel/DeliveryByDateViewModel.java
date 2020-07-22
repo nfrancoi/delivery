@@ -5,12 +5,15 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.nfrancoi.delivery.repository.Repository;
 import com.nfrancoi.delivery.room.entities.Delivery;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -29,7 +32,13 @@ public class DeliveryByDateViewModel extends AndroidViewModel {
         super(application);
         this.calendarDay = calendarDay;
         mRepository = Repository.getInstance(application);
-        dayDeliveries = mRepository.getDeliveriesByDay(calendarDay);
+        dayDeliveries = Transformations.switchMap(mRepository.getDeliveriesByDay(calendarDay), deliveries -> {
+            List<Delivery> sortedDescDeliveries = deliveries.stream().sorted((d1, d2) -> d1.startDate.before(d2.startDate) ? 1 : -1).collect(Collectors.toList());
+            return new MutableLiveData<>(sortedDescDeliveries);
+        });
+
+
+
     }
 
     public LiveData<List<Delivery>> getDeliveries() {

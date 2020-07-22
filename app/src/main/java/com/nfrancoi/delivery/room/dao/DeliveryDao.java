@@ -16,7 +16,7 @@ public abstract class DeliveryDao extends BaseDao<Delivery> {
     @Query("SELECT * from Delivery")
     abstract public LiveData<List<Delivery>> getDeliveries();
 
-    @Query("SELECT * FROM Delivery d WHERE d.date BETWEEN :begin AND :end")
+    @Query("SELECT * FROM Delivery d WHERE d.startDate BETWEEN :begin AND :end")
     abstract public LiveData<List<Delivery>> getDeliveriesByDates(Calendar begin, Calendar end);
 
     @Query("DELETE FROM Delivery")

@@ -22,12 +22,16 @@ public class PointOfDelivery {
     public Calendar endDate;
     public boolean isActive;
 
-    public PointOfDelivery(String name, String address,BigDecimal discountPercentage ) {
+    public String email;
+    
+
+    public PointOfDelivery(@NonNull String name,@NonNull String address,@NonNull BigDecimal discountPercentage,@NonNull String email ) {
         this.name = name;
         this.address = address;
         this.discountPercentage = discountPercentage;
         this.startDate = Calendar.getInstance();
         this.isActive = true;
+        this.email = email;
     }
 
     @Override

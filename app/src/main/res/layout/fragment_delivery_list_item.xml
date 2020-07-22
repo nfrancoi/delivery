@@ -6,43 +6,100 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/holo_orange_light">
+    android:background="@android:color/background_light">
 
 
     <TextView
-        android:id="@+id/fragment_delivery_recycleview_item_date"
-        style="@style/word_title"
+        android:id="@+id/fragment_delivery_recycleview_item_date_begin"
+        style="@style/list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/holo_orange_light"
-        android:text="Date"
+        android:layout_marginTop="8dp"
+        android:text="DateBegin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_recycleview_item_id_label" />
 
+
+    <TextView
+        android:id="@+id/fragment_delivery_recycleview_item_date_end"
+        style="@style/list"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="DateEnd"
+        app:layout_constraintBottom_toBottomOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:layout_constraintStart_toEndOf="@+id/fragment_delivery_list_item_mail_icon"
+        app:layout_constraintTop_toTopOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/fragment_delivery_recycleview_item_id"
+        style="@style/list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Id"
+        app:layout_constraintStart_toEndOf="@+id/fragment_delivery_recycleview_item_id_label"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/fragment_delivery_recycleview_item_id_label"
+        style="@style/list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Livraison No:"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/note_product_detail_type"
-        style="@style/word_title"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:background="@android:color/holo_orange_light"
+    <CheckBox
+        android:id="@+id/fragment_delivery_recycleview_item_status"
+        style="@style/list"
+        android:layout_width="30dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
         android:text="Status"
+        android:clickable="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/fragment_delivery_recycleview_item_pointOfDelivery_name"
-        style="@style/word_title"
+        style="@style/list"
         android:layout_width="0dp"
         android:layout_height="30dp"
-        android:background="@android:color/holo_orange_light"
+
+        android:layout_marginTop="8dp"
         android:text="Intermarche example"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/note_product_detail_type"
+        app:layout_constraintEnd_toStartOf="@+id/fragment_delivery_recycleview_item_status"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_recycleview_item_date"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:layout_constraintVertical_bias="0.333" />
+
+    <ImageView
+        android:id="@+id/fragment_delivery_list_item_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:layout_constraintStart_toEndOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:layout_constraintTop_toTopOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/ic_baseline_arrow_right_alt_24" />
+
+    <ImageView
+        android:id="@+id/fragment_delivery_list_item_mail_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:layout_constraintStart_toEndOf="@+id/fragment_delivery_list_item_arrow"
+        app:layout_constraintTop_toTopOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@android:drawable/ic_dialog_email" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

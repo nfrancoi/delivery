@@ -1,6 +1,8 @@
 package com.nfrancoi.delivery.activity;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModelFactory;
@@ -23,6 +26,26 @@ public class SelectProductsFragment extends Fragment {
 
     private String type; //D:Deposit, T:Take
     private Long deliveryId;
+
+    private TextInputEditText filterEditText;
+
+
+    private TextWatcher filterTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            deliveryViewModel.filterDepositDeliveryProductDetails(s.toString());
+        }
+    };
 
 
     public static SelectProductsFragment newInstance(Long deliveryId, String type) {
@@ -46,7 +69,7 @@ public class SelectProductsFragment extends Fragment {
         if (args != null) {
             this.type = args.getString("type");
             this.deliveryId = args.getLong("deliveryId");
-        }else{
+        } else {
             throw new IllegalStateException("SelectProductsFragment must be called with deliveryId abd type params");
         }
     }
@@ -56,9 +79,9 @@ public class SelectProductsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         View view = inflater.inflate(R.layout.fragment_select_products, container, false);
         requireActivity().setTitle(R.string.fragment_select_products_title);
+        filterEditText = view.findViewById(R.id.fragment_select_products_filter);
 
         return view;
     }
@@ -69,7 +92,7 @@ public class SelectProductsFragment extends Fragment {
         DeliveryViewModelFactory dvmFactory = new DeliveryViewModelFactory(getActivity().getApplication(), this.deliveryId);
         //scope fragment
         String key = this.deliveryId.toString();
-        DeliveryViewModel deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
+        this.deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
 
 
         RecyclerView recyclerView = view.findViewById(R.id.activity_select_product_recycler_view);
@@ -82,23 +105,35 @@ public class SelectProductsFragment extends Fragment {
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         if (type.equals("D")) {
-            deliveryViewModel.getSelectedDepositDeliveryProductDetails().observe(this, deliveryProductDetails -> {
-                System.out.println(deliveryProductDetails);
+            deliveryViewModel.getFilterDepositDeliveryProductDetails().observe(getViewLifecycleOwner(), filter -> {
+                filterEditText.removeTextChangedListener(filterTextWatcher);
+                filterEditText.setText("");
+                filterEditText.append(filter);
+                filterEditText.addTextChangedListener(filterTextWatcher);
+            });
 
+            deliveryViewModel.getFilteredDepositDeliveryProductDetails().observe(getViewLifecycleOwner(), deliveryProductDetails -> {
                 adapter.setDeliveryProductDetails(deliveryProductDetails);
+
             });
         }
 
         if (type.equals("T")) {
-            deliveryViewModel.getSelectedTakeDeliveryProductDetails().observe(this, deliveryProductDetails -> {
+            deliveryViewModel.getSelectedTakeDeliveryProductDetails().observe(getViewLifecycleOwner(), deliveryProductDetails -> {
                 System.out.println(deliveryProductDetails);
 
                 adapter.setDeliveryProductDetails(deliveryProductDetails);
             });
         }
 
+
+
         adapter.setQuantityValueChangeListener(deliveryProductDetail -> {
             deliveryViewModel.saveProductDetail(deliveryProductDetail);
         });
+
+
     }
+
+
 }

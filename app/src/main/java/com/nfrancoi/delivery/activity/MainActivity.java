@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -21,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private static final int ACTIVITY_RESULT_REQUEST_PERMISSIONS = 100;
-    public static final int ACTIVITY_RESULT_NEW_DELIVERY = 101;
+    public static final int ACTIVITY_RESULT_NOTE_SENT = 101;
 
     private DeliveryViewModel deliveryViewModel;
 
@@ -97,17 +96,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case ACTIVITY_RESULT_NEW_DELIVERY:
-                if (resultCode == RESULT_OK) {
-
-
-                } else {
-                    Toast.makeText(
-                            getApplicationContext(),
-                            R.string.fragment_new_delivery_empty_not_saved,
-                            Toast.LENGTH_LONG).show();
-                }
-                break;
             case ACTIVITY_RESULT_REQUEST_PERMISSIONS:
                 if (resultCode == RESULT_OK) {
                     this.showDeliverySlideFragment();

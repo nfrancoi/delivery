@@ -8,9 +8,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/big_padding"
-       >
+        android:layout_height="wrap_content"
+        android:padding="@dimen/big_padding">
 
 
         <TextView
@@ -39,16 +38,123 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pdf_note_id" />
 
-        <TextView
-            android:id="@+id/pdf_note_comments_receiver_label"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/pdf_note_client_total_layout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/small_padding"
-            android:text="@string/pdf_note_comments_receiver_label"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/pdf_note_comments_delivery_label"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_name_receiver" />
+            android:layout_marginTop="8dp"
+            android:background="#FFFFFF"
+            android:backgroundTint="@android:color/darker_gray"
+            android:fadingEdge="horizontal|vertical"
+            app:layout_constraintEnd_toEndOf="@+id/pdf_note_recyclerview"
+            app:layout_constraintTop_toBottomOf="@+id/pdf_note_recyclerview">
+
+            <TextView
+                android:id="@+id/pdf_note_client_total_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/pdf_note_client_total_label"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/pdf_note_client_total_taxes_label" />
+
+
+            <TextView
+                android:id="@+id/pdf_note_client_total_ht_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/pdf_note_client_total_ht_label"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/pdf_note_client_total_taxes_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/pdf_note_client_total_taxes_label"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/pdf_note_client_total_ht_label" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="139dp"
+
+                app:barrierDirection="end"
+                app:constraint_referenced_ids="pdf_note_client_total_ht_label,pdf_note_client_total_taxes_label,pdf_note_client_total_label"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+
+            <TextView
+                android:id="@+id/pdf_note_client_total_text"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="4dp"
+                android:background="#FFFFFF"
+                android:text="total_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/pdf_note_client_total_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/barrier2"
+                app:layout_constraintTop_toTopOf="@+id/pdf_note_client_total_label" />
+
+            <TextView
+                android:id="@+id/pdf_note_client_total_ht_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="4dp"
+                android:background="#FFFFFF"
+                android:text="ht_text"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/pdf_note_client_total_ht_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/barrier2"
+                app:layout_constraintTop_toTopOf="@+id/pdf_note_client_total_ht_label" />
+
+            <TextView
+                android:id="@+id/pdf_note_client_total_taxes_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="4dp"
+                android:background="#FFFFFF"
+                android:text="taxes_text"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/pdf_note_client_total_taxes_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/barrier2"
+                app:layout_constraintTop_toTopOf="@+id/pdf_note_client_total_taxes_label" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="pdf_note_company, pdf_note_point_of_delivery"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="88dp" />
 
         <ImageView
             android:id="@+id/pdf_note_signature"
@@ -57,79 +163,78 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_comments_receiver"
+            app:layout_constraintTop_toBottomOf="@+id/pdf_note_client_total_layout"
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
             android:id="@+id/pdf_note_comments_receiver"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
             android:text="Comments receiver"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_comments_receiver_label" />
-
-        <TextView
-            android:id="@+id/pdf_note_comments_delivery_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/small_padding"
-            android:text="@string/pdf_note_comments_delivery_label"
-            app:layout_constraintEnd_toStartOf="@+id/guideline"
-            app:layout_constraintHorizontal_bias="1.0"
+            android:textSize="10sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_name_delivery" />
+            app:layout_constraintTop_toBottomOf="@+id/pdf_note_name_receiver_label" />
 
         <TextView
             android:id="@+id/pdf_note_comments_delivery"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
             android:text="Comments delivery"
-            app:layout_constraintEnd_toStartOf="@+id/pdf_note_comments_receiver"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_comments_delivery_label" />
+            app:layout_constraintTop_toBottomOf="@+id/pdf_note_name_delivery_label" />
 
         <TextView
             android:id="@+id/pdf_note_name_delivery_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:text="@string/pdf_note_name_delivery_label"
-            app:layout_constraintEnd_toStartOf="@+id/guideline"
-            app:layout_constraintHorizontal_bias="1.0"
+            android:textSize="12sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_recyclerview" />
+            app:layout_constraintTop_toBottomOf="@+id/pdf_note_client_total_layout" />
 
 
         <TextView
             android:id="@+id/pdf_note_name_delivery"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
             android:text="Name delivery agent"
-            app:layout_constraintEnd_toStartOf="@+id/pdf_note_name_receiver"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_name_delivery_label" />
-
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/pdf_note_name_delivery_label"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toEndOf="@+id/pdf_note_name_delivery_label"
+            app:layout_constraintTop_toTopOf="@+id/pdf_note_name_delivery_label" />
 
         <TextView
             android:id="@+id/pdf_note_name_receiver_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="@string/pdf_note_name_receiver_label"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/pdf_note_name_delivery_label"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_recyclerview" />
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pdf_note_comments_delivery" />
 
         <TextView
             android:id="@+id/pdf_note_name_receiver"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
             android:text="Name receiver agent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/pdf_note_name_receiver_label"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_name_receiver_label" />
+            app:layout_constraintStart_toEndOf="@+id/pdf_note_name_receiver_label"
+            app:layout_constraintTop_toTopOf="@+id/pdf_note_name_receiver_label" />
 
 
         <TextView
@@ -138,6 +243,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Note_id"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pdf_note_date" />
 
@@ -145,89 +251,18 @@
             android:id="@+id/pdf_note_client_list_product_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
+
             android:background="@drawable/border_rectangle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier">
 
-            app:layout_constraintTop_toBottomOf="@+id/pdf_note_point_of_delivery"
-            tools:layout_editor_absoluteX="16dp">
-
-            <TextView
-                android:id="@+id/pdf_note_product_detail_header_product_name"
-
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:text="@string/pdf_note_product_detail_header_product_name"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/guideline8"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/guideline5"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <TextView
-                android:id="@+id/pdf_note_product_detail_header_type"
-
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="3dp"
-                android:layout_marginBottom="6dp"
-                android:text="@string/pdf_note_product_detail_header_type"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/pdf_note_product_detail_header_product_name"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <TextView
-                android:id="@+id/pdf_note_product_detail_header_quantity"
-
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:text="@string/pdf_note_product_detail_header_quantity"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/pdf_note_product_detail_header_price"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/pdf_note_product_detail_header_product_name"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <TextView
-                android:id="@+id/pdf_note_product_detail_header_price"
-
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:text="@string/pdf_note_product_detail_header_price"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/guideline9"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.15" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.6" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline9"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.8" />
+            <include
+                android:id="@+id/header"
+                layout="@layout/pdf_note_list_product_detail_header"
+                android:visibility="visible"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -247,7 +282,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5" />
+            app:layout_constraintGuide_percent="0.57" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

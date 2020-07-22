@@ -4,12 +4,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.nfrancoi.delivery.R;
+import com.nfrancoi.delivery.activity.widget.HorizontalNumberPicker;
 import com.nfrancoi.delivery.room.dao.DeliveryProductsJoinDao;
 
 import java.math.BigDecimal;
@@ -21,15 +21,14 @@ public class DeliveryProductDetailsListAdapter extends RecyclerView.Adapter<Deli
     class DeliveryProductDetailsViewHolder extends RecyclerView.ViewHolder {
         private final TextView productName;
         private final TextView price;
-        private final NumberPicker quantity;
-        private final TextView total;
+        private final HorizontalNumberPicker quantity;
 
         private DeliveryProductDetailsViewHolder(View itemView) {
             super(itemView);
             productName = itemView.findViewById(R.id.activity_delivery_product_name);
             price = itemView.findViewById(R.id.activity_delivery_product_price);
             quantity = itemView.findViewById(R.id.activity_delivery_product_quantity);
-            total = itemView.findViewById(R.id.activity_delivery_product_total);
+
         }
     }
 
@@ -66,21 +65,20 @@ public class DeliveryProductDetailsListAdapter extends RecyclerView.Adapter<Deli
             DeliveryProductsJoinDao.DeliveryProductDetail current = deliveryProductDetails.get(position);
 
             holder.productName.setText(current.productName);
-            holder.price.setText(current.price.toString());
-            holder.quantity.setMinValue(0);
-            holder.quantity.setMaxValue(100);
+            holder.price.setText(current.priceHtUnit.toString());
+            holder.quantity.setMin(0);
             holder.quantity.setValue(Math.abs(current.quantity)); //abs to manage negative quantity with returns
-            holder.quantity.setOnValueChangedListener((picker, oldVal, newVal) -> {
-                current.quantity = newVal;
-                if (quantityValueChangeListener != null) {
-                    quantityValueChangeListener.quantityValueChange(current);
-                }
+            holder.quantity.setOnChangeValueListener(
+                    (newVal) -> {
+                        current.quantity = newVal;
+                        if (quantityValueChangeListener != null) {
+                            quantityValueChangeListener.quantityValueChange(current);
+                        }
 
-            });
+                    });
 
 
-            BigDecimal totalBd = current.price.multiply(BigDecimal.valueOf(current.quantity));
-            holder.total.setText(totalBd.toString());
+            BigDecimal totalBd = current.priceHtUnit.multiply(BigDecimal.valueOf(current.quantity));
         } else {
             // Covers the case of data not being ready yet.
             holder.productName.setText(". . .");

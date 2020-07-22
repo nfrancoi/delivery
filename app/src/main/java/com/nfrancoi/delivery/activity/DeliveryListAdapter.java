@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,17 +20,24 @@ import java.util.List;
 public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapter.DeliveryViewHolder> {
 
 
-
     class DeliveryViewHolder extends RecyclerView.ViewHolder {
-        private final TextView dateTextView;
-        private final TextView statusTextView;
+        private final TextView deliveryIdTextView;
+        private final TextView dateBeginTextView;
+        private final TextView dateEndTextView;
+        private final ImageView endMailImageView;
+        private final CheckBox statusCheckBox;
         private final TextView pointOfDeliveryNameTextView;
 
         private DeliveryViewHolder(View itemView) {
             super(itemView);
-            dateTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_date);
-            statusTextView = itemView.findViewById(R.id.note_product_detail_type);
+            deliveryIdTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_id);
+            dateBeginTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_date_begin);
+            dateEndTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_date_end);
+            endMailImageView = itemView.findViewById(R.id.fragment_delivery_list_item_mail_icon);
+            statusCheckBox = itemView.findViewById(R.id.fragment_delivery_recycleview_item_status);
             pointOfDeliveryNameTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_pointOfDelivery_name);
+
+
         }
     }
 
@@ -38,7 +47,8 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
     public interface OnItemClickListener {
         void onItemClick(Delivery item);
     }
-    private  OnItemClickListener onItemClickListener;
+
+    private OnItemClickListener onItemClickListener;
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
@@ -63,11 +73,30 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
     public void onBindViewHolder(DeliveryViewHolder holder, int position) {
         if (deliveries != null) {
             final Delivery current = deliveries.get(position);
-            holder.dateTextView.setText(current.deliveryId + " "+ CalendarTools.YYYYMMDD.format(current.date.getTime()));
-            holder.statusTextView.setText(current.status);
-            holder.pointOfDeliveryNameTextView.setText(current.pointOfDelivery == null? "": current.pointOfDelivery.name);
+            holder.dateBeginTextView.setText(CalendarTools.HHmm.format(current.startDate.getTime()));
+
+            if (current.sentDate == null) {
+                holder.endMailImageView.setVisibility(View.INVISIBLE);
+                holder.dateEndTextView.setVisibility(View.INVISIBLE);
+            } else {
+                holder.endMailImageView.setVisibility(View.VISIBLE);
+                holder.dateEndTextView.setVisibility(View.VISIBLE);
+                holder.dateEndTextView.setText(CalendarTools.HHmm.format(current.sentDate.getTime()));
+            }
+
+
+            holder.deliveryIdTextView.setText("" + current.deliveryId);
+
+            if (current.signatureBytes != null) {
+                holder.statusCheckBox.setChecked(true);
+            } else {
+                holder.statusCheckBox.setChecked(false);
+            }
+
+
+            holder.pointOfDeliveryNameTextView.setText(current.pointOfDelivery == null ? "" : current.pointOfDelivery.name);
             holder.itemView.setOnClickListener(view -> {
-                if(onItemClickListener != null){
+                if (onItemClickListener != null) {
                     onItemClickListener.onItemClick(current);
                 }
             });
@@ -75,7 +104,7 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
 
         } else {
             // Covers the case of data not being ready yet.
-            holder.dateTextView.setText("No Word");
+            holder.dateBeginTextView.setText("No Word");
         }
     }
 

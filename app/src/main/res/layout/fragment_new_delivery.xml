@@ -38,6 +38,7 @@
                     android:id="@+id/fragment_new_delivery_text_select_pod"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawableRight="@android:drawable/ic_menu_search"
                     android:fontFamily="sans-serif-light"
                     android:hint="@string/fragment_new_delivery_hint_pod"
                     android:imeOptions="actionGo"
@@ -205,15 +206,15 @@
                 android:layout_height="wrap_content">
 
 
-                <EditText
-                    android:id="@+id/fragment_new_delivery_text_deliver_name"
+                <Spinner
+                    android:id="@+id/fragment_new_delivery_text_select_deliver_name"
                     android:layout_width="0dp"
                     android:layout_height="40dp"
+                    android:completionThreshold="0"
                     android:ems="10"
                     android:gravity="start|top"
                     android:hint="@string/fragment_new_delivery_hint_receiver"
                     android:imeOptions="actionGo"
-                    android:inputType="textPersonName"
                     android:paddingHorizontal="@dimen/small_padding"
                     android:paddingVertical="@dimen/small_padding"
                     android:singleLine="true"
@@ -223,7 +224,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
-                    android:id="@+id/fragment_new_delivery_text_delivery_comment"
+                    android:id="@+id/fragment_new_delivery_text_deliver_comment"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:ems="10"
@@ -235,7 +236,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_text_deliver_name" />
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_text_select_deliver_name" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -341,6 +342,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
+                android:enabled="false"
                 android:padding="@dimen/small_padding"
                 android:text="@string/fragment_new_delivery_divider_signature"
                 android:textAlignment="viewStart"

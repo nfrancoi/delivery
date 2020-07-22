@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,8 +22,6 @@ import com.nfrancoi.delivery.room.entities.Delivery;
 import com.nfrancoi.delivery.tools.CalendarTools;
 import com.nfrancoi.delivery.viewmodel.DeliveryByDateViewModel;
 import com.nfrancoi.delivery.viewmodel.DeliveryByDateViewModelFactory;
-import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
-import com.nfrancoi.delivery.viewmodel.DeliveryViewModelFactory;
 
 import java.util.Calendar;
 import java.util.List;
@@ -141,9 +138,6 @@ public class DeliveryListFragment extends Fragment implements DeliveryListAdapte
 
     private void showNewDeliveryFragment(Delivery selectedDelivery) {
         //prepare viewmodel for next Fragment
-        DeliveryViewModelFactory dvmFactory = new DeliveryViewModelFactory(getActivity().getApplication(), selectedDelivery.deliveryId);
-        DeliveryViewModel deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(DeliveryViewModel.class);
-
 
         NewDeliveryFragment newDeliveryFragment = NewDeliveryFragment.newInstance(selectedDelivery.deliveryId);
         newDeliveryFragment.setRetainInstance(true);

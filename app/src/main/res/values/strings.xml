@@ -4,11 +4,14 @@
 
     <!-- NewDeliveryActivity -->
     <string name="fragment_select_products_title">Sélection des produits</string>
+    <string name="fragment_select_product_filter_hint">Filtrer les produits</string>
+
+
     <string name="fragment_new_delivery_title">Création d\'une livraison</string>
     <string name="fragment_new_delivery_divider_pod">Point de livraison</string>
     <string name="fragment_new_delivery_hint_pod">Selection du magasin...</string>
     <string name="fragment_new_delivery_hint_receiver">Nom...</string>
-    <string name="fragment_new_delivery_button_finished">Envoyer</string>
+    <string name="fragment_new_delivery_button_finished">Terminer la livraison</string>
     <string name="fragment_new_delivery_empty_not_saved">Word not saved because it is empty.</string>
     <string name="fragment_new_delivery_divider_products">Selection des dépots/reprises</string>
     <string name="fragment_new_delivery_button_deposit_text">Déposer des produits</string>
@@ -23,6 +26,8 @@
     <string name="fragment_new_delivery_divider_signature">Signature</string>
     <string name="fragment_new_delivery_hint_note">Note d\'envoi</string>
 
+    <string name="fragment_new_delivery_snackbar_notreadytosign">Avant de signer vous devez générer la note d\'envoi</string>
+
     <!-- note -->
     <string name="pdf_note_creator_file_generated">Fichier PDF créé!</string>
     <string name="pdf_note_creator_file_not_generated">ERREUR lors de la création du fichier PDF!</string>
@@ -30,6 +35,10 @@
     <string name="pdf_note_comments_delivery_label">Commentaire livreur:</string>
     <string name="pdf_note_name_delivery_label">Livreur:</string>
     <string name="pdf_note_name_receiver_label">Réceptionniste:</string>
+
+    <!-- Note mail-->
+    <string name="pdf_note_mail_subject_prefix">Note d\'envoi</string>
+
 
 
 
@@ -44,9 +53,12 @@
     <string name="fragment_signature_dialog_title">Signature...</string>
     <string name="pdf_note_product_list_title_type" />
     <string name="pdf_note_product_detail_header_product_name">Description</string>
-    <string name="pdf_note_product_detail_header_type">Depos/Reprise</string>
-    <string name="pdf_note_product_detail_header_quantity">Quantité</string>
-    <string name="pdf_note_product_detail_header_price">Prix U TTC</string>
+    <string name="pdf_note_product_detail_header_type">Presta</string>
+    <string name="pdf_note_product_detail_header_quantity">Qti</string>
+    <string name="pdf_note_product_detail_header_discount">%</string>
+    <string name="pdf_note_product_detail_header_priceht_unit">Prix U</string>
+    <string name="pdf_note_product_detail_header_priceht_total">Prix HTVA</string>
+    <string name="pdf_note_product_detail_header_vat">TVA %</string>
 
     <!-- menu -->
     <string name="menu_action_settings_title">Paramètres</string>
@@ -77,6 +89,10 @@
     <string name="preference_organisation_bank">Numéro de compte bancaire</string>
     <string name="preference_employee_title">Gestion des livreurs</string>
     <string name="preference_products_title">Gestion des produits</string>
+    <string name="pdf_note_client_total_ht_label">Total HTVA</string>
+    <string name="pdf_note_client_total_taxes_label">Total TVA</string>
+    <string name="pdf_note_client_total_label">TOTAL</string>
+    <string name="pdf_note_product_detail_header_priceht_discount">%</string>
 
 
 

@@ -20,13 +20,20 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
 
         private final TextView type;
         private final TextView productName;
-        private final TextView price;
         private final TextView quantity;
+        private final TextView priceHtUnit;
+        private final TextView discount;
+        private final TextView priceHtTot;
+        private final TextView vat;
+
 
         private NoteDeliveryProductDetailViewHolder(View itemView) {
             super(itemView);
             productName = itemView.findViewById(R.id.pdf_note_product_detail_item_name);
-            price = itemView.findViewById(R.id.pdf_note_product_detail_item_price);
+            priceHtUnit = itemView.findViewById(R.id.pdf_note_product_detail_item_priceht_unit);
+            discount = itemView.findViewById(R.id.pdf_note_product_detail_item_discount);
+            priceHtTot = itemView.findViewById(R.id.pdf_note_product_detail_item_priceht_total);
+            vat = itemView.findViewById(R.id.pdf_note_product_detail_item_vat);
             quantity = itemView.findViewById(R.id.pdf_note_product_detail_item_quantity);
             type = itemView.findViewById(R.id.pdf_note_product_detail_item_type);
         }
@@ -35,7 +42,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
 
 
     private final LayoutInflater mInflater;
-    private List<DeliveryProductsJoinDao.NoteDeliveryProductDetail> noteDeliveryProductDetails;
+    private List<DeliveryProductsJoinDao.DeliveryProductDetail> noteDeliveryProductDetails;
 
     public NoteProductDetailsListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
@@ -50,7 +57,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
     @Override
     public void onBindViewHolder(NoteDeliveryProductDetailViewHolder holder, int position) {
         if (noteDeliveryProductDetails != null) {
-            DeliveryProductsJoinDao.NoteDeliveryProductDetail  current = noteDeliveryProductDetails.get(position);
+            DeliveryProductsJoinDao.DeliveryProductDetail  current = noteDeliveryProductDetails.get(position);
 
             String typeName = "";
             switch(current.type) {
@@ -64,8 +71,12 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
             holder.type.setText(typeName);
 
             holder.productName.setText(current.productName);
-            holder.price.setText(current.price.toString());
+            holder.priceHtUnit.setText(""+current.priceHtUnit);
+            holder.discount.setText(""+current.discount);
+            holder.priceHtTot.setText(""+current.priceHtTot);
             holder.quantity.setText(""+current.quantity); //negative for return
+            holder.vat.setText(""+current.vat);
+
         } else {
             // Covers the case of data not being ready yet.
             holder.productName.setText(". . .");
@@ -83,7 +94,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
     }
 
 
-    public void setNoteDeliveryProductDetails(List<DeliveryProductsJoinDao.NoteDeliveryProductDetail> noteDeliveryProductDetails) {
+    public void setNoteDeliveryProductDetails(List<DeliveryProductsJoinDao.DeliveryProductDetail> noteDeliveryProductDetails) {
         this.noteDeliveryProductDetails = noteDeliveryProductDetails;
         notifyDataSetChanged();
     }

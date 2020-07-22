@@ -9,11 +9,11 @@
     </style>
     <!-- The default font for RecyclerView items is too small.
 The margin is a simple delimiter between the words. -->
-    <style name="word_title">
+    <style name="list">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:paddingLeft">8dp</item>
-        <item name="android:background">@android:color/holo_orange_light</item>
+        <item name="android:background">@android:color/background_light</item>
         <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
     </style>
 
@@ -29,6 +29,9 @@ The margin is a simple delimiter between the words. -->
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?android:attr/listDivider</item>
-    </style>²§
+    </style>
+
+
+
 
 </resources>

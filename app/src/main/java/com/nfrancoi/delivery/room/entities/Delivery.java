@@ -17,8 +17,8 @@ public class Delivery {
     @PrimaryKey(autoGenerate = true)
     @NonNull
     public Long deliveryId;
-    public Calendar date;
-    public String status;
+    public Calendar startDate;
+    public Calendar sentDate;
 
     public String receiverName;
     public String commentDelivery;
@@ -27,7 +27,7 @@ public class Delivery {
     public byte[] signatureBytes;
 
     public String noteId;
-
+    public String noteURI;
 
     //Foreign keys
     @Embedded(prefix = "employee_")
@@ -37,8 +37,9 @@ public class Delivery {
     public PointOfDelivery pointOfDelivery;
 
     public Delivery(){
-        date = Calendar.getInstance();
-        status= "New";
+        startDate = Calendar.getInstance();
     }
+
+
 }
 

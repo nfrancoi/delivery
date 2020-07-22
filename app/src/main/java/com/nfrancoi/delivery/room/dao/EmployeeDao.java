@@ -20,9 +20,13 @@ public interface EmployeeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     Single<Long> insert(Employee employee);
 
-    @Query("SELECT * from Employee")
+    @Query("SELECT * FROM Employee ORDER BY name")
     LiveData<List<Employee>> getEmployee();
+
+    @Query("SELECT * FROM Employee WHERE isDefault = 1")
+    LiveData<Employee> getEmployeeByDefault();
 
     @Query("DELETE FROM Employee")
     void deleteAll();
+
 }

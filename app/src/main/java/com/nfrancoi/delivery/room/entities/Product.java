@@ -14,7 +14,7 @@ public class Product {
     @NonNull
     public Long productId;
     public String name;
-    public BigDecimal price;
+    public BigDecimal priceHtUnit;
     public BigDecimal vat;
 
 
@@ -22,9 +22,9 @@ public class Product {
     public Calendar endDate;
     public boolean isActive;
 
-    public Product(String name, BigDecimal price, BigDecimal vat) {
+    public Product(String name, BigDecimal priceHtUnit, BigDecimal vat) {
         this.name = name;
-        this.price = price;
+        this.priceHtUnit = priceHtUnit;
         this.vat = vat;
         this.startDate = Calendar.getInstance();
         this.isActive = true;

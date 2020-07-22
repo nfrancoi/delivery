@@ -47,6 +47,7 @@ public class Repository {
 
     private EmployeeDao employeeDao;
     private LiveData<List<Employee>> employees;
+    public LiveData<Employee> employeeByDefault;
 
     public static synchronized Repository getInstance(Application application) {
         if (INSTANCE == null) {
@@ -80,6 +81,7 @@ public class Repository {
 
         employeeDao = db.getEmployeeDao();
         employees = employeeDao.getEmployee();
+        employeeByDefault = employeeDao.getEmployeeByDefault();
 
     }
 
@@ -172,7 +174,7 @@ public class Repository {
         return deliveryProductJoinDao.loadDeliveryProductDetails(deliveryId, "T");
     }
 
-    public LiveData<List<DeliveryProductsJoinDao.NoteDeliveryProductDetail>> loadTakeDeliveryProducNotetDetails(Long deliveryId) {
+    public LiveData<List<DeliveryProductsJoinDao.DeliveryProductDetail>> loadAllDeliveryProductDetails(Long deliveryId) {
         return deliveryProductJoinDao.loadNoteDeliveryProductDetail(deliveryId);
 
     }
@@ -193,6 +195,9 @@ public class Repository {
     public LiveData<List<Employee>> getEmployees() {
         return employees;
     }
+    public LiveData<Employee> getEmployeeByDefault() {
+        return employeeByDefault;
+    }
 
     //
     // Company
@@ -202,4 +207,5 @@ public class Repository {
         DeliveryDatabase.databaseWriteExecutor.execute(() -> companyDao.update(company));
 
     }
+
 }

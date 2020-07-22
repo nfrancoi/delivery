@@ -1,7 +1,6 @@
 package com.nfrancoi.delivery.tools;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
@@ -31,6 +30,8 @@ import com.nfrancoi.delivery.room.entities.Delivery;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -41,19 +42,22 @@ public class NotePDFCreator {
 
     private Delivery delivery;
     private Company company;
-    private List<DeliveryProductsJoinDao.NoteDeliveryProductDetail> details;
+    private List<DeliveryProductsJoinDao.DeliveryProductDetail> details;
+    private BigDecimal totalHt, totalTaxes, total;
 
-
-    public NotePDFCreator(Activity activity, Company company, Delivery delivery, List<DeliveryProductsJoinDao.NoteDeliveryProductDetail> detail) {
+    public NotePDFCreator(Activity activity, Company company, Delivery delivery, List<DeliveryProductsJoinDao.DeliveryProductDetail> detail, BigDecimal totalHt, BigDecimal totalTaxes, BigDecimal total) {
         this.activity = activity;
         this.company = company;
         this.delivery = delivery;
         this.details = detail;
+        this.totalHt = totalHt;
+        this.totalTaxes = totalTaxes;
+        this.total = total;
 
     }
 
 
-    public void createClientNotePdf() {
+    public Uri createClientNotePdf() {
 
         PrintAttributes printAttrs = new PrintAttributes.Builder().
                 setColorMode(PrintAttributes.COLOR_MODE_COLOR).
@@ -82,7 +86,7 @@ public class NotePDFCreator {
         // Binding
         //
         TextView date = view.findViewById(R.id.pdf_note_date);
-        date.setText(CalendarTools.DDMMYYYY.format(delivery.date.getTime()));
+        date.setText(CalendarTools.DDMMYYYY.format(delivery.startDate.getTime()));
 
         TextView id = view.findViewById(R.id.pdf_note_id);
         id.setText(delivery.noteId);
@@ -90,6 +94,12 @@ public class NotePDFCreator {
         TextView pod = view.findViewById(R.id.pdf_note_point_of_delivery);
         pod.setText(delivery.pointOfDelivery.name + "\n"
                 + delivery.pointOfDelivery.address);
+
+        TextView companyTextView = view.findViewById(R.id.pdf_note_company);
+        companyTextView.setText(company.name + "\n"
+                + company.address + "\n"
+                + company.phoneNumber1
+                + "\n" + company.phoneNumber2);
 
         //list
 
@@ -105,7 +115,7 @@ public class NotePDFCreator {
 
 
         TextView deliverName = view.findViewById(R.id.pdf_note_name_delivery);
-//        deliverName.setText(delivery.employee.name);
+        deliverName.setText(delivery.employee.name);
         TextView deliverComment = view.findViewById(R.id.pdf_note_comments_delivery);
         deliverComment.setText(delivery.commentDelivery);
 
@@ -114,6 +124,17 @@ public class NotePDFCreator {
         receiverName.setText(delivery.receiverName);
         TextView receiverComment = view.findViewById(R.id.pdf_note_comments_receiver);
         receiverComment.setText(delivery.commentReceiver);
+
+        //TOTALS
+        TextView totalHtText = view.findViewById(R.id.pdf_note_client_total_ht_text);
+        totalHtText.setText(NumberFormat.getCurrencyInstance().format(this.totalHt.doubleValue()));
+
+        TextView totalTaxesText = view.findViewById(R.id.pdf_note_client_total_taxes_text);
+        totalTaxesText.setText(NumberFormat.getCurrencyInstance().format(this.totalTaxes.doubleValue()));
+
+        TextView totalText = view.findViewById(R.id.pdf_note_client_total_text);
+        totalText.setText(NumberFormat.getCurrencyInstance().format(this.total.doubleValue()));
+
 
         //signature
         ImageView signatureImageView = view.findViewById(R.id.pdf_note_signature);
@@ -161,12 +182,7 @@ public class NotePDFCreator {
 
         //start a PDF reader
         Uri fileURI = FileProvider.getUriForFile(activity.getApplicationContext(), BuildConfig.APPLICATION_ID, file);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setDataAndType(fileURI, "application/pdf");
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        activity.startActivity(intent);
-
+        return fileURI;
     }
 
 
