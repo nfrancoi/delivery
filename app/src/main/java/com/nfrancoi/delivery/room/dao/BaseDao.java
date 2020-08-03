@@ -23,6 +23,8 @@ public abstract class BaseDao<T> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract Single<Long> insertReplace(T obj);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public abstract Long insertReplaceSync(T obj);
 
     /**
      * Insert an array of objects in the database.

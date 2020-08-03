@@ -31,7 +31,7 @@ public class DeliveryByDateViewModel extends AndroidViewModel {
     public DeliveryByDateViewModel(Application application, Calendar calendarDay) {
         super(application);
         this.calendarDay = calendarDay;
-        mRepository = Repository.getInstance(application);
+        mRepository = Repository.getInstance();
         dayDeliveries = Transformations.switchMap(mRepository.getDeliveriesByDay(calendarDay), deliveries -> {
             List<Delivery> sortedDescDeliveries = deliveries.stream().sorted((d1, d2) -> d1.startDate.before(d2.startDate) ? 1 : -1).collect(Collectors.toList());
             return new MutableLiveData<>(sortedDescDeliveries);

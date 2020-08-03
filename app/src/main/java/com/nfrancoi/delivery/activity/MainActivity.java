@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.snackbar.Snackbar;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
@@ -98,7 +99,11 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case ACTIVITY_RESULT_REQUEST_PERMISSIONS:
                 if (resultCode == RESULT_OK) {
+                    if( GoogleSignIn.getLastSignedInAccount(getApplicationContext()) == null){
+                        this.showGoogleSignInFragment();
+                    }
                     this.showDeliverySlideFragment();
+
 
                 } else {
                     Snackbar.make(findViewById(android.R.id.content), "Veuillez autoriser les permissions", Snackbar.LENGTH_LONG)
@@ -106,17 +111,25 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             default:
-                Snackbar.make(findViewById(android.R.id.content), "Case not taken into account", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
                 break;
         }
+    }
+
+    private void showGoogleSignInFragment() {
+        GoogleSignInFragment googleSignInFragment = GoogleSignInFragment.newInstance();
+        googleSignInFragment.setRetainInstance(true);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.activity_main_layout, googleSignInFragment, "googlesignin")
+                .addToBackStack(null)
+                .commit();
+
     }
 
     private void showDeliverySlideFragment() {
         DeliverySwipeFragment deliverySwipeFragment = DeliverySwipeFragment.newInstance(Calendar.getInstance());
         deliverySwipeFragment.setRetainInstance(true);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_layout, deliverySwipeFragment, "findThisFragment")
+                .add(R.id.activity_main_layout, deliverySwipeFragment, "findThisFragment")
                 .addToBackStack(null)
                 .commit();
 

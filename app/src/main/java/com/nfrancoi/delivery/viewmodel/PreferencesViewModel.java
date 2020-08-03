@@ -21,7 +21,7 @@ public class PreferencesViewModel extends AndroidViewModel {
 
     public PreferencesViewModel(Application application) {
         super(application);
-        mRepository = Repository.getInstance(application);
+        mRepository = Repository.getInstance();
         products = mRepository.getProducts();
         company = mRepository.getFirstCompany();
         employees = mRepository.getEmployees();

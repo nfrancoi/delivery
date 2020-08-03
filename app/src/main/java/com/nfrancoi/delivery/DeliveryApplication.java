@@ -33,6 +33,13 @@ import java.io.File;
 @AcraDialog(resText = R.string.acra_dialog_errormessage)
 public class DeliveryApplication extends Application {
 
+    private static DeliveryApplication instance = null;
+
+    public static DeliveryApplication getInstance() {
+        return instance;
+    }
+
+
     ///storage/emulated/0/
     public static File getApplicationExternalStorageDirectory(){
         File directory = new File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID);
@@ -45,8 +52,7 @@ public class DeliveryApplication extends Application {
     @Override
     public void onCreate(){
         super.onCreate();
-     //   StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-       // StrictMode.setVmPolicy(builder.build());
+        instance = this;
     }
     @Override
     protected void attachBaseContext(Context base) {

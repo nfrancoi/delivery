@@ -89,10 +89,21 @@
     <string name="preference_organisation_bank">Numéro de compte bancaire</string>
     <string name="preference_employee_title">Gestion des livreurs</string>
     <string name="preference_products_title">Gestion des produits</string>
+    <string name="preference_synchronisation_title">Synchronisation des catalogues</string>
+    <string name="preference_synchronisation_start">Démarrer la synchronisation</string>
+    <string name="preference_synchronisation_account_button">Selection du compte de synchronisation</string>
+
+
     <string name="pdf_note_client_total_ht_label">Total HTVA</string>
     <string name="pdf_note_client_total_taxes_label">Total TVA</string>
     <string name="pdf_note_client_total_label">TOTAL</string>
     <string name="pdf_note_product_detail_header_priceht_discount">%</string>
+
+    <!-- Google Sign in-->
+    <string name="fragment_google_sign_in_title">Connection au compte Google</string>
+    <string name="fragment_google_sign_in_sign_in_button">Login</string>
+    <string name="fragment_google_sign_in_sign_out_button">Logout</string>
+    <string name="fragment_google_sign_in_disconnect_button">Révoquer</string>
 
 
 

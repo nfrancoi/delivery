@@ -4,7 +4,9 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.room.Transaction;
 
+import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.room.DeliveryDatabase;
 import com.nfrancoi.delivery.room.dao.CompanyDao;
 import com.nfrancoi.delivery.room.dao.DeliveryDao;
@@ -49,9 +51,9 @@ public class Repository {
     private LiveData<List<Employee>> employees;
     public LiveData<Employee> employeeByDefault;
 
-    public static synchronized Repository getInstance(Application application) {
+    public static synchronized Repository getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new Repository(application);
+            INSTANCE = new Repository(DeliveryApplication.getInstance());
         }
         return INSTANCE;
     }
@@ -185,6 +187,15 @@ public class Repository {
     //
     public LiveData<PointOfDelivery> getPointOfDelivery(Long id) {
         return podDao.getPointOfDelivery(id);
+
+    }
+
+    @Transaction
+    public void updateAllPointOfDelivery(List<PointOfDelivery> pointOfDeliveries) {
+        pointOfDeliveries.stream().forEach(pointOfDelivery -> {
+            podDao.insertReplaceSync(pointOfDelivery);
+        });
+
 
     }
 

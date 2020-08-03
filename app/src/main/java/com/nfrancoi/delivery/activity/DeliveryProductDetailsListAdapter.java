@@ -12,7 +12,6 @@ import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.activity.widget.HorizontalNumberPicker;
 import com.nfrancoi.delivery.room.dao.DeliveryProductsJoinDao;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -78,7 +77,6 @@ public class DeliveryProductDetailsListAdapter extends RecyclerView.Adapter<Deli
                     });
 
 
-            BigDecimal totalBd = current.priceHtUnit.multiply(BigDecimal.valueOf(current.quantity));
         } else {
             // Covers the case of data not being ready yet.
             holder.productName.setText(". . .");

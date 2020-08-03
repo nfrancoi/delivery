@@ -7,9 +7,13 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.nfrancoi.delivery.R;
+import com.nfrancoi.delivery.activity.widget.TextPreference;
 import com.nfrancoi.delivery.viewmodel.PreferencesViewModel;
+import com.nfrancoi.delivery.worker.SyncDataBaseWorker;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -103,6 +107,41 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             return true;
         });
 
+
+        //
+        //Google sign in
+        //
+        TextPreference accountButton = findPreference("sync_account_name_button");
+        accountButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                showGoogleSignInFragment();
+                return true;
+            }
+        });
+
+        TextPreference syncStartButton = findPreference("sync_start_button");
+        syncStartButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                WorkManager syncWorkManager = WorkManager.getInstance(requireActivity().getApplicationContext());
+                syncWorkManager.enqueue( OneTimeWorkRequest.from(SyncDataBaseWorker.class));
+                return true;
+            }
+        });
+
+
+    }
+
+    private void showGoogleSignInFragment() {
+
+
+        GoogleSignInFragment googleSignInFragment = GoogleSignInFragment.newInstance();
+        googleSignInFragment.setRetainInstance(true);
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_layout, googleSignInFragment, "googlesignin")
+                .addToBackStack(null)
+                .commit();
 
     }
 

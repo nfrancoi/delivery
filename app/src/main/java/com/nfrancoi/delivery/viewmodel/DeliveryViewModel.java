@@ -54,7 +54,7 @@ public class DeliveryViewModel extends AndroidViewModel {
     public DeliveryViewModel(Application application, Long deliveryId) {
         super(application);
         this.deliveryId = deliveryId;
-        mRepository = Repository.getInstance(application);
+        mRepository = Repository.getInstance();
 
         selectedDelivery = mRepository.getDelivery(deliveryId);
         employees = mRepository.getEmployees();

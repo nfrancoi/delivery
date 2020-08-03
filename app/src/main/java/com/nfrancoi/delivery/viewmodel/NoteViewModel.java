@@ -32,7 +32,7 @@ public class NoteViewModel extends AndroidViewModel {
 
     public NoteViewModel(Application application, Long deliveryId) {
         super(application);
-        Repository mRepository = Repository.getInstance(application);
+        Repository mRepository = Repository.getInstance();
 
         company = mRepository.getFirstCompany();
         deliveryProductNoteDetails = mRepository.loadAllDeliveryProductDetails(deliveryId);
