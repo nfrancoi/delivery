@@ -35,7 +35,6 @@ final class WorkerUtils {
             "Verbose WorkManager Notifications";
     public static String VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION =
             "Shows notifications whenever work starts";
-    public static final CharSequence NOTIFICATION_TITLE = "WorkRequest Starting";
     public static final String CHANNEL_ID = "VERBOSE_NOTIFICATION" ;
     public static final int NOTIFICATION_ID = 1;
     /**
@@ -47,7 +46,7 @@ final class WorkerUtils {
      * @param message Message shown on the notification
      * @param context Context needed to create Toast
      */
-    static void makeStatusNotification(String message, Context context) {
+    static void makeStatusNotification(String title, String message, Context context) {
 
         // Make a channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -71,7 +70,7 @@ final class WorkerUtils {
 
         // Create the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setContentTitle(NOTIFICATION_TITLE)
+                .setContentTitle(title)
                 .setSmallIcon(R.drawable.common_google_signin_btn_icon_light_normal)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

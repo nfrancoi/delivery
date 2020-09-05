@@ -9,7 +9,6 @@ import androidx.room.Query;
 
 import com.nfrancoi.delivery.room.entities.DeliveryProductsJoin;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Dao
@@ -32,29 +31,23 @@ public interface DeliveryProductsJoinDao {
 
 
 
-
-    class DeliveryProductDetail{
-        public Long deliveryId;
-        public Long productId;
-        public String type;
-        public String productName;
-        public BigDecimal priceHtUnit;
-        public BigDecimal priceHtTot;
-        public int quantity;
-        public BigDecimal vat;
-        public BigDecimal discount;
-    }
-    @Query("SELECT d.deliveryId AS deliveryId, p.productId AS productId, :type AS type, p.name AS productName, p.priceHtUnit AS priceHtUnit, dp.quantity AS quantity, p.vat AS vat, dp.discount AS discount "  +
+    @Query("SELECT d.deliveryId AS deliveryId, p.productId AS productId, :type AS type, p.name AS productName, p.priceUnitVatIncl AS priceUnitVatIncl, dp.quantity AS quantity, p.vat AS vat, dp.discount AS discount "  +
             "FROM  Product p, Delivery d " +
             "LEFT JOIN DeliveryProductsJoin dp ON d.deliveryId = dp.deliveryId AND p.productId = dp.productId AND (dp.type IS NULL OR dp.type = :type) "+
             "WHERE d.deliveryId = :deliveryId ")
-    LiveData<List<DeliveryProductDetail>> loadDeliveryProductDetails(@NonNull Long deliveryId, String type);
+    LiveData<List<DeliveryProductsJoin>> loadDeliveryProductDetails(@NonNull Long deliveryId, String type);
 
 
-    @Query("SELECT dp.deliveryId AS deliveryId, p.productId AS productId, dp.type AS type, p.name AS productName, dp.priceHtUnit AS priceHtUnit, dp.priceHtTot AS priceHtTot, dp.quantity AS quantity, dp.vat AS vat, dp.discount AS discount "  +
+    @Query("SELECT dp.deliveryId AS deliveryId, p.productId AS productId, dp.type AS type, dp.productName AS productName, dp.priceUnitVatIncl AS priceUnitVatIncl, dp.priceUnitVatExcl AS priceUnitVatExcl,dp.priceTotVatDiscounted AS priceTotVatDiscounted, dp.quantity AS quantity, dp.vat AS vat, dp.discount AS discount "  +
             "FROM DeliveryProductsJoin dp " +
             "JOIN Product p ON p.productId = dp.productId " +
             "WHERE dp.deliveryId = :deliveryId")
-    LiveData<List<DeliveryProductDetail>> loadNoteDeliveryProductDetail(@NonNull Long deliveryId);
+    LiveData<List<DeliveryProductsJoin>> loadNoteDeliveryProductDetail(@NonNull Long deliveryId);
+
+    @Query("SELECT dp.deliveryId AS deliveryId, p.productId AS productId, dp.type AS type, dp.productName  AS productName, dp.priceUnitVatIncl AS priceUnitVatIncl, dp.priceUnitVatExcl AS priceUnitVatExcl,dp.priceTotVatDiscounted AS priceTotVatDiscounted, dp.quantity AS quantity, dp.vat AS vat, dp.discount AS discount "  +
+            "FROM DeliveryProductsJoin dp " +
+            "JOIN Product p ON p.productId = dp.productId " +
+            "WHERE dp.deliveryId = :deliveryId")
+    List<DeliveryProductsJoin> loadNoteDeliveryProductDetailSync(@NonNull Long deliveryId);
 
 }

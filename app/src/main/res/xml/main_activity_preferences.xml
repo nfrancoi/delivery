@@ -61,20 +61,33 @@
 
     <PreferenceCategory
         android:icon="@drawable/ic_baseline_sync_24"
-        android:title="@string/preference_synchronisation_title" >
-         <com.nfrancoi.delivery.activity.widget.TextPreference
-            android:key="sync_account_name_button"
+        android:title="@string/preference_synchronisation_title">
+        <com.nfrancoi.delivery.activity.widget.TextPreference
             android:icon="@drawable/ic_baseline_account_circle_24"
-              app:useSimpleSummaryProvider="true"
-            android:title="@string/preference_synchronisation_account_button"/>
+            android:key="sync_account_name_button"
+            android:title="@string/preference_synchronisation_account"
+            app:useSimpleSummaryProvider="true" />
 
         <com.nfrancoi.delivery.activity.widget.TextPreference
-            android:key="sync_start_button"
+            android:defaultValue=" "
+            android:icon="@drawable/googlesheet"
+            android:key="sync_spreadsheet_button"
+            android:title="@string/preference_synchronisation_sheet_name"
+            app:useSimpleSummaryProvider="true" />
+        <com.nfrancoi.delivery.activity.widget.TextPreference
+            android:defaultValue=" "
+            android:key="sync_spreadsheet_id"
+            android:title="@string/preference_synchronisation_sheet_id"
+            app:useSimpleSummaryProvider="true" />
+
+        <com.nfrancoi.delivery.activity.widget.TextPreference
             android:defaultValue=" "
             android:icon="@drawable/ic_baseline_cloud_download_24"
+            android:key="sync_start_button"
             android:title="@string/preference_synchronisation_start"
-            app:useSimpleSummaryProvider="true"
-            />
+            app:useSimpleSummaryProvider="true" />
+
+
     </PreferenceCategory>
 
 

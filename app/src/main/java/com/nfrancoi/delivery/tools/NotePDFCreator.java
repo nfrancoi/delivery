@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
-import android.net.Uri;
 import android.print.PrintAttributes;
 import android.print.pdf.PrintedPdfDocument;
 import android.util.Log;
@@ -14,25 +13,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.nfrancoi.delivery.BuildConfig;
 import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.activity.NoteProductDetailsListAdapter;
-import com.nfrancoi.delivery.room.dao.DeliveryProductsJoinDao;
 import com.nfrancoi.delivery.room.entities.Company;
 import com.nfrancoi.delivery.room.entities.Delivery;
+import com.nfrancoi.delivery.room.entities.DeliveryProductsJoin;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.Calendar;
 import java.util.List;
 
 public class NotePDFCreator {
@@ -42,10 +38,10 @@ public class NotePDFCreator {
 
     private Delivery delivery;
     private Company company;
-    private List<DeliveryProductsJoinDao.DeliveryProductDetail> details;
+    private List<DeliveryProductsJoin> details;
     private BigDecimal totalHt, totalTaxes, total;
 
-    public NotePDFCreator(Activity activity, Company company, Delivery delivery, List<DeliveryProductsJoinDao.DeliveryProductDetail> detail, BigDecimal totalHt, BigDecimal totalTaxes, BigDecimal total) {
+    public NotePDFCreator(Activity activity, Company company, Delivery delivery, List<DeliveryProductsJoin> detail, BigDecimal totalHt, BigDecimal totalTaxes, BigDecimal total) {
         this.activity = activity;
         this.company = company;
         this.delivery = delivery;
@@ -57,7 +53,7 @@ public class NotePDFCreator {
     }
 
 
-    public Uri createClientNotePdf() {
+    public File createClientNotePdf() {
 
         PrintAttributes printAttrs = new PrintAttributes.Builder().
                 setColorMode(PrintAttributes.COLOR_MODE_COLOR).
@@ -167,8 +163,7 @@ public class NotePDFCreator {
 
         // write the document content
         File externalFilesDir = DeliveryApplication.getApplicationExternalStorageDirectory();
-        String noteFilePrefix = CalendarTools.YYYYMMDD.format(Calendar.getInstance().getTime());
-        File file = new File(externalFilesDir, noteFilePrefix + "Note.pdf");
+        File file = new File(externalFilesDir, delivery.noteId + ".pdf" );
 
         try {
             document.writeTo(new FileOutputStream(file.getPath()));
@@ -181,8 +176,8 @@ public class NotePDFCreator {
         document.close();
 
         //start a PDF reader
-        Uri fileURI = FileProvider.getUriForFile(activity.getApplicationContext(), BuildConfig.APPLICATION_ID, file);
-        return fileURI;
+
+        return file;
     }
 
 

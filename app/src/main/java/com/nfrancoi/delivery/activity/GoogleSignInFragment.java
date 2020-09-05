@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,13 +22,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.nfrancoi.delivery.R;
+import com.nfrancoi.delivery.googleapi.GoogleApiGateway;
+
+import java.util.concurrent.Executors;
 
 
 public class GoogleSignInFragment extends Fragment implements
@@ -38,14 +40,13 @@ public class GoogleSignInFragment extends Fragment implements
 
     private GoogleSignInClient mGoogleSignInClient;
 
-    private SignInButton  signInButton;
-    private Button  signOutButton;
-    private Button  revokeButton;
+    private SignInButton signInButton;
+    private Button signOutButton;
+    private Button revokeButton;
     private TextView mAccountNameTextView;
 
-    private Scope[] scopes = new Scope[]{
-              new Scope("https://www.googleapis.com/auth/spreadsheets")
-            , new Scope(Scopes.DRIVE_APPFOLDER)};
+    private ImageView allowedImage, notAllowedImage;
+
 
     public static GoogleSignInFragment newInstance() {
         GoogleSignInFragment fragment = new GoogleSignInFragment();
@@ -61,6 +62,9 @@ public class GoogleSignInFragment extends Fragment implements
 
         mAccountNameTextView = view.findViewById(R.id.fragment_google_sign_in_account_name);
 
+        allowedImage = view.findViewById(R.id.fragment_google_sign_in_account_allowed);
+        notAllowedImage = view.findViewById(R.id.fragment_google_sign_in_account_not_allowed);
+
         // Button listeners
         signInButton = view.findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(this);
@@ -68,31 +72,20 @@ public class GoogleSignInFragment extends Fragment implements
         signOutButton = view.findViewById(R.id.fragment_google_sign_in_sign_out_button);
         signOutButton.setOnClickListener(this);
 
-        revokeButton= view.findViewById(R.id.fragment_google_sign_in_revoke_button);
+        revokeButton = view.findViewById(R.id.fragment_google_sign_in_revoke_button);
         revokeButton.setOnClickListener(this);
 
-
-        // [START configure_signin]
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        //Sign in
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestScopes(scopes[0], scopes[1])
+                .requestScopes(GoogleApiGateway.getInstance().scopes[0], GoogleApiGateway.getInstance().scopes[1], GoogleApiGateway.getInstance().scopes[2])
                 .requestEmail()
                 .build();
-        // [END configure_signin]
 
-        // [START build_client]
-        // Build a GoogleSignInClient with access to the Google Sign-In API and the
-        // options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
-        // [END build_client]
 
-        // [START customize_button]
-        // Customize sign-in button. The sign-in button can be displayed in
-        // multiple sizes.
         SignInButton signInButton = view.findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
-        // [END customize_button]
+
 
         return view;
 
@@ -104,7 +97,7 @@ public class GoogleSignInFragment extends Fragment implements
 
         // Check if the user is already signed in and all required scopes are granted
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireActivity());
-        if (account != null && GoogleSignIn.hasPermissions(account, scopes)) {
+        if (account != null && GoogleSignIn.hasPermissions(account, GoogleApiGateway.getInstance().scopes)) {
             updateUI(account);
 
         } else {
@@ -156,6 +149,7 @@ public class GoogleSignInFragment extends Fragment implements
         });
     }
 
+
     private void revokeAccess() {
         mGoogleSignInClient.revokeAccess().addOnCompleteListener(requireActivity(),
                 new OnCompleteListener<Void>() {
@@ -174,17 +168,38 @@ public class GoogleSignInFragment extends Fragment implements
 
         String accountLabel;
         if (account != null) {
-            accountLabel = account.getDisplayName() + "\n" +account.getEmail();
+            accountLabel = account.getDisplayName() + "\n" + account.getEmail();
 
             signInButton.setVisibility(View.GONE);
             signOutButton.setVisibility(View.VISIBLE);
             revokeButton.setVisibility(View.VISIBLE);
+            notAllowedImage.setVisibility(View.GONE);
+            allowedImage.setVisibility(View.GONE);
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                if (GoogleApiGateway.getInstance().checkAccountDriveAccess()) {
+                    requireActivity().runOnUiThread(() -> {
+                        notAllowedImage.setVisibility(View.GONE);
+                        allowedImage.setVisibility(View.VISIBLE);
+                    });
+                } else {
+                    requireActivity().runOnUiThread(() -> {
+                        notAllowedImage.setVisibility(View.VISIBLE);
+                        allowedImage.setVisibility(View.GONE);
+                    });
+                }
+                ;
+            });
+
 
         } else {
             accountLabel = "";
             signInButton.setVisibility(View.VISIBLE);
             signOutButton.setVisibility(View.GONE);
             revokeButton.setVisibility(View.GONE);
+            notAllowedImage.setVisibility(View.GONE);
+            allowedImage.setVisibility(View.GONE);
+
         }
 
         mAccountNameTextView.setText(accountLabel);
@@ -193,6 +208,8 @@ public class GoogleSignInFragment extends Fragment implements
         prefs.commit();
 
     }
+
+
 
     @Override
     public void onClick(View v) {

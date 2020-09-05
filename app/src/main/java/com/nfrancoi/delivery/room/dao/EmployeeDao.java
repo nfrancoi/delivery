@@ -13,20 +13,24 @@ import java.util.List;
 import io.reactivex.Single;
 
 @Dao
-public interface EmployeeDao {
+public abstract class EmployeeDao extends BaseDao<Employee> {
+
+
+    @Query("SELECT * from Employee order by employeeId asc")
+    public abstract List<Employee> getAllSync();
 
     // allowing the insertReplace of the same word multiple times by passing a
     // conflict resolution strategy
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    Single<Long> insert(Employee employee);
+    public abstract Single<Long> insert(Employee employee);
 
     @Query("SELECT * FROM Employee ORDER BY name")
-    LiveData<List<Employee>> getEmployee();
+    public abstract LiveData<List<Employee>> getEmployee();
 
     @Query("SELECT * FROM Employee WHERE isDefault = 1")
-    LiveData<Employee> getEmployeeByDefault();
+    public abstract LiveData<Employee> getEmployeeByDefault();
 
     @Query("DELETE FROM Employee")
-    void deleteAll();
+    public abstract void deleteAll();
 
 }

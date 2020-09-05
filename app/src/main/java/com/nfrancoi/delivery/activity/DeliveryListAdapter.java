@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,8 +23,9 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
         private final TextView deliveryIdTextView;
         private final TextView dateBeginTextView;
         private final TextView dateEndTextView;
-        private final ImageView endMailImageView;
-        private final CheckBox statusCheckBox;
+        private final CheckBox statusMailCheckBox;
+        private final CheckBox statusSaveCheckBox;
+
         private final TextView pointOfDeliveryNameTextView;
 
         private DeliveryViewHolder(View itemView) {
@@ -33,8 +33,8 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
             deliveryIdTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_id);
             dateBeginTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_date_begin);
             dateEndTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_date_end);
-            endMailImageView = itemView.findViewById(R.id.fragment_delivery_list_item_mail_icon);
-            statusCheckBox = itemView.findViewById(R.id.fragment_delivery_recycleview_item_status);
+            statusMailCheckBox = itemView.findViewById(R.id.fragment_delivery_recycleview_item_status_mail);
+            statusSaveCheckBox = itemView.findViewById(R.id.fragment_delivery_recycleview_item_status_save);
             pointOfDeliveryNameTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_pointOfDelivery_name);
 
 
@@ -76,22 +76,18 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
             holder.dateBeginTextView.setText(CalendarTools.HHmm.format(current.startDate.getTime()));
 
             if (current.sentDate == null) {
-                holder.endMailImageView.setVisibility(View.INVISIBLE);
                 holder.dateEndTextView.setVisibility(View.INVISIBLE);
             } else {
-                holder.endMailImageView.setVisibility(View.VISIBLE);
                 holder.dateEndTextView.setVisibility(View.VISIBLE);
                 holder.dateEndTextView.setText(CalendarTools.HHmm.format(current.sentDate.getTime()));
             }
 
 
-            holder.deliveryIdTextView.setText("" + current.deliveryId);
+            holder.deliveryIdTextView.setText(current.noteId == null?"": current.noteId);
 
-            if (current.signatureBytes != null) {
-                holder.statusCheckBox.setChecked(true);
-            } else {
-                holder.statusCheckBox.setChecked(false);
-            }
+
+            holder.statusMailCheckBox.setChecked(current.isMailSent);
+            holder.statusSaveCheckBox.setChecked(current.isNoteSaved);
 
 
             holder.pointOfDeliveryNameTextView.setText(current.pointOfDelivery == null ? "" : current.pointOfDelivery.name);

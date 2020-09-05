@@ -24,4 +24,10 @@ public abstract class DeliveryDao extends BaseDao<Delivery> {
 
     @Query("SELECT * FROM Delivery d WHERE d.deliveryId = :deliveryId")
     public abstract LiveData<Delivery> getDelivery(Long deliveryId);
+
+    @Query("SELECT * FROM Delivery d WHERE d.deliveryId = :deliveryId")
+    public abstract Delivery getDeliverySync(Long deliveryId);
+
+    @Query("UPDATE Delivery SET isNoteSaved = 1 WHERE deliveryId = :deliveryId")
+    public abstract int updateDeliveryNoteSent(Long deliveryId) ;
 }

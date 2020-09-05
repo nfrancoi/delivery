@@ -20,27 +20,36 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.nfrancoi.delivery.BuildConfig;
+import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.R;
-import com.nfrancoi.delivery.room.dao.DeliveryProductsJoinDao;
 import com.nfrancoi.delivery.room.entities.Company;
 import com.nfrancoi.delivery.room.entities.Delivery;
+import com.nfrancoi.delivery.room.entities.DeliveryProductsJoin;
 import com.nfrancoi.delivery.room.entities.Employee;
 import com.nfrancoi.delivery.room.entities.PointOfDelivery;
 import com.nfrancoi.delivery.tools.BitmapTools;
-import com.nfrancoi.delivery.tools.CalendarTools;
 import com.nfrancoi.delivery.tools.FilterWithSpaceAdapter;
 import com.nfrancoi.delivery.tools.NotePDFCreator;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModelFactory;
 import com.nfrancoi.delivery.viewmodel.NoteViewModel;
 import com.nfrancoi.delivery.viewmodel.NoteViewModelFactory;
+import com.nfrancoi.delivery.worker.SaveNoteFileWorker;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Calendar;
@@ -226,10 +235,10 @@ public class NewDeliveryFragment extends Fragment {
             //
             // Product selection
             //
-            if(deliveryViewModel.isDeliveryReadyToSelectProducts(selectedDelivery)) {
+            if (deliveryViewModel.isDeliveryReadyToSelectProducts(selectedDelivery)) {
                 depositButton.setEnabled(true);
                 takeButton.setEnabled(true);
-            }else{
+            } else {
                 depositButton.setEnabled(false);
                 takeButton.setEnabled(false);
             }
@@ -261,7 +270,6 @@ public class NewDeliveryFragment extends Fragment {
                     employeeNameSpinner.setSelection(selectedEmployeePosition);
                     employeeNameSpinner.setOnItemSelectedListener(new EmployeeSpinnerOnItemSelectedListener());
                 }
-
 
 
             });
@@ -381,7 +389,7 @@ public class NewDeliveryFragment extends Fragment {
                 {
                     int countDeposit = deliveryProductDetails.stream().mapToInt(value -> value.quantity).sum();
                     countDepositTextView.setText("" + countDeposit);
-                    BigDecimal sumPriceDeposit = deliveryProductDetails.stream().map(value -> value.priceHtUnit.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    BigDecimal sumPriceDeposit = deliveryProductDetails.stream().map(value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
 
                     priceDepositTextView.setText(NumberFormat.getCurrencyInstance().format(sumPriceDeposit));
 
@@ -398,7 +406,7 @@ public class NewDeliveryFragment extends Fragment {
                     int sumQuantity = deliveryProductDetails.stream().mapToInt(value -> value.quantity).sum();
                     countTakeTextView.setText("" + sumQuantity);
                     BigDecimal sumPriceTake = deliveryProductDetails.stream().map(
-                            value -> value.priceHtUnit.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
+                            value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
 
                     priceTakeTextView.setText(NumberFormat.getCurrencyInstance().format(sumPriceTake));
                 });
@@ -434,8 +442,27 @@ public class NewDeliveryFragment extends Fragment {
         {
             Delivery currentDelivery = deliveryViewModel.getSelectedDelivery().getValue();
             currentDelivery.sentDate = Calendar.getInstance();
+            currentDelivery.isMailSent = true;
             deliveryViewModel.updateDelivery(currentDelivery);
-            NewDeliveryFragment.this.sendNotePDFByMail();
+
+
+            String emailPointOfDelivery = currentDelivery.pointOfDelivery.email;
+            String fileUriString = currentDelivery.noteURI;
+            NewDeliveryFragment.this.sendNotePDFByMail(fileUriString, emailPointOfDelivery);
+
+
+            //save note file
+            Constraints networkConstraint = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build();
+            Data inputData = new Data.Builder().putString(SaveNoteFileWorker.PARAM_FILE_URI, fileUriString)
+                    .putLong(SaveNoteFileWorker.PARAM_DELIVERY_ID,currentDelivery.deliveryId).build();
+
+            OneTimeWorkRequest saveNoteFile = new OneTimeWorkRequest.Builder(SaveNoteFileWorker.class)
+                    .setConstraints(networkConstraint).addTag(fileUriString).setInputData(inputData).build();
+
+            WorkManager.getInstance(requireActivity().getApplicationContext()).enqueue(saveNoteFile);
+
         });
 
 
@@ -447,6 +474,7 @@ public class NewDeliveryFragment extends Fragment {
     private class EmployeeSpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
 
         boolean isFirstTimeCalled = true;
+
         @Override
         public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
             if (isFirstTimeCalled) {
@@ -479,24 +507,21 @@ public class NewDeliveryFragment extends Fragment {
 
     private void generateAndOpenNotePDF() {
         Delivery selectedDelivery = deliveryViewModel.getSelectedDelivery().getValue();
-        //Calculate noteId
-        selectedDelivery.noteId = CalendarTools.YYYYMM.format(Calendar.getInstance().getTime()) + "_" + selectedDelivery.deliveryId;
-        deliveryViewModel.updateDelivery(selectedDelivery);
 
         noteViewModel.getNoteLiveData().observe(getViewLifecycleOwner(), pair -> {
             Company company = pair.first;
-            List<DeliveryProductsJoinDao.DeliveryProductDetail> deliveryProductNoteDetails = pair.second;
+            List<DeliveryProductsJoin> deliveryProductNoteDetails = pair.second;
             NotePDFCreator notePdfCreator = new NotePDFCreator(getActivity(),
                     company, selectedDelivery, deliveryProductNoteDetails,
-                    noteViewModel.getTotalHt(), noteViewModel.getTotalTaxes(), noteViewModel.getTotal());
+                    noteViewModel.getTotalVatExcl(), noteViewModel.getTotalTaxes(), noteViewModel.getTotal());
 
-            Uri noteUri = notePdfCreator.createClientNotePdf();
-            selectedDelivery.noteURI = noteUri.toString();
+            File noteFile = notePdfCreator.createClientNotePdf();
+            selectedDelivery.noteURI = noteFile.toString();
             deliveryViewModel.updateDelivery(selectedDelivery);
 
             //start a PDF reader
             Activity mainActivity = requireActivity();
-            Uri fileURI = Uri.parse(selectedDelivery.noteURI);
+            Uri fileURI = FileProvider.getUriForFile(DeliveryApplication.getInstance().getApplicationContext(), BuildConfig.APPLICATION_ID, new File(selectedDelivery.noteURI));
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.setDataAndType(fileURI, "application/pdf");
@@ -509,21 +534,18 @@ public class NewDeliveryFragment extends Fragment {
     }
 
 
-    private void sendNotePDFByMail() {
-
-
-        Delivery selectedDelivery = deliveryViewModel.getSelectedDelivery().getValue();
-        String emailPointOfDelivery = selectedDelivery.pointOfDelivery.email;
-        String noteURI = selectedDelivery.noteURI;
-
+    private void sendNotePDFByMail(String noteURI, String emails) {
 
         noteViewModel.getCompany().observe(getViewLifecycleOwner(), company -> {
+
+            Uri fileURI = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID, new File(noteURI));
+
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.pdf_note_mail_subject_prefix));
             intent.putExtra(Intent.EXTRA_EMAIL,
-                    new String[]{company.email, emailPointOfDelivery});
+                    new String[]{company.email, emails});
             intent.putExtra(Intent.EXTRA_TEXT, "");
-            intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(noteURI));
+            intent.putExtra(Intent.EXTRA_STREAM, fileURI);
             intent.setType("application/pdf");
             startActivity(Intent.createChooser(intent, "Send mail"));
 

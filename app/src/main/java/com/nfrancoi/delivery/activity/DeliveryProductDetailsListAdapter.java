@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.activity.widget.HorizontalNumberPicker;
-import com.nfrancoi.delivery.room.dao.DeliveryProductsJoinDao;
+import com.nfrancoi.delivery.room.entities.DeliveryProductsJoin;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class DeliveryProductDetailsListAdapter extends RecyclerView.Adapter<Deli
     // NumberPicker management
     //
     public interface QuantityValueChangeListener {
-        void quantityValueChange(DeliveryProductsJoinDao.DeliveryProductDetail deliveryProductDetail);
+        void quantityValueChange(DeliveryProductsJoin deliveryProductDetail);
     }
 
     private QuantityValueChangeListener quantityValueChangeListener;
@@ -46,7 +46,7 @@ public class DeliveryProductDetailsListAdapter extends RecyclerView.Adapter<Deli
 
 
     private final LayoutInflater mInflater;
-    private List<DeliveryProductsJoinDao.DeliveryProductDetail> deliveryProductDetails;
+    private List<DeliveryProductsJoin> deliveryProductDetails;
 
     DeliveryProductDetailsListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
@@ -61,10 +61,10 @@ public class DeliveryProductDetailsListAdapter extends RecyclerView.Adapter<Deli
     @Override
     public void onBindViewHolder(DeliveryProductDetailsViewHolder holder, int position) {
         if (deliveryProductDetails != null) {
-            DeliveryProductsJoinDao.DeliveryProductDetail current = deliveryProductDetails.get(position);
+            DeliveryProductsJoin current = deliveryProductDetails.get(position);
 
             holder.productName.setText(current.productName);
-            holder.price.setText(current.priceHtUnit.toString());
+            holder.price.setText(current.priceUnitVatIncl.toString());
             holder.quantity.setMin(0);
             holder.quantity.setValue(Math.abs(current.quantity)); //abs to manage negative quantity with returns
             holder.quantity.setOnChangeValueListener(
@@ -94,7 +94,7 @@ public class DeliveryProductDetailsListAdapter extends RecyclerView.Adapter<Deli
     }
 
 
-    public void setDeliveryProductDetails(List<DeliveryProductsJoinDao.DeliveryProductDetail> deliveryProductDetails) {
+    public void setDeliveryProductDetails(List<DeliveryProductsJoin> deliveryProductDetails) {
         this.deliveryProductDetails = deliveryProductDetails;
         notifyDataSetChanged();
     }

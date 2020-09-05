@@ -21,25 +21,17 @@ public class DeliveryProductsJoin {
     @NonNull
     public String type; //D:Deposit, T:Take
 
+    public String productName;
     public int quantity;
-    public BigDecimal priceHtUnit;
-    public BigDecimal priceHtTot;
+    public BigDecimal priceUnitVatIncl;
     public BigDecimal vat;
     public BigDecimal discount;
 
 
+    public BigDecimal priceUnitVatExcl;
+    public BigDecimal priceTotVatDiscounted;
 
 
-    public DeliveryProductsJoin(@NonNull Long deliveryId, @NonNull Long productId , @NonNull String type, int quantity, BigDecimal priceHtUnit, BigDecimal priceHtTot, BigDecimal vat, BigDecimal discount) {
-        this.deliveryId = deliveryId;
-        this.productId = productId;
-        this.quantity = quantity;
-        this.priceHtUnit = priceHtUnit;
-        this.priceHtTot = priceHtTot;
 
-        this.vat = vat;
-        this.discount = discount;
-        this.type = type;
-    }
 }
 

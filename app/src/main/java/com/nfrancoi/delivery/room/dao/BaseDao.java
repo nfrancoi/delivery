@@ -4,10 +4,8 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
-import androidx.room.Transaction;
 import androidx.room.Update;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -16,9 +14,16 @@ import io.reactivex.Single;
 public abstract class BaseDao<T> {
 
 
+    public List<T> getAllSync(){
+        throw new IllegalStateException(" method getAllSync() must be overwrited");
+    };
+
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     public abstract Single<Long> insert(T obj);
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    public abstract Long insertSync(T obj);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract Single<Long> insertReplace(T obj);
@@ -41,7 +46,7 @@ public abstract class BaseDao<T> {
      * @param obj the object to be updated
      */
     @Update
-    public abstract int update(T obj);
+    public abstract int updateSync(T obj);
 
     /**
      * Update an array of objects from the database.
@@ -49,7 +54,7 @@ public abstract class BaseDao<T> {
      * @param obj the object to be updated
      */
     @Update
-    public abstract int update(List<T> obj);
+    public abstract int updateSync(List<T> obj);
 
     /**
      * Delete an object from the database
@@ -57,22 +62,7 @@ public abstract class BaseDao<T> {
      * @param obj the object to be deleted
      */
     @Delete
-    public abstract void delete(T obj);
+    public abstract int deleteSync(T obj);
 
 
-    @Transaction
-    public void upsert(List<T> objList) {
-        List<Long> insertResult = insertReplace(objList);
-        List<T> updateList = new ArrayList<>();
-
-        for (int i = 0; i < insertResult.size(); i++) {
-            if (insertResult.get(i) == -1) {
-                updateList.add(objList.get(i));
-            }
-        }
-
-        if (!updateList.isEmpty()) {
-            update(updateList);
-        }
-    }
 }

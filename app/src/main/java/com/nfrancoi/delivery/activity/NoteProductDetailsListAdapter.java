@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.nfrancoi.delivery.R;
-import com.nfrancoi.delivery.room.dao.DeliveryProductsJoinDao;
+import com.nfrancoi.delivery.room.entities.DeliveryProductsJoin;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
 
 
     private final LayoutInflater mInflater;
-    private List<DeliveryProductsJoinDao.DeliveryProductDetail> noteDeliveryProductDetails;
+    private List<DeliveryProductsJoin> noteDeliveryProductDetails;
 
     public NoteProductDetailsListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
@@ -57,7 +57,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
     @Override
     public void onBindViewHolder(NoteDeliveryProductDetailViewHolder holder, int position) {
         if (noteDeliveryProductDetails != null) {
-            DeliveryProductsJoinDao.DeliveryProductDetail  current = noteDeliveryProductDetails.get(position);
+            DeliveryProductsJoin  current = noteDeliveryProductDetails.get(position);
 
             String typeName = "";
             switch(current.type) {
@@ -71,9 +71,10 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
             holder.type.setText(typeName);
 
             holder.productName.setText(current.productName);
-            holder.priceHtUnit.setText(""+current.priceHtUnit);
+            holder.priceHtUnit.setText(""+current.priceUnitVatIncl);
             holder.discount.setText(""+current.discount);
-            holder.priceHtTot.setText(""+current.priceHtTot);
+
+            holder.priceHtTot.setText(""+current.priceTotVatDiscounted);
             holder.quantity.setText(""+current.quantity); //negative for return
             holder.vat.setText(""+current.vat);
 
@@ -94,7 +95,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
     }
 
 
-    public void setNoteDeliveryProductDetails(List<DeliveryProductsJoinDao.DeliveryProductDetail> noteDeliveryProductDetails) {
+    public void setNoteDeliveryProductDetails(List<DeliveryProductsJoin> noteDeliveryProductDetails) {
         this.noteDeliveryProductDetails = noteDeliveryProductDetails;
         notifyDataSetChanged();
     }

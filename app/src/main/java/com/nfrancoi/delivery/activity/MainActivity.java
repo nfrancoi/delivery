@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
             String[] permissions = new String[]{
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.INTERNET};
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.GET_ACCOUNTS};
 
             myIntent.putExtra(PermissionActivity.PERMISSIONS, permissions);
             startActivityForResult(myIntent, ACTIVITY_RESULT_REQUEST_PERMISSIONS);
@@ -99,14 +100,14 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case ACTIVITY_RESULT_REQUEST_PERMISSIONS:
                 if (resultCode == RESULT_OK) {
-                    if( GoogleSignIn.getLastSignedInAccount(getApplicationContext()) == null){
-                        this.showGoogleSignInFragment();
+                    if(GoogleSignIn.getLastSignedInAccount(getApplicationContext()) == null){
+                        Snackbar.make(findViewById(android.R.id.content), R.string.activity_main_google_account_not_selected, Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
                     }
                     this.showDeliverySlideFragment();
 
-
                 } else {
-                    Snackbar.make(findViewById(android.R.id.content), "Veuillez autoriser les permissions", Snackbar.LENGTH_LONG)
+                    Snackbar.make(findViewById(android.R.id.content), R.string.activity_main_permission_not_authorized_error, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
                 break;

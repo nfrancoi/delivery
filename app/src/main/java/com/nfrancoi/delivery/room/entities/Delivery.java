@@ -36,6 +36,12 @@ public class Delivery {
     @Embedded(prefix = "pod_")
     public PointOfDelivery pointOfDelivery;
 
+
+    //status
+    public boolean isMailSent;
+    public boolean isNoteSaved;
+
+
     public Delivery(){
         startDate = Calendar.getInstance();
     }

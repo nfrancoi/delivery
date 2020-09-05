@@ -7,7 +7,9 @@ import java.util.Calendar;
 
 public class CalendarTools {
 
-    public static SimpleDateFormat YYYYMMDD = new SimpleDateFormat("yyyy-MM-dd");
+    public static SimpleDateFormat YYYYMMDD = new SimpleDateFormat("yyyyMMdd");
+    public static SimpleDateFormat YYYYMMDDHHmmss = new SimpleDateFormat("yyyyMMddHHmmSS");
+
     public static SimpleDateFormat YYYYMM = new SimpleDateFormat("yyyyMM");
     public static SimpleDateFormat DDMMYYYY = new SimpleDateFormat("dd/MM/YYYY");
 

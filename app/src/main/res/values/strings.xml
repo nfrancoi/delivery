@@ -2,7 +2,12 @@
     <!-- Global -->
     <string name="app_name">Delivery</string>
 
+    <!-- Main Activity -->
+    <string name="activity_main_permission_not_authorized_error">Veuillez autoriser les permissions pour pouvoir utiliser l\'application</string>
+    <string name="activity_main_google_account_not_selected">Aucun compte Google sélectionné. Les fonctionnalités cloud ne sont pas accessibles</string>
+
     <!-- NewDeliveryActivity -->
+
     <string name="fragment_select_products_title">Sélection des produits</string>
     <string name="fragment_select_product_filter_hint">Filtrer les produits</string>
 
@@ -40,8 +45,6 @@
     <string name="pdf_note_mail_subject_prefix">Note d\'envoi</string>
 
 
-
-
     <!--Acra -->
     <string name="acra_dialog_errormessage"> Une erreur innatendue est survenue. Vous pouvez prévenir l\'équipe de développement</string>
     <string name="acra_mail_subject"> Crash report - Delivery application</string>
@@ -56,7 +59,7 @@
     <string name="pdf_note_product_detail_header_type">Presta</string>
     <string name="pdf_note_product_detail_header_quantity">Qti</string>
     <string name="pdf_note_product_detail_header_discount">%</string>
-    <string name="pdf_note_product_detail_header_priceht_unit">Prix U</string>
+    <string name="pdf_note_product_detail_header_priceht_unit">PU TVAC</string>
     <string name="pdf_note_product_detail_header_priceht_total">Prix HTVA</string>
     <string name="pdf_note_product_detail_header_vat">TVA %</string>
 
@@ -90,8 +93,10 @@
     <string name="preference_employee_title">Gestion des livreurs</string>
     <string name="preference_products_title">Gestion des produits</string>
     <string name="preference_synchronisation_title">Synchronisation des catalogues</string>
+    <string name="preference_synchronisation_sheet_name">Selection de la Google Sheet</string>
+    <string name="preference_synchronisation_sheet_id">Google Sheet ID</string>
     <string name="preference_synchronisation_start">Démarrer la synchronisation</string>
-    <string name="preference_synchronisation_account_button">Selection du compte de synchronisation</string>
+    <string name="preference_synchronisation_account">Selection du compte de synchronisation</string>
 
 
     <string name="pdf_note_client_total_ht_label">Total HTVA</string>
@@ -104,7 +109,12 @@
     <string name="fragment_google_sign_in_sign_in_button">Login</string>
     <string name="fragment_google_sign_in_sign_out_button">Logout</string>
     <string name="fragment_google_sign_in_disconnect_button">Révoquer</string>
+    <string name="fragment_google_sign_in_account_not_allowed_hint">Le compte n\'a pas les droits</string>
+    <string name="fragment_google_sign_in_account_allowed_hint">Le compte est autorisé</string>
 
-
+    <string name="fragment_google_sheet_select_name_hint">Nom de la Google SpreadSheet </string>
+    <string name="fragment_google_sheet_select_save">Vérifier et Enregistrer</string>
+    <string name="sync_notification_title">Synchronisation</string>
+    <string name="fragment_new_delivery_button_take_sell">Vente sèche</string>
 
 </resources>

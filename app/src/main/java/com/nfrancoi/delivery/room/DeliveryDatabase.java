@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
         Delivery.class,
         DeliveryProductsJoin.class,
         Company.class},
-        version = 56)
+        version = 68)
 
 @TypeConverters({RoomCalendarConverter.class, RoomBigDecimalConverter.class})
 public abstract class DeliveryDatabase extends RoomDatabase {
@@ -90,15 +90,21 @@ public abstract class DeliveryDatabase extends RoomDatabase {
             databaseWriteExecutor.execute(() -> {
                 // Populate the database in the background.
                 // If you want to start with more words, just add them.
-               // DeliveryDatabase.initDB();
+                DeliveryDatabase.initDB();
             });
         }
     };
 
     private static void initDB() {
+        CompanyDao companyDao = INSTANCE.getCompanyDao();
+        if(companyDao.countSync() == 0){
+            populateDB();
+        }
+    }
+
+    private static void populateDB(){
 
         CompanyDao companyDao = INSTANCE.getCompanyDao();
-        companyDao.deleteAll();
 
         Company c = new Company("Euroflor Group SPRL"
                 , "Rue de la Station 47 Bte A\n"
@@ -114,13 +120,13 @@ public abstract class DeliveryDatabase extends RoomDatabase {
         EmployeeDao employeeDao = INSTANCE.getEmployeeDao();
         employeeDao.deleteAll();
 
-        Employee employee1 = new Employee("JeanPhi");
+        Employee employee1 = new Employee(1l, "JeanPhi", "JP", true);
         employeeDao.insert(employee1).blockingGet();
 
-        Employee employee2 = new Employee("William");
+        Employee employee2 = new Employee(2l,"William", "WL", true);
         employeeDao.insert(employee2).blockingGet();
 
-        Employee employee3 = new Employee("Nadine");
+        Employee employee3 = new Employee(3l,"Nadine", "ND", true);
         employee3.isDefault = true;
         employeeDao.insert(employee3).blockingGet();
 
@@ -140,11 +146,11 @@ public abstract class DeliveryDatabase extends RoomDatabase {
         podDao.deleteAll();
 
 
-        Product product = new Product("MonPremierProduit", new BigDecimal(19.18), new BigDecimal(6));
+        Product product = new Product("MonPremierProduit", "Fleur", new BigDecimal(19.18), new BigDecimal(6));
         product.productId = productDao.insert(product).blockingGet();
-        Product product2 = new Product("MonSeconfProduit", new BigDecimal(1.0), new BigDecimal(10));
+        Product product2 = new Product("MonSeconfProduit", "Fleur",new BigDecimal(1.0), new BigDecimal(10));
         product2.productId = productDao.insert(product2).blockingGet();
-        Product product3 = new Product("Mon3Produit", new BigDecimal(1.9), new BigDecimal(21));
+        Product product3 = new Product("Mon3Produit", "Plante",new BigDecimal(1.9), new BigDecimal(21));
         product3.productId = productDao.insert(product3).blockingGet();
 
 
@@ -168,16 +174,6 @@ public abstract class DeliveryDatabase extends RoomDatabase {
         delivery3.pointOfDelivery = pod2;
         delivery3.deliveryId = deliveryDao.insertReplace(delivery3).blockingGet();
 
-
-        DeliveryProductsJoin dpj1 = new DeliveryProductsJoin(delivery1.deliveryId, product.productId, "D", 10, new BigDecimal(30), new BigDecimal(300), new BigDecimal(1), new BigDecimal(10));
-        deliveryProductJoinDao.insertReplace(dpj1);
-        DeliveryProductsJoin dpj2 = new DeliveryProductsJoin(delivery1.deliveryId, product2.productId, "D", 1, new BigDecimal(15.6), new BigDecimal(15.6), new BigDecimal(3), new BigDecimal(15));
-        deliveryProductJoinDao.insertReplace(dpj2);
-
-        DeliveryProductsJoin dpj3 = new DeliveryProductsJoin(delivery2.deliveryId, product2.productId, "D", 1, new BigDecimal(15.6), new BigDecimal(15.6), new BigDecimal(6), new BigDecimal(2));
-        deliveryProductJoinDao.insertReplace(dpj3);
-        DeliveryProductsJoin dpj4 = new DeliveryProductsJoin(delivery2.deliveryId, product2.productId, "T", 1, new BigDecimal(15.6), new BigDecimal(15.6), new BigDecimal(21), new BigDecimal(6));
-        deliveryProductJoinDao.insertReplace(dpj4);
 
 
         //
@@ -203,7 +199,6 @@ public abstract class DeliveryDatabase extends RoomDatabase {
         deliveryPast2.startDate = deliveryPast1Date;
         deliveryPast2.pointOfDelivery = pod2;
         deliveryDao.insertReplace(deliveryPast2).blockingGet();
-
     }
 
 }

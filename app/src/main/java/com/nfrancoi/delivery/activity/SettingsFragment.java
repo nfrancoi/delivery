@@ -37,6 +37,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         PreferencesViewModel prefViewModel = ViewModelProviders.of(this).get(PreferencesViewModel.class);
         prefViewModel.getCompany().observe(this, company -> {
+
             companyNameEditText.setText(company.name);
             companyNameEditText.setOnPreferenceChangeListener((preference, newName) -> {
                         company.name = newName.toString();
@@ -109,13 +110,22 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 
         //
-        //Google sign in
+        //Google spreadsheet connect
         //
         TextPreference accountButton = findPreference("sync_account_name_button");
         accountButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 showGoogleSignInFragment();
+                return true;
+            }
+        });
+
+        TextPreference syncSpreadSheetButton = findPreference("sync_spreadsheet_button");
+        syncSpreadSheetButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                showGoogleSheetSelectionFragment();
                 return true;
             }
         });
@@ -131,6 +141,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
 
+
     }
 
     private void showGoogleSignInFragment() {
@@ -140,6 +151,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         googleSignInFragment.setRetainInstance(true);
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_layout, googleSignInFragment, "googlesignin")
+                .addToBackStack(null)
+                .commit();
+
+    }
+
+    private void showGoogleSheetSelectionFragment() {
+
+
+        GoogleSheetSelectFragment fragment = GoogleSheetSelectFragment.newInstance();
+        fragment.setRetainInstance(true);
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_layout, fragment, "sheetselects")
                 .addToBackStack(null)
                 .commit();
 

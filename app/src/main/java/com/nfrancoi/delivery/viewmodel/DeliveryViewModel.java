@@ -10,15 +10,16 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.nfrancoi.delivery.repository.Repository;
-import com.nfrancoi.delivery.room.dao.DeliveryProductsJoinDao;
 import com.nfrancoi.delivery.room.entities.Delivery;
 import com.nfrancoi.delivery.room.entities.DeliveryProductsJoin;
 import com.nfrancoi.delivery.room.entities.Employee;
 import com.nfrancoi.delivery.room.entities.PointOfDelivery;
+import com.nfrancoi.delivery.tools.CalendarTools;
 import com.nfrancoi.delivery.tools.StringTools;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,11 +44,11 @@ public class DeliveryViewModel extends AndroidViewModel {
     //
     //cache
     //
-    private LiveData<List<DeliveryProductsJoinDao.DeliveryProductDetail>> selectedDepositDeliveryProductDetails;
+    private LiveData<List<DeliveryProductsJoin>> selectedDepositDeliveryProductDetails;
     private MutableLiveData<String> filterDepositDeliveryProductDetails;
-    private LiveData<List<DeliveryProductsJoinDao.DeliveryProductDetail>> filteredDepositDeliveryProductDetails;
+    private LiveData<List<DeliveryProductsJoin>> filteredDepositDeliveryProductDetails;
 
-    private LiveData<List<DeliveryProductsJoinDao.DeliveryProductDetail>> selectedTakeDeliveryProductDetails;
+    private LiveData<List<DeliveryProductsJoin>> selectedTakeDeliveryProductDetails;
     private MediatorLiveData<BigDecimal> selectedDeliveryTotalAmount = new MediatorLiveData<>();
 
 
@@ -73,10 +74,10 @@ public class DeliveryViewModel extends AndroidViewModel {
                 return selectedDepositDeliveryProductDetails;
             } else {
                 MutableLiveData filteredLiveData = new MutableLiveData();
-                List<DeliveryProductsJoinDao.DeliveryProductDetail> listFiltered =
+                List<DeliveryProductsJoin> listFiltered =
                         selectedDepositDeliveryProductDetails.getValue().stream()
                                 .filter(deliveryProductDetail -> deliveryProductDetail.productName.toLowerCase().contains(filter.toLowerCase())
-                                                                || StringTools.PriceFormat.format(deliveryProductDetail.priceHtUnit).contains(filter.toLowerCase()))
+                                                                || StringTools.PriceFormat.format(deliveryProductDetail.priceUnitVatIncl).contains(filter.toLowerCase()))
                                 .collect(Collectors.toList());
                 filteredLiveData.setValue(listFiltered);
 
@@ -101,6 +102,10 @@ public class DeliveryViewModel extends AndroidViewModel {
         return selectedDelivery;
     }
 
+    private String calculateNoteId(Employee employee){
+        return CalendarTools.YYYYMMDD.format(Calendar.getInstance().getTime()) + "_" + employee.notePrefix + selectedDelivery.getValue().deliveryId;
+    }
+
 
     //
     // Deposit productDetails
@@ -113,24 +118,24 @@ public class DeliveryViewModel extends AndroidViewModel {
         return filterDepositDeliveryProductDetails;
     }
 
-    public LiveData<List<DeliveryProductsJoinDao.DeliveryProductDetail>> getSelectedDepositDeliveryProductDetails() {
+    public LiveData<List<DeliveryProductsJoin>> getSelectedDepositDeliveryProductDetails() {
         return selectedDepositDeliveryProductDetails;
     }
 
 
-    private void totalAmountObserver(List<DeliveryProductsJoinDao.DeliveryProductDetail> deliveryProductDetails) {
+    private void totalAmountObserver(List<DeliveryProductsJoin> deliveryProductDetails) {
         BigDecimal sumPriceDeposit = BigDecimal.ZERO;
         BigDecimal sumPriceTake = BigDecimal.ZERO;
         if (selectedDepositDeliveryProductDetails.getValue() != null) {
-            sumPriceDeposit = selectedDepositDeliveryProductDetails.getValue().stream().map(value -> value.priceHtUnit.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sumPriceDeposit = selectedDepositDeliveryProductDetails.getValue().stream().map(value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
         }
         if (selectedTakeDeliveryProductDetails.getValue() != null) {
-            sumPriceTake = selectedTakeDeliveryProductDetails.getValue().stream().map(value -> value.priceHtUnit.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
+            sumPriceTake = selectedTakeDeliveryProductDetails.getValue().stream().map(value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
         }
         selectedDeliveryTotalAmount.setValue(sumPriceDeposit.add(sumPriceTake));
     }
 
-    public LiveData<List<DeliveryProductsJoinDao.DeliveryProductDetail>> getFilteredDepositDeliveryProductDetails() {
+    public LiveData<List<DeliveryProductsJoin>> getFilteredDepositDeliveryProductDetails() {
         return filteredDepositDeliveryProductDetails;
     }
 
@@ -185,6 +190,7 @@ public class DeliveryViewModel extends AndroidViewModel {
     public void onSelectedEmployee(Employee employee) {
         Delivery selectedDelivery = this.selectedDelivery.getValue();
         selectedDelivery.employee = employee;
+        selectedDelivery.noteId = this.calculateNoteId(employee);
         this.updateSelectedDelivery();
 
     }
@@ -193,7 +199,7 @@ public class DeliveryViewModel extends AndroidViewModel {
     //
     // Take
     //
-    public LiveData<List<DeliveryProductsJoinDao.DeliveryProductDetail>> getSelectedTakeDeliveryProductDetails() {
+    public LiveData<List<DeliveryProductsJoin>> getSelectedTakeDeliveryProductDetails() {
         return selectedTakeDeliveryProductDetails;
     }
 
@@ -238,36 +244,36 @@ public class DeliveryViewModel extends AndroidViewModel {
         mRepository.update(delivery);
     }
 
-    public void saveProductDetail(DeliveryProductsJoinDao.DeliveryProductDetail deliveryProductDetailToUpdate) {
+    public void saveProductDetail(DeliveryProductsJoin deliveryProductDetailToUpdate) {
         if (selectedDepositDeliveryProductDetails == null)
             throw new IllegalStateException("selectedDepositDeliveryProductDetails MUST not be null");
 
-        //negative quantity for returns
-        int quantity = deliveryProductDetailToUpdate.quantity * ("T".equals(deliveryProductDetailToUpdate.type) ? -1 : 1);
 
-        //By default apply PointOfDelivery discount
-        BigDecimal discount = deliveryProductDetailToUpdate.discount == null ?
-                deliveryProductDetailToUpdate.discount : selectedDelivery.getValue().pointOfDelivery.discountPercentage;
-        BigDecimal discountPercentage = discount.divide(BigDecimal.valueOf(100));
-        BigDecimal discountMultiplicator = BigDecimal.ONE.add(discountPercentage.negate());
-
-        BigDecimal priceHtTot = deliveryProductDetailToUpdate.priceHtUnit.multiply(discountMultiplicator)
-                .multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.CEILING);
-
-        DeliveryProductsJoin dp = new DeliveryProductsJoin(deliveryProductDetailToUpdate.deliveryId,
-                deliveryProductDetailToUpdate.productId,
-                deliveryProductDetailToUpdate.type,
-                quantity,
-                deliveryProductDetailToUpdate.priceHtUnit,
-                priceHtTot,
-                deliveryProductDetailToUpdate.vat,
-                discountPercentage
-        );
-
-        if (dp.quantity == 0) {
-            mRepository.deleteDeliveryProductJoin(dp.deliveryId, dp.productId, dp.type);
+        if (deliveryProductDetailToUpdate.quantity == 0) {
+            mRepository.deleteDeliveryProductJoin(deliveryProductDetailToUpdate.deliveryId, deliveryProductDetailToUpdate.productId, deliveryProductDetailToUpdate.type);
         } else {
-            mRepository.insertReplace(dp);
+            //Capture Quantity and PU vatIncl
+
+            //By default apply PointOfDelivery discount
+            BigDecimal discount = deliveryProductDetailToUpdate.discount == null ?
+                    deliveryProductDetailToUpdate.discount : selectedDelivery.getValue().pointOfDelivery.discountPercentage;
+            deliveryProductDetailToUpdate.discount = discount;
+
+            //negate quantity for return
+            int quantity = deliveryProductDetailToUpdate.quantity * ("T".equals(deliveryProductDetailToUpdate.type) ? -1 : 1);
+            deliveryProductDetailToUpdate.quantity = quantity;
+
+            BigDecimal vatDivider = deliveryProductDetailToUpdate.vat.equals(BigDecimal.ZERO)? BigDecimal.ONE:BigDecimal.ONE.add(deliveryProductDetailToUpdate.vat.divide(BigDecimal.valueOf(100l)));
+            BigDecimal priceUnitVatExcl = deliveryProductDetailToUpdate.priceUnitVatIncl.setScale(3).divide(vatDivider,RoundingMode.HALF_UP);
+            deliveryProductDetailToUpdate.priceUnitVatExcl = priceUnitVatExcl.setScale(2, RoundingMode.HALF_UP);
+
+            BigDecimal discountMultiplicator = BigDecimal.ONE.add(discount.negate().divide(BigDecimal.valueOf(100l)));
+            BigDecimal priceTotVatExclDiscounted = priceUnitVatExcl.multiply(BigDecimal.valueOf(deliveryProductDetailToUpdate.quantity)).multiply(discountMultiplicator);
+            deliveryProductDetailToUpdate.priceTotVatDiscounted = priceTotVatExclDiscounted.setScale(2, RoundingMode.HALF_UP);;
+
+
+
+            mRepository.insertReplace(deliveryProductDetailToUpdate);
         }
     }
 
