@@ -27,8 +27,8 @@ public abstract class EmployeeDao extends BaseDao<Employee> {
     @Query("SELECT * FROM Employee ORDER BY name")
     public abstract LiveData<List<Employee>> getEmployee();
 
-    @Query("SELECT * FROM Employee WHERE isDefault = 1")
-    public abstract LiveData<Employee> getEmployeeByDefault();
+    @Query("SELECT * FROM Employee WHERE name = :name")
+    public abstract LiveData<Employee> getEmployeeByName(String name);
 
     @Query("DELETE FROM Employee")
     public abstract void deleteAll();

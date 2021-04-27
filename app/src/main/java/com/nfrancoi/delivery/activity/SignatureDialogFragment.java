@@ -1,6 +1,7 @@
 package com.nfrancoi.delivery.activity;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -57,7 +58,7 @@ public class SignatureDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         Window window = getDialog().getWindow();
@@ -99,9 +100,10 @@ public class SignatureDialogFragment extends DialogFragment {
             byte[] signatureBytes = BitmapTools.bitmapToByteArray(signaturePad.getSignatureBitmap());
             Delivery selectedDelivery = deliveryViewModel.getSelectedDelivery().getValue();
             selectedDelivery.signatureBytes = signatureBytes;
-            deliveryViewModel.updateDelivery(selectedDelivery);
+            deliveryViewModel.updateDeliverySync(selectedDelivery);
 
-            getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+            dismiss();
+            // getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
 
         });
 
@@ -128,12 +130,21 @@ public class SignatureDialogFragment extends DialogFragment {
                 public void onClear() {
                     deliveryViewModel.getSelectedDelivery().getValue();
                     selectedDelivery.signatureBytes = null;
-                    deliveryViewModel.updateDelivery(selectedDelivery);
+                    deliveryViewModel.updateDeliverySync(selectedDelivery);
                 }
             });
 
         });
 
 
+    }
+
+    @Override
+    public void onDismiss(final DialogInterface dialog) {
+        super.onDismiss(dialog);
+        Fragment parentFragment = getTargetFragment();
+        if (parentFragment instanceof DialogInterface.OnDismissListener) {
+            ((DialogInterface.OnDismissListener) parentFragment).onDismiss(dialog);
+        }
     }
 }

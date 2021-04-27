@@ -2,7 +2,12 @@ package com.nfrancoi.delivery.worker;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -26,6 +31,22 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
+class HandlerToast {
+
+    Handler handler = new Handler(Looper.getMainLooper());
+
+    public HandlerToast(Context context, int resId) {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, resId,
+                        Toast.LENGTH_LONG).show();
+            }
+        }, 1000);
+    }
+
+}
+
 
 public class SyncDataBaseWorker extends Worker {
 
@@ -44,6 +65,10 @@ public class SyncDataBaseWorker extends Worker {
     public Result doWork() {
         List<String> logs = new ArrayList<>(0);
 
+        if (!this.isOnline()) {
+            new HandlerToast(getApplicationContext(), R.string.sync_database_worker_offline_error);
+            return Result.failure();
+        }
         try {
             logs.add("Start Companies");
             ValueRange resultsCompany = GoogleApiGateway.getInstance().getCompaniesGoogleSheet();
@@ -67,21 +92,17 @@ public class SyncDataBaseWorker extends Worker {
             List<Employee> employees = this.mapToEmployees(resultsEmployees);
             logs.addAll(Repository.getInstance().syncAllEmployee(employees));
 
-
-
         } catch (Exception e) {
             e.printStackTrace();
             WorkerUtils.makeStatusNotification(NOTIFICATION_TITLE, "Erreur:" + e.getMessage(), getApplicationContext());
 
             SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(DeliveryApplication.getInstance().getBaseContext()).edit();
-            prefs.putString("sync_start_button", "ERREUR: "+ e.getMessage());
+            prefs.putString("sync_start_button", "ERREUR: " + e.getMessage());
             prefs.commit();
 
             return Result.failure();
 
         }
-
-        WorkerUtils.makeStatusNotification(NOTIFICATION_TITLE, "done", getApplicationContext());
 
         logs.stream().forEach(s -> {
             Log.i(TAG, s);
@@ -91,10 +112,10 @@ public class SyncDataBaseWorker extends Worker {
         prefs.putString("sync_start_button", CalendarTools.DDMMYYYY.format(Calendar.getInstance().getTime()) + " " + CalendarTools.HHmm.format(Calendar.getInstance().getTime()));
         prefs.apply();
 
+        new HandlerToast(getApplicationContext(), R.string.sync_database_worker_success);
 
         return Result.success();
     }
-
 
 
     private List<PointOfDelivery> mapToPointOfDeliveries(ValueRange result) {
@@ -125,8 +146,8 @@ public class SyncDataBaseWorker extends Worker {
             Long id = Long.valueOf("" + objects.get(i++));
             String name = "" + objects.get(i++);
             String type = "" + objects.get(i++);
-            BigDecimal priceVat =  BigDecimal.valueOf(Double.parseDouble("" +objects.get(i++)));
-            BigDecimal vat = BigDecimal.valueOf(Double.parseDouble("" +objects.get(i++)));
+            BigDecimal priceVat = BigDecimal.valueOf(Double.parseDouble("" + objects.get(i++)));
+            BigDecimal vat = BigDecimal.valueOf(Double.parseDouble("" + objects.get(i++)));
             Boolean isActive = ("" + objects.get(i++)).equals("Oui") ? true : false;
 
             Product product = new Product(id, name, type, priceVat, vat, isActive);
@@ -152,7 +173,7 @@ public class SyncDataBaseWorker extends Worker {
             String account = "" + objects.get(i++);
             Boolean isActive = ("" + objects.get(i++)).equals("Oui") ? true : false;
 
-            Company company = new Company(id, name, address, phone1, phone2, email, vat, account,isActive);
+            Company company = new Company(id, name, address, phone1, phone2, email, vat, account, isActive);
             return company;
 
         }).collect(Collectors.toList());
@@ -180,5 +201,11 @@ public class SyncDataBaseWorker extends Worker {
         return employees;
     }
 
+    public boolean isOnline() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
 
 }

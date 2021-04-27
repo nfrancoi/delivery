@@ -48,8 +48,8 @@
         android:key="employees"
         android:title="@string/preference_employee_title">
         <EditTextPreference
-            android:key="employees_modify"
-            android:title="modif "
+            android:key="employee_default"
+            android:title="Employé "
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 

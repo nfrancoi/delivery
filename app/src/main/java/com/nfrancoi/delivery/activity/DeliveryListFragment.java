@@ -73,6 +73,8 @@ public class DeliveryListFragment extends Fragment implements DeliveryListAdapte
         TextView date = (TextView) view.findViewById(R.id.fragment_delivery_list_date);
         date.setText(CalendarTools.DDMMYYYY.format(calendarDay.getTime()));
 
+        requireActivity().setTitle(R.string.fragment_delivery_list_title);
+
         RecyclerView recyclerView = view.findViewById(R.id.recyclerview);
         deliveryListAdapter = new DeliveryListAdapter(requireActivity());
         deliveryListAdapter.setOnItemClickListener(this);

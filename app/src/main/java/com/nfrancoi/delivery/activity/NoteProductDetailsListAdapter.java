@@ -21,21 +21,23 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
         private final TextView type;
         private final TextView productName;
         private final TextView quantity;
-        private final TextView priceHtUnit;
+        private final TextView puHvat;
         private final TextView discount;
-        private final TextView priceHtTot;
+        private final TextView ptHvat;
         private final TextView vat;
+        private final TextView ptVat;
 
 
         private NoteDeliveryProductDetailViewHolder(View itemView) {
             super(itemView);
             productName = itemView.findViewById(R.id.pdf_note_product_detail_item_name);
-            priceHtUnit = itemView.findViewById(R.id.pdf_note_product_detail_item_priceht_unit);
+            puHvat = itemView.findViewById(R.id.pdf_note_product_detail_item_pu_hvat);
             discount = itemView.findViewById(R.id.pdf_note_product_detail_item_discount);
-            priceHtTot = itemView.findViewById(R.id.pdf_note_product_detail_item_priceht_total);
+            ptHvat = itemView.findViewById(R.id.pdf_note_product_detail_item_pt_hvat);
             vat = itemView.findViewById(R.id.pdf_note_product_detail_item_vat);
             quantity = itemView.findViewById(R.id.pdf_note_product_detail_item_quantity);
             type = itemView.findViewById(R.id.pdf_note_product_detail_item_type);
+            ptVat = itemView.findViewById(R.id.pdf_note_product_detail_item_pt_vat);
         }
     }
 
@@ -67,16 +69,20 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
                 case "D":
                     typeName = "Depos";
                     break;
+                case "S":
+                    typeName = "Vente";
+                    break;
             }
             holder.type.setText(typeName);
 
             holder.productName.setText(current.productName);
-            holder.priceHtUnit.setText(""+current.priceUnitVatIncl);
+            holder.puHvat.setText(""+current.priceUnitVatIncl);
             holder.discount.setText(""+current.discount);
 
-            holder.priceHtTot.setText(""+current.priceTotVatDiscounted);
+            holder.ptHvat.setText(""+current.priceTotVatExclDiscounted);
             holder.quantity.setText(""+current.quantity); //negative for return
-            holder.vat.setText(""+current.vat);
+            holder.vat.setText(""+current.vatApplicable);
+            holder.ptVat.setText(""+current.priceTotVatInclDiscounted);
 
         } else {
             // Covers the case of data not being ready yet.

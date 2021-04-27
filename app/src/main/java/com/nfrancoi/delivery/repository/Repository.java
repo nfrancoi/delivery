@@ -4,6 +4,8 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.preference.PreferenceManager;
 import androidx.room.Transaction;
 
 import com.nfrancoi.delivery.DeliveryApplication;
@@ -25,10 +27,13 @@ import com.nfrancoi.delivery.room.entities.Product;
 import com.nfrancoi.delivery.tools.CalendarTools;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 
@@ -88,7 +93,11 @@ public class Repository {
 
         employeeDao = db.getEmployeeDao();
         employees = employeeDao.getEmployee();
-        employeeByDefault = employeeDao.getEmployeeByDefault();
+
+        String defaultEmployeeName = PreferenceManager.getDefaultSharedPreferences(DeliveryApplication.getInstance().getApplicationContext()).getString("employee_default", null);
+
+
+        employeeByDefault = employeeDao.getEmployeeByName(defaultEmployeeName);
 
     }
 
@@ -139,7 +148,7 @@ public class Repository {
         return deliveryDao.insertReplace(delivery);
     }
 
-    public void update(final Delivery delivery) {
+    public void updateSync(final Delivery delivery) {
         DeliveryDatabase.databaseWriteExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -147,6 +156,19 @@ public class Repository {
                 System.out.println(i);
             }
         });
+    }
+
+    public LiveData<Delivery> update(final Delivery delivery) {
+        MutableLiveData<Delivery> deliveryLiveData = new MutableLiveData<>();
+        DeliveryDatabase.databaseWriteExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                int i = deliveryDao.updateSync(delivery);
+                System.out.println(i);
+                deliveryLiveData.postValue(delivery);
+            }
+        });
+        return deliveryLiveData;
     }
 
     public int updateDeliveryNoteSentSync(final Long deliveryId) {
@@ -178,7 +200,7 @@ public class Repository {
             values.add(details.get(i).vat);
             values.add(details.get(i).priceUnitVatExcl);
             values.add(details.get(i).discount);
-            values.add(details.get(i).priceTotVatDiscounted);
+            values.add(details.get(i).priceTotVatExclDiscounted);
 
             valuess.add(values);
         }
@@ -217,29 +239,33 @@ public class Repository {
         });
     }
 
-    public void deleteDeliveryProductJoin(Long deliveryId, Long productId, String type) {
+    public void deleteDeliveryProductJoin(DeliveryProductsJoin deliveryProductsJoin) {
         DeliveryDatabase.databaseWriteExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                deliveryProductJoinDao.delete(deliveryId, productId, type);
+                deliveryProductJoinDao.delete(deliveryProductsJoin);
             }
         });
 
     }
 
 
-    public LiveData<List<DeliveryProductsJoin>> loadDepositDeliveryProductDetails(Long deliveryId) {
-        return deliveryProductJoinDao.loadDeliveryProductDetails(deliveryId, "D");
+    public LiveData<DeliveryProductsJoin> getDeliveryProductsJoin(Long deliveryProductsJoin) {
+        return deliveryProductJoinDao.getDeliveryProductsJoin(deliveryProductsJoin);
     }
 
-    public LiveData<List<DeliveryProductsJoin>> loadTakeDeliveryProductDetails(Long deliveryId) {
-        return deliveryProductJoinDao.loadDeliveryProductDetails(deliveryId, "T");
+    public LiveData<List<DeliveryProductsJoin>> loadDepositDeliveryProducts(Long deliveryId) {
+        return deliveryProductJoinDao.loadDeliveryProducts(deliveryId, "D");
     }
 
-    public LiveData<List<DeliveryProductsJoin>> loadAllDeliveryProductDetails(Long deliveryId) {
-        return deliveryProductJoinDao.loadNoteDeliveryProductDetail(deliveryId);
-
+    public LiveData<List<DeliveryProductsJoin>> loadTakeDeliveryProducts(Long deliveryId) {
+        return deliveryProductJoinDao.loadDeliveryProducts(deliveryId, "T");
     }
+
+    public LiveData<List<DeliveryProductsJoin>> loadSellDeliveryProducts(Long deliveryId) {
+        return deliveryProductJoinDao.loadSellDeliveryProducts(deliveryId);
+    }
+
 
     public List<DeliveryProductsJoin> loadNoteDeliveryProductDetailSync(Long deliveryId) {
         return deliveryProductJoinDao.loadNoteDeliveryProductDetailSync(deliveryId);
@@ -284,7 +310,7 @@ public class Repository {
     //
     // Company
     //
-    public void update(Company company) {
+    public void updateSync(Company company) {
 
         DeliveryDatabase.databaseWriteExecutor.execute(() -> companyDao.updateSync(company));
 
@@ -298,4 +324,53 @@ public class Repository {
     }
 
 
+    @Transaction
+    public LiveData<List<DeliveryProductsJoin>> calculateDeliveryProductsJoinsPrices(Delivery delivery) {
+        MutableLiveData<List<DeliveryProductsJoin>> updateReturn = new MutableLiveData<>();
+
+        DeliveryDatabase.databaseWriteExecutor.execute(() -> {
+
+
+            List<DeliveryProductsJoin> deliveryProductsJoinsUpdated =
+                    loadNoteDeliveryProductDetailSync(delivery.deliveryId).stream().map(deliveryProductDetailToUpdate -> {
+
+                        BigDecimal priceUnitVatIncl = deliveryProductDetailToUpdate.priceUnitVatIncl.setScale(3, RoundingMode.HALF_UP);
+
+                        BigDecimal vatDivider = deliveryProductDetailToUpdate.vat.equals(BigDecimal.ZERO) ? BigDecimal.ONE : BigDecimal.ONE.add(deliveryProductDetailToUpdate.vat.divide(BigDecimal.valueOf(100l)));
+                        BigDecimal priceUnitVatExcl = priceUnitVatIncl.divide(vatDivider,3,RoundingMode.HALF_UP );
+                        deliveryProductDetailToUpdate.priceUnitVatExcl = priceUnitVatExcl.setScale(2, RoundingMode.HALF_UP);
+
+                        BigDecimal discountMultiplicator = BigDecimal.ONE.add(deliveryProductDetailToUpdate.discount.negate().divide(BigDecimal.valueOf(100l),3, RoundingMode.HALF_UP));
+                        BigDecimal priceUnitVatExclDiscounted = priceUnitVatExcl.multiply(discountMultiplicator);
+
+                        BigDecimal priceTotVatExclDiscounted = priceUnitVatExclDiscounted.multiply(new BigDecimal(deliveryProductDetailToUpdate.quantity));
+                        deliveryProductDetailToUpdate.priceTotVatExclDiscounted = priceTotVatExclDiscounted.setScale(2, RoundingMode.HALF_UP);;
+
+
+                        if (delivery.isVatApplicable) {
+                            deliveryProductDetailToUpdate.vatApplicable = deliveryProductDetailToUpdate.vat;
+                        } else {
+                            deliveryProductDetailToUpdate.vatApplicable = BigDecimal.ZERO;
+                        }
+
+                        BigDecimal priceTotVatInclDiscounted = priceTotVatExclDiscounted.multiply(BigDecimal.ONE.add(deliveryProductDetailToUpdate.vatApplicable.divide(new BigDecimal(100l)))).setScale(3, RoundingMode.HALF_UP);
+                        ;
+                        deliveryProductDetailToUpdate.priceTotVatInclDiscounted = priceTotVatInclDiscounted.setScale(2, RoundingMode.HALF_UP);;
+
+
+                        deliveryProductDetailToUpdate.priceTotVatExclDiscounted = priceTotVatExclDiscounted.setScale(2, RoundingMode.HALF_UP);
+
+                        return deliveryProductDetailToUpdate;
+
+                    }).collect(Collectors.toList());
+
+            int nbrUpdated = deliveryProductJoinDao.update(deliveryProductsJoinsUpdated);
+            updateReturn.postValue(deliveryProductsJoinsUpdated);
+        });
+
+
+        return updateReturn;
+
+
+    }
 }

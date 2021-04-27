@@ -8,11 +8,14 @@ import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.snackbar.Snackbar;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
+import com.nfrancoi.delivery.worker.SyncDataBaseWorker;
 
 import java.util.Calendar;
 import java.util.List;
@@ -104,6 +107,12 @@ public class MainActivity extends AppCompatActivity {
                         Snackbar.make(findViewById(android.R.id.content), R.string.activity_main_google_account_not_selected, Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
+
+                    //Sync
+                    WorkManager syncWorkManager = WorkManager.getInstance(this.getApplicationContext());
+                    syncWorkManager.enqueue( OneTimeWorkRequest.from(SyncDataBaseWorker.class));
+
+
                     this.showDeliverySlideFragment();
 
                 } else {

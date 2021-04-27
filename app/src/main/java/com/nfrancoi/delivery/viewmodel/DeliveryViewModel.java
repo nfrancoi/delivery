@@ -2,12 +2,10 @@ package com.nfrancoi.delivery.viewmodel;
 
 import android.app.Application;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
 import com.nfrancoi.delivery.repository.Repository;
 import com.nfrancoi.delivery.room.entities.Delivery;
@@ -18,14 +16,10 @@ import com.nfrancoi.delivery.tools.CalendarTools;
 import com.nfrancoi.delivery.tools.StringTools;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 public class DeliveryViewModel extends AndroidViewModel {
 
@@ -44,12 +38,28 @@ public class DeliveryViewModel extends AndroidViewModel {
     //
     //cache
     //
-    private LiveData<List<DeliveryProductsJoin>> selectedDepositDeliveryProductDetails;
-    private MutableLiveData<String> filterDepositDeliveryProductDetails;
-    private LiveData<List<DeliveryProductsJoin>> filteredDepositDeliveryProductDetails;
 
-    private LiveData<List<DeliveryProductsJoin>> selectedTakeDeliveryProductDetails;
+    //Deposit
+    private LiveData<List<DeliveryProductsJoin>> selectedDepositDeliveryProducts;
+    private MutableLiveData<String> filterDepositLD;
+    private MediatorLiveData<List<DeliveryProductsJoin>> filteredDepositDeliveryProducts;
+    private MutableLiveData<Boolean> filterDepositZeroQuantity;
+
+    //take
+    private LiveData<List<DeliveryProductsJoin>> selectedTakeDeliveryProducts;
+    private MutableLiveData<String> filterTakeLD;
+    private MediatorLiveData<List<DeliveryProductsJoin>> filteredTakeDeliveryProducts;
+    private MutableLiveData<Boolean> filterTakeZeroQuantity;
+
+
+    //sell
+    private LiveData<List<DeliveryProductsJoin>> selectedSellDeliveryProducts;
+
     private MediatorLiveData<BigDecimal> selectedDeliveryTotalAmount = new MediatorLiveData<>();
+
+
+    //Edit DeliveryProductJoin
+    private DeliveryProductsJoin editDeliveryProductsJoin;
 
 
     public DeliveryViewModel(Application application, Long deliveryId) {
@@ -66,33 +76,112 @@ public class DeliveryViewModel extends AndroidViewModel {
         //
         // Deposit
         //
-        this.selectedDepositDeliveryProductDetails = mRepository.loadDepositDeliveryProductDetails(deliveryId);
-        this.filterDepositDeliveryProductDetails = new MediatorLiveData<>();
-        this.filterDepositDeliveryProductDetails.setValue("");
-        this.filteredDepositDeliveryProductDetails = Transformations.switchMap(filterDepositDeliveryProductDetails, filter -> {
-            if (filter == null || filter.equals("") || selectedDepositDeliveryProductDetails.getValue() == null) {
-                return selectedDepositDeliveryProductDetails;
-            } else {
-                MutableLiveData filteredLiveData = new MutableLiveData();
-                List<DeliveryProductsJoin> listFiltered =
-                        selectedDepositDeliveryProductDetails.getValue().stream()
-                                .filter(deliveryProductDetail -> deliveryProductDetail.productName.toLowerCase().contains(filter.toLowerCase())
-                                                                || StringTools.PriceFormat.format(deliveryProductDetail.priceUnitVatIncl).contains(filter.toLowerCase()))
-                                .collect(Collectors.toList());
-                filteredLiveData.setValue(listFiltered);
+        this.selectedDepositDeliveryProducts = mRepository.loadDepositDeliveryProducts(deliveryId);
+        this.filterDepositLD = new MutableLiveData<>("");
+        this.filterDepositZeroQuantity = new MutableLiveData<>(false);
 
-                return filteredLiveData;
-            }
+        this.filteredDepositDeliveryProducts = new MediatorLiveData<>();
+        filteredDepositDeliveryProducts.addSource(this.selectedDepositDeliveryProducts, dpjs -> {
+            String filterString = this.filterDepositLD.getValue();
+            boolean filterZeroQuantity = this.filterDepositZeroQuantity.getValue();
+            List<DeliveryProductsJoin> filteredDpjs = this.filter(dpjs, filterString, filterZeroQuantity);
+            filteredDepositDeliveryProducts.setValue(filteredDpjs);
         });
 
-        this.selectedTakeDeliveryProductDetails = mRepository.loadTakeDeliveryProductDetails(deliveryId);
+        this.filteredDepositDeliveryProducts.addSource(this.filterDepositLD, filterString -> {
+            List<DeliveryProductsJoin> dpjs = this.selectedDepositDeliveryProducts.getValue();
+            boolean filterZeroQuantity = this.filterDepositZeroQuantity.getValue();
+            List<DeliveryProductsJoin> filteredDpjs = this.filter(dpjs, filterString,filterZeroQuantity);
+            filteredDepositDeliveryProducts.setValue(filteredDpjs);
+        });
+        this.filteredDepositDeliveryProducts.addSource(this.filterDepositZeroQuantity, filterZeroQuantity -> {
+            String filterString = this.filterDepositLD.getValue();
+            List<DeliveryProductsJoin> dpjs = this.selectedDepositDeliveryProducts.getValue();
+            List<DeliveryProductsJoin> filteredDpjs = this.filter(dpjs, filterString,this.filterDepositZeroQuantity.getValue());
+            filteredDepositDeliveryProducts.setValue(filteredDpjs);
+        });
+
+
+        //
+        // Take
+        //
+        this.selectedTakeDeliveryProducts = mRepository.loadTakeDeliveryProducts(deliveryId);
+        this.filterTakeLD = new MutableLiveData<>("");
+        this.filterTakeZeroQuantity = new MutableLiveData<>(false);
+
+        this.filteredTakeDeliveryProducts = new MediatorLiveData<>();
+        filteredTakeDeliveryProducts.addSource(this.selectedTakeDeliveryProducts, dpjs -> {
+            String filterString = this.filterTakeLD.getValue();
+            boolean filterZeroQuantity = this.filterTakeZeroQuantity.getValue();
+            List<DeliveryProductsJoin> filteredDpjs = this.filter(dpjs, filterString,filterZeroQuantity);
+            filteredTakeDeliveryProducts.setValue(filteredDpjs);
+        });
+
+        this.filteredTakeDeliveryProducts.addSource(this.filterTakeLD, filterString -> {
+            boolean filterZeroQuantity = this.filterTakeZeroQuantity.getValue();
+            List<DeliveryProductsJoin> dpjs = this.selectedTakeDeliveryProducts.getValue();
+            List<DeliveryProductsJoin> filteredDpjs = this.filter(dpjs, filterString, filterZeroQuantity);
+            filteredTakeDeliveryProducts.setValue(filteredDpjs);
+        });
+        this.filteredTakeDeliveryProducts.addSource(this.filterTakeZeroQuantity, filterZeroQuantity -> {
+            String filterString = this.filterTakeLD.getValue();
+            List<DeliveryProductsJoin> dpjs = this.selectedTakeDeliveryProducts.getValue();
+            List<DeliveryProductsJoin> filteredDpjs = this.filter(dpjs, filterString,this.filterTakeZeroQuantity.getValue());
+            filteredTakeDeliveryProducts.setValue(filteredDpjs);
+        });
+
+
+        //
+        // Sell
+        //
+        this.selectedSellDeliveryProducts = mRepository.loadSellDeliveryProducts(deliveryId);
+
+        //
+        //Total
+        //
         this.selectedDeliveryTotalAmount = new MediatorLiveData<>();
         this.selectedDeliveryTotalAmount.setValue(BigDecimal.ZERO);
 
-        this.selectedDeliveryTotalAmount.addSource(selectedDepositDeliveryProductDetails, this::totalAmountObserver);
+        this.selectedDeliveryTotalAmount.addSource(selectedDepositDeliveryProducts, this::totalAmountObserver);
+        this.selectedDeliveryTotalAmount.addSource(selectedTakeDeliveryProducts, this::totalAmountObserver);
+        this.selectedDeliveryTotalAmount.addSource(selectedSellDeliveryProducts, this::totalAmountObserver);
 
-        this.selectedDeliveryTotalAmount.addSource(selectedTakeDeliveryProductDetails, this::totalAmountObserver);
+    }
 
+    private List<DeliveryProductsJoin> filter(List<DeliveryProductsJoin> deliveryProducts, String filter, boolean filterZeroQuantity) {
+        if (deliveryProducts == null) {
+            return new ArrayList<>();
+        }
+
+        return deliveryProducts.stream()
+                .filter(deliveryProduct -> (
+                                //filter quantity if flag activated
+                                (deliveryProduct.quantity != 0 || filterZeroQuantity == false)
+                                        &&
+                                        (
+                                                deliveryProduct.productName.toLowerCase().contains(filter.toLowerCase())
+                                                        || StringTools.PriceFormat.format(deliveryProduct.priceUnitVatIncl).contains(filter.toLowerCase())
+                                        )
+                        )
+                ).collect(Collectors.toList());
+    }
+
+
+    public void setFilterDepositZeroQuantity(boolean filterDepositZeroQuantity){
+        this.filterDepositZeroQuantity.setValue(filterDepositZeroQuantity);
+    }
+
+
+    public void setFilterTakeZeroQuantity(boolean filterTakeZeroQuantity){
+        this.filterTakeZeroQuantity.setValue(filterTakeZeroQuantity);
+    }
+
+    public MutableLiveData<Boolean> getFilterDepositZeroQuantity() {
+        return filterDepositZeroQuantity;
+    }
+
+    public MutableLiveData<Boolean> getFilterTakeZeroQuantity() {
+        return filterTakeZeroQuantity;
     }
 
     //
@@ -102,41 +191,86 @@ public class DeliveryViewModel extends AndroidViewModel {
         return selectedDelivery;
     }
 
-    private String calculateNoteId(Employee employee){
+    private String calculateNoteId(Employee employee) {
         return CalendarTools.YYYYMMDD.format(Calendar.getInstance().getTime()) + "_" + employee.notePrefix + selectedDelivery.getValue().deliveryId;
     }
 
 
     //
-    // Deposit productDetails
+    // Deposit products
     //
     public void filterDepositDeliveryProductDetails(String filter) {
-        this.filterDepositDeliveryProductDetails.setValue(filter);
+        this.filterDepositLD.setValue(filter);
     }
 
-    public LiveData<String> getFilterDepositDeliveryProductDetails() {
-        return filterDepositDeliveryProductDetails;
+    public LiveData<String> getFilterDepositLD() {
+        return filterDepositLD;
     }
 
-    public LiveData<List<DeliveryProductsJoin>> getSelectedDepositDeliveryProductDetails() {
-        return selectedDepositDeliveryProductDetails;
+    public LiveData<List<DeliveryProductsJoin>> getSelectedDepositDeliveryProducts() {
+        return selectedDepositDeliveryProducts;
     }
 
+    public LiveData<List<DeliveryProductsJoin>> getFilteredDepositDeliveryProducts() {
+        return filteredDepositDeliveryProducts;
+    }
+
+
+    public void deleteDeliveryProductsJoin(DeliveryProductsJoin dpj) {
+        mRepository.deleteDeliveryProductJoin(dpj);
+    }
+
+
+    //
+    // Take
+    //
+    public void filterTakeDeliveryProductDetails(String filter) {
+        this.filterTakeLD.setValue(filter);
+    }
+
+    public LiveData<String> getFilterTakeLD() {
+        return filterTakeLD;
+    }
+
+    public LiveData<List<DeliveryProductsJoin>> getSelectedTakeDeliveryProducts() {
+        return selectedTakeDeliveryProducts;
+    }
+
+    public LiveData<List<DeliveryProductsJoin>> getFilteredTakeDeliveryProducts() {
+        return filteredTakeDeliveryProducts;
+    }
+
+    //
+    // Sell
+    //
+    public LiveData<List<DeliveryProductsJoin>> getSelectedSellDeliveryProducts() {
+        return selectedSellDeliveryProducts;
+    }
+
+
+    //
+    // Total
+    //
+
+    public LiveData<BigDecimal> getSelectedDeliveryTotalAmount() {
+        return selectedDeliveryTotalAmount;
+    }
 
     private void totalAmountObserver(List<DeliveryProductsJoin> deliveryProductDetails) {
         BigDecimal sumPriceDeposit = BigDecimal.ZERO;
+        if (selectedDepositDeliveryProducts.getValue() != null) {
+            sumPriceDeposit = selectedDepositDeliveryProducts.getValue().stream().map(value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
         BigDecimal sumPriceTake = BigDecimal.ZERO;
-        if (selectedDepositDeliveryProductDetails.getValue() != null) {
-            sumPriceDeposit = selectedDepositDeliveryProductDetails.getValue().stream().map(value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (selectedTakeDeliveryProducts.getValue() != null) {
+            sumPriceTake = selectedTakeDeliveryProducts.getValue().stream().map(value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
         }
-        if (selectedTakeDeliveryProductDetails.getValue() != null) {
-            sumPriceTake = selectedTakeDeliveryProductDetails.getValue().stream().map(value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal sumPriceSell = BigDecimal.ZERO;
+        if (selectedSellDeliveryProducts.getValue() != null) {
+            sumPriceSell = selectedSellDeliveryProducts.getValue().stream().map(value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
         }
-        selectedDeliveryTotalAmount.setValue(sumPriceDeposit.add(sumPriceTake));
-    }
 
-    public LiveData<List<DeliveryProductsJoin>> getFilteredDepositDeliveryProductDetails() {
-        return filteredDepositDeliveryProductDetails;
+        selectedDeliveryTotalAmount.setValue(sumPriceDeposit.add(sumPriceTake).add(sumPriceSell));
     }
 
 
@@ -164,6 +298,7 @@ public class DeliveryViewModel extends AndroidViewModel {
         else
             return false;
     }
+
 
     public boolean isDeliveryReadyToSelectProducts(Delivery delivery) {
         if (delivery.pointOfDelivery != null)
@@ -197,21 +332,6 @@ public class DeliveryViewModel extends AndroidViewModel {
 
 
     //
-    // Take
-    //
-    public LiveData<List<DeliveryProductsJoin>> getSelectedTakeDeliveryProductDetails() {
-        return selectedTakeDeliveryProductDetails;
-    }
-
-    //
-    // Total
-    //
-
-    public LiveData<BigDecimal> getSelectedDeliveryTotalAmount() {
-        return selectedDeliveryTotalAmount;
-    }
-
-    //
     //Employees
     //
 
@@ -229,33 +349,33 @@ public class DeliveryViewModel extends AndroidViewModel {
     // Save
     //
 
-    public Single<Long> insert(@NonNull Delivery deliveryP) {
-        Single<Long> observable = mRepository.insert(deliveryP);
-        observable = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
-        return observable;
-    }
-
     public void updateSelectedDelivery() {
         Delivery currentDelivery = selectedDelivery.getValue();
-        mRepository.update(currentDelivery);
+        mRepository.updateSync(currentDelivery);
     }
 
-    public void updateDelivery(Delivery delivery) {
-        mRepository.update(delivery);
+    public void updateDeliverySync(Delivery delivery) {
+        mRepository.updateSync(delivery);
     }
+
+
+    public LiveData<Delivery> updateDelivery(Delivery delivery) {
+        return mRepository.update(delivery);
+    }
+
 
     public void saveProductDetail(DeliveryProductsJoin deliveryProductDetailToUpdate) {
-        if (selectedDepositDeliveryProductDetails == null)
+        if (selectedDepositDeliveryProducts == null)
             throw new IllegalStateException("selectedDepositDeliveryProductDetails MUST not be null");
 
 
         if (deliveryProductDetailToUpdate.quantity == 0) {
-            mRepository.deleteDeliveryProductJoin(deliveryProductDetailToUpdate.deliveryId, deliveryProductDetailToUpdate.productId, deliveryProductDetailToUpdate.type);
+            mRepository.deleteDeliveryProductJoin(deliveryProductDetailToUpdate);
         } else {
-            //Capture Quantity and PU vatIncl
+            //Capture Quantity / PU vatIncl / VAT
 
             //By default apply PointOfDelivery discount
-            BigDecimal discount = deliveryProductDetailToUpdate.discount == null ?
+            BigDecimal discount = deliveryProductDetailToUpdate.discount != null ?
                     deliveryProductDetailToUpdate.discount : selectedDelivery.getValue().pointOfDelivery.discountPercentage;
             deliveryProductDetailToUpdate.discount = discount;
 
@@ -263,18 +383,20 @@ public class DeliveryViewModel extends AndroidViewModel {
             int quantity = deliveryProductDetailToUpdate.quantity * ("T".equals(deliveryProductDetailToUpdate.type) ? -1 : 1);
             deliveryProductDetailToUpdate.quantity = quantity;
 
-            BigDecimal vatDivider = deliveryProductDetailToUpdate.vat.equals(BigDecimal.ZERO)? BigDecimal.ONE:BigDecimal.ONE.add(deliveryProductDetailToUpdate.vat.divide(BigDecimal.valueOf(100l)));
-            BigDecimal priceUnitVatExcl = deliveryProductDetailToUpdate.priceUnitVatIncl.setScale(3).divide(vatDivider,RoundingMode.HALF_UP);
-            deliveryProductDetailToUpdate.priceUnitVatExcl = priceUnitVatExcl.setScale(2, RoundingMode.HALF_UP);
-
-            BigDecimal discountMultiplicator = BigDecimal.ONE.add(discount.negate().divide(BigDecimal.valueOf(100l)));
-            BigDecimal priceTotVatExclDiscounted = priceUnitVatExcl.multiply(BigDecimal.valueOf(deliveryProductDetailToUpdate.quantity)).multiply(discountMultiplicator);
-            deliveryProductDetailToUpdate.priceTotVatDiscounted = priceTotVatExclDiscounted.setScale(2, RoundingMode.HALF_UP);;
-
-
-
             mRepository.insertReplace(deliveryProductDetailToUpdate);
         }
+    }
+
+
+    //
+    // Edit DeliveryProductsJoin
+    //
+    public DeliveryProductsJoin getEditDeliveryProductsJoin() {
+        return editDeliveryProductsJoin;
+    }
+
+    public void setEditDeliveryProductsJoin(DeliveryProductsJoin editDeliveryProductsJoin) {
+        this.editDeliveryProductsJoin = editDeliveryProductsJoin;
     }
 
 

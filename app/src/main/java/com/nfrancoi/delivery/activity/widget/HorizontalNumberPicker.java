@@ -16,6 +16,9 @@ import com.nfrancoi.delivery.R;
 
 public class HorizontalNumberPicker extends LinearLayout {
     private EditText et_number;
+    private Button btn_less;
+    private Button btn_more;
+
     private NumberPickerOnFocusChangeListener numberPickerOnFocusChangeListener;
 
     private int min, max = Integer.MAX_VALUE;
@@ -49,10 +52,10 @@ public class HorizontalNumberPicker extends LinearLayout {
 
 
         //capture event from click button
-        final Button btn_less = findViewById(R.id.btn_less);
+        this.btn_less = findViewById(R.id.btn_less);
         btn_less.setOnClickListener(new AddHandler(-1));
 
-        final Button btn_more = findViewById(R.id.btn_more);
+        this.btn_more = findViewById(R.id.btn_more);
         btn_more.setOnClickListener(new AddHandler(1));
     }
 
@@ -71,7 +74,9 @@ public class HorizontalNumberPicker extends LinearLayout {
         public void onFocusChange(View v, boolean hasFocus) {
             if (!hasFocus) {
                 if (listener != null)
-                    listener.onValueChange(getValue());
+                   listener.onValueChange(getValue());
+            }else{
+
             }
         }
     }

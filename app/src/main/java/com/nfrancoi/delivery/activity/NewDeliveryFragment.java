@@ -1,6 +1,7 @@
 package com.nfrancoi.delivery.activity;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,27 +37,23 @@ import com.google.android.material.snackbar.Snackbar;
 import com.nfrancoi.delivery.BuildConfig;
 import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.R;
-import com.nfrancoi.delivery.room.entities.Company;
 import com.nfrancoi.delivery.room.entities.Delivery;
-import com.nfrancoi.delivery.room.entities.DeliveryProductsJoin;
 import com.nfrancoi.delivery.room.entities.Employee;
 import com.nfrancoi.delivery.room.entities.PointOfDelivery;
 import com.nfrancoi.delivery.tools.BitmapTools;
 import com.nfrancoi.delivery.tools.FilterWithSpaceAdapter;
+import com.nfrancoi.delivery.tools.NoteCreator;
 import com.nfrancoi.delivery.tools.NotePDFCreator;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModelFactory;
-import com.nfrancoi.delivery.viewmodel.NoteViewModel;
-import com.nfrancoi.delivery.viewmodel.NoteViewModelFactory;
 import com.nfrancoi.delivery.worker.SaveNoteFileWorker;
 
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.List;
 
-public class NewDeliveryFragment extends Fragment {
+public class NewDeliveryFragment extends Fragment implements DialogInterface.OnDismissListener {
 
     public static final String TAG = NewDeliveryFragment.class.toString();
 
@@ -65,11 +63,9 @@ public class NewDeliveryFragment extends Fragment {
     public static final String ACTIVITY_SELECT_PRODUCT_TITLE = "ACTIVITY_SELECT_PRODUCT_TITLE";
 
 
-    private Long deliveryId;
-
     //ViewModels
+    private Long deliveryId;
     private DeliveryViewModel deliveryViewModel;
-    private NoteViewModel noteViewModel;
 
     //Delivery
     private TextView receiverNameTextView;
@@ -84,6 +80,8 @@ public class NewDeliveryFragment extends Fragment {
     private AutoCompleteTextView podTextView;
     private FilterWithSpaceAdapter<PointOfDelivery> podAdapter;
 
+    private Switch vatApplicableSwitch;
+
 
     //Select Deposit
     private Button depositButton;
@@ -94,6 +92,11 @@ public class NewDeliveryFragment extends Fragment {
     private Button takeButton;
     private TextView countTakeTextView;
     private TextView priceTakeTextView;
+
+    //Select Sell
+    private Button sellButton;
+    private TextView countSellTextView;
+    private TextView priceSellTextView;
 
     //total
     private TextView priceTotalTextView;
@@ -107,6 +110,7 @@ public class NewDeliveryFragment extends Fragment {
 
     private Button finishButton;
 
+
     public static NewDeliveryFragment newInstance(Long deliveryId) {
         NewDeliveryFragment fragment = new NewDeliveryFragment();
         Bundle bundle = new Bundle();
@@ -119,11 +123,7 @@ public class NewDeliveryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            this.deliveryId = Long.valueOf(getArguments().getLong("deliveryId", 0));
-        } else {
-            new IllegalStateException("Fragment must be created with deliveryId in bundle");
-        }
+
     }
 
     @Override
@@ -133,7 +133,7 @@ public class NewDeliveryFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_new_delivery, container, false);
 
-        requireActivity().setTitle(R.string.fragment_select_products_title);
+        requireActivity().setTitle(R.string.fragment_new_delivery_title);
 
         //
         // Fetch delivery
@@ -151,13 +151,14 @@ public class NewDeliveryFragment extends Fragment {
         //Select PointOfDelivery
         //
         podTextView = view.findViewById(R.id.fragment_new_delivery_text_select_pod);
+        vatApplicableSwitch = view.findViewById(R.id.fragment_new_delivery_swith_vat);
 
 
         //
         // Deposit products
         //
         depositButton = view.findViewById(R.id.fragment_new_delivery_button_deposit);
-        countDepositTextView = view.findViewById(R.id.fragment_new_delivery_text_deposit);
+        countDepositTextView = view.findViewById(R.id.fragment_new_delivery_text_deposit_quantity);
         priceDepositTextView = view.findViewById(R.id.fragment_new_delivery_text_deposit_price);
 
         depositButton.setOnClickListener(new View.OnClickListener() {
@@ -171,7 +172,7 @@ public class NewDeliveryFragment extends Fragment {
         // Take products
         //
         takeButton = view.findViewById(R.id.fragment_new_delivery_button_take);
-        countTakeTextView = view.findViewById(R.id.fragment_new_delivery_text_take);
+        countTakeTextView = view.findViewById(R.id.fragment_new_delivery_text_take_quantity);
         priceTakeTextView = view.findViewById(R.id.fragment_new_delivery_text_take_price);
 
 
@@ -179,6 +180,21 @@ public class NewDeliveryFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 NewDeliveryFragment.this.showSelectProductsFragment("T");
+            }
+        });
+
+        //
+        // sell products
+        //
+        sellButton = view.findViewById(R.id.fragment_new_delivery_button_sell);
+        countSellTextView = view.findViewById(R.id.fragment_new_delivery_text_sell_quantity);
+        priceSellTextView = view.findViewById(R.id.fragment_new_delivery_text_sell_price);
+
+
+        sellButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NewDeliveryFragment.this.showSelectProductsCustomFragment();
             }
         });
 
@@ -204,9 +220,23 @@ public class NewDeliveryFragment extends Fragment {
         finishButton = view.findViewById(R.id.fragment_new_delivery_button_finished);
         finishButton.setEnabled(false);
 
+
         return view;
     }
 
+    private void activateCaptureFields(boolean isActive) {
+        vatApplicableSwitch.setEnabled(isActive);
+        depositButton.setEnabled(isActive);
+        takeButton.setEnabled(isActive);
+        sellButton.setEnabled(isActive);
+        receiverNameTextView.setEnabled(isActive);
+        receiverCommentTextView.setEnabled(isActive);
+        deliverCommentTextView.setEnabled(isActive);
+        employeeNameSpinner.setEnabled(isActive);
+        podTextView.setEnabled(isActive);
+
+
+    }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -214,11 +244,16 @@ public class NewDeliveryFragment extends Fragment {
         //
         //ViewModels
         //
+        if (getArguments() != null) {
+            this.deliveryId = Long.valueOf(getArguments().getLong("deliveryId", 0));
+        } else {
+            new IllegalStateException("Fragment must be created with deliveryId in bundle");
+        }
+
         DeliveryViewModelFactory dvmFactory = new DeliveryViewModelFactory(getActivity().getApplication(), this.deliveryId);
         //scope fragment
         String key = this.deliveryId.toString();
         deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
-        noteViewModel = ViewModelProviders.of(this, new NoteViewModelFactory(getActivity().getApplication(), this.deliveryId)).get(NoteViewModel.class);
 
 
         //
@@ -233,15 +268,23 @@ public class NewDeliveryFragment extends Fragment {
                 deliverCommentTextView.setText(selectedDelivery.commentDelivery);
 
             //
-            // Product selection
+            // Products selection take deposit sell
             //
             if (deliveryViewModel.isDeliveryReadyToSelectProducts(selectedDelivery)) {
                 depositButton.setEnabled(true);
                 takeButton.setEnabled(true);
+                sellButton.setEnabled(true);
             } else {
                 depositButton.setEnabled(false);
                 takeButton.setEnabled(false);
+                sellButton.setEnabled(false);
             }
+
+            vatApplicableSwitch.setChecked(selectedDelivery.isVatApplicable);
+            vatApplicableSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                selectedDelivery.isVatApplicable = isChecked;
+                deliveryViewModel.updateDelivery(selectedDelivery);
+            });
 
             //
             //Employee selection
@@ -325,7 +368,7 @@ public class NewDeliveryFragment extends Fragment {
             signatureImageView.setOnClickListener(imageView -> {
                 //reset signature
                 selectedDelivery.signatureBytes = null;
-                deliveryViewModel.updateDelivery(selectedDelivery);
+                deliveryViewModel.updateDeliverySync(selectedDelivery);
                 signatureImageView.setImageBitmap(null);
 
 
@@ -333,7 +376,10 @@ public class NewDeliveryFragment extends Fragment {
                 if (deliveryViewModel.isDeliveryReadyToSign(selectedDelivery)) {
                     FragmentManager fm = requireActivity().getSupportFragmentManager();
                     SignatureDialogFragment signatureDialog = SignatureDialogFragment.newInstance(selectedDelivery.deliveryId);
+                    signatureDialog.setTargetFragment(NewDeliveryFragment.this, 1337);
                     signatureDialog.show(fm, "fragment_signature");
+                    //NFR
+
                 } else {
                     Snackbar.make(requireActivity().findViewById(android.R.id.content), R.string.fragment_new_delivery_snackbar_notreadytosign, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -350,6 +396,9 @@ public class NewDeliveryFragment extends Fragment {
                 finishButton.setEnabled(false);
                 finishButton.setAlpha(.5f);
             }
+
+            //disabel pannel when signed
+            this.activateCaptureFields(!deliveryViewModel.isDeliverySigned(selectedDelivery));
         });
 
 
@@ -382,7 +431,7 @@ public class NewDeliveryFragment extends Fragment {
         //
         //Deposit
         //
-        deliveryViewModel.getSelectedDepositDeliveryProductDetails().
+        deliveryViewModel.getSelectedDepositDeliveryProducts().
 
                 observe(getViewLifecycleOwner(), deliveryProductDetails ->
 
@@ -398,7 +447,7 @@ public class NewDeliveryFragment extends Fragment {
         //
         //Take
         //
-        deliveryViewModel.getSelectedTakeDeliveryProductDetails().
+        deliveryViewModel.getSelectedTakeDeliveryProducts().
 
                 observe(getViewLifecycleOwner(), deliveryProductDetails ->
 
@@ -412,28 +461,47 @@ public class NewDeliveryFragment extends Fragment {
                 });
 
         //
-        // Total
+        //Sell
         //
-        deliveryViewModel.getSelectedDeliveryTotalAmount().
+        deliveryViewModel.getSelectedSellDeliveryProducts().
 
-                observe(getViewLifecycleOwner(), totalBigDecimal ->
+                observe(getViewLifecycleOwner(), deliveryProductDetails ->
 
                 {
-                    if (totalBigDecimal != null)
-                        this.priceTotalTextView.setText(NumberFormat.getCurrencyInstance().format(totalBigDecimal));
+                    int sumQuantity = deliveryProductDetails.stream().mapToInt(value -> value.quantity).sum();
+                    countSellTextView.setText("" + sumQuantity);
+                    BigDecimal sumPriceTake = deliveryProductDetails.stream().map(
+                            value -> value.priceUnitVatIncl.multiply(BigDecimal.valueOf(value.quantity))).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    priceSellTextView.setText(NumberFormat.getCurrencyInstance().format(sumPriceTake));
                 });
+
+        //
+        // Total
+        //
+        deliveryViewModel.getSelectedDeliveryTotalAmount().observe(getViewLifecycleOwner(), totalBigDecimal ->
+        {
+            if (totalBigDecimal != null)
+                this.priceTotalTextView.setText(NumberFormat.getCurrencyInstance().format(totalBigDecimal));
+        });
 
         //
         // Documents
         //
-        noteImageButton.setOnClickListener(view1 ->
+        noteImageButton.setOnClickListener(view1 -> {
+            Delivery delivery = deliveryViewModel.getSelectedDelivery().getValue();
+            if (deliveryViewModel.isDeliverySigned(delivery)) {
+                NewDeliveryFragment.this.openPDF(delivery.noteURI);
+                return;
+            }
 
-        {
-            if (deliveryViewModel.isDeliveryReadyToGenerateDocuments(deliveryViewModel.getSelectedDelivery().getValue()))
-                NewDeliveryFragment.this.generateAndOpenNotePDF();
-            else
+            if (deliveryViewModel.isDeliveryReadyToGenerateDocuments(delivery)) {
+                NewDeliveryFragment.this.generateNotePDF(true);
+
+            } else {
                 Snackbar.make(requireActivity().findViewById(android.R.id.content), R.string.fragment_new_delivery_snackbar_notreadytosign, Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+            }
 
         });
 
@@ -443,12 +511,15 @@ public class NewDeliveryFragment extends Fragment {
             Delivery currentDelivery = deliveryViewModel.getSelectedDelivery().getValue();
             currentDelivery.sentDate = Calendar.getInstance();
             currentDelivery.isMailSent = true;
-            deliveryViewModel.updateDelivery(currentDelivery);
+            deliveryViewModel.updateDeliverySync(currentDelivery);
 
 
             String emailPointOfDelivery = currentDelivery.pointOfDelivery.email;
             String fileUriString = currentDelivery.noteURI;
-            NewDeliveryFragment.this.sendNotePDFByMail(fileUriString, emailPointOfDelivery);
+
+            //TODO String emailCompany = noteViewModel.getNoteDataLiveData().getValue().company.email;
+            String emailCompany = "";
+            NewDeliveryFragment.this.sendNotePDFByMail(fileUriString, new String[]{emailCompany, emailPointOfDelivery});
 
 
             //save note file
@@ -456,16 +527,23 @@ public class NewDeliveryFragment extends Fragment {
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build();
             Data inputData = new Data.Builder().putString(SaveNoteFileWorker.PARAM_FILE_URI, fileUriString)
-                    .putLong(SaveNoteFileWorker.PARAM_DELIVERY_ID,currentDelivery.deliveryId).build();
+                    .putLong(SaveNoteFileWorker.PARAM_DELIVERY_ID, currentDelivery.deliveryId).build();
 
             OneTimeWorkRequest saveNoteFile = new OneTimeWorkRequest.Builder(SaveNoteFileWorker.class)
                     .setConstraints(networkConstraint).addTag(fileUriString).setInputData(inputData).build();
 
             WorkManager.getInstance(requireActivity().getApplicationContext()).enqueue(saveNoteFile);
 
+            getActivity().onBackPressed();
         });
 
 
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        //triggered when leave SignatureDialogFragment
+        this.generateNotePDF(false);
     }
 
     //
@@ -496,7 +574,17 @@ public class NewDeliveryFragment extends Fragment {
 
     private void showSelectProductsFragment(String type) {
 
-        SelectProductsFragment fragment = SelectProductsFragment.newInstance(this.deliveryId, type);
+        DeliveryProductsSelectFragment fragment = DeliveryProductsSelectFragment.newInstance(this.deliveryId, type);
+        fragment.setRetainInstance(true);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_layout, fragment, "SelectProductFragment")
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void showSelectProductsCustomFragment() {
+
+        DeliveryProductsCustomSelectFragment fragment = DeliveryProductsCustomSelectFragment.newInstance(this.deliveryId);
         fragment.setRetainInstance(true);
         getFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_layout, fragment, "SelectProductFragment")
@@ -505,51 +593,51 @@ public class NewDeliveryFragment extends Fragment {
     }
 
 
-    private void generateAndOpenNotePDF() {
+    private void generateNotePDF(boolean isAndOpen) {
         Delivery selectedDelivery = deliveryViewModel.getSelectedDelivery().getValue();
 
-        noteViewModel.getNoteLiveData().observe(getViewLifecycleOwner(), pair -> {
-            Company company = pair.first;
-            List<DeliveryProductsJoin> deliveryProductNoteDetails = pair.second;
-            NotePDFCreator notePdfCreator = new NotePDFCreator(getActivity(),
-                    company, selectedDelivery, deliveryProductNoteDetails,
-                    noteViewModel.getTotalVatExcl(), noteViewModel.getTotalTaxes(), noteViewModel.getTotal());
 
-            File noteFile = notePdfCreator.createClientNotePdf();
-            selectedDelivery.noteURI = noteFile.toString();
-            deliveryViewModel.updateDelivery(selectedDelivery);
+        // sort by type
+        NoteCreator notePdfCreator = new NotePDFCreator(this, selectedDelivery);
+        notePdfCreator.createNote().observe(this, file -> {
+            selectedDelivery.noteURI = file.toString();
 
-            //start a PDF reader
-            Activity mainActivity = requireActivity();
-            Uri fileURI = FileProvider.getUriForFile(DeliveryApplication.getInstance().getApplicationContext(), BuildConfig.APPLICATION_ID, new File(selectedDelivery.noteURI));
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.setDataAndType(fileURI, "application/pdf");
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            mainActivity.startActivity(intent);
+            deliveryViewModel.updateDeliverySync(selectedDelivery);
 
+            if (isAndOpen) {
+                this.openPDF(selectedDelivery.noteURI);
+            }
         });
 
 
     }
 
 
-    private void sendNotePDFByMail(String noteURI, String emails) {
+    private void openPDF(String pdfFile) {
+        //start a PDF reader
+        Activity mainActivity = requireActivity();
+        Uri fileURI = FileProvider.getUriForFile(DeliveryApplication.getInstance().getApplicationContext(), BuildConfig.APPLICATION_ID, new File(pdfFile));
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setDataAndType(fileURI, "application/pdf");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        mainActivity.startActivity(intent);
 
-        noteViewModel.getCompany().observe(getViewLifecycleOwner(), company -> {
+    }
 
-            Uri fileURI = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID, new File(noteURI));
 
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.pdf_note_mail_subject_prefix));
-            intent.putExtra(Intent.EXTRA_EMAIL,
-                    new String[]{company.email, emails});
-            intent.putExtra(Intent.EXTRA_TEXT, "");
-            intent.putExtra(Intent.EXTRA_STREAM, fileURI);
-            intent.setType("application/pdf");
-            startActivity(Intent.createChooser(intent, "Send mail"));
+    private void sendNotePDFByMail(String noteURI, String[] emails) {
 
-        });
+
+        Uri fileURI = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID, new File(noteURI));
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.pdf_note_mail_subject_prefix));
+        intent.putExtra(Intent.EXTRA_EMAIL, emails);
+        intent.putExtra(Intent.EXTRA_TEXT, "");
+        intent.putExtra(Intent.EXTRA_STREAM, fileURI);
+        intent.setType("application/pdf");
+        startActivity(Intent.createChooser(intent, "Send mail"));
 
     }
 }

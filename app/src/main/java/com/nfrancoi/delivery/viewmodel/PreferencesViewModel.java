@@ -39,7 +39,7 @@ public class PreferencesViewModel extends AndroidViewModel {
     }
 
     public void update(Company company) {
-        mRepository.update(company);
+        mRepository.updateSync(company);
     }
 
     public LiveData<List<Employee>> getEmployees() {

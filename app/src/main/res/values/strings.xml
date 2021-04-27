@@ -6,10 +6,10 @@
     <string name="activity_main_permission_not_authorized_error">Veuillez autoriser les permissions pour pouvoir utiliser l\'application</string>
     <string name="activity_main_google_account_not_selected">Aucun compte Google sélectionné. Les fonctionnalités cloud ne sont pas accessibles</string>
 
-    <!-- NewDeliveryActivity -->
+    <!-- DeliveryListFragment -->
+    <string name="fragment_delivery_list_title">Livraisons du jour</string>
 
-    <string name="fragment_select_products_title">Sélection des produits</string>
-    <string name="fragment_select_product_filter_hint">Filtrer les produits</string>
+    <!-- NewDeliveryFragment -->
 
 
     <string name="fragment_new_delivery_title">Création d\'une livraison</string>
@@ -21,6 +21,7 @@
     <string name="fragment_new_delivery_divider_products">Selection des dépots/reprises</string>
     <string name="fragment_new_delivery_button_deposit_text">Déposer des produits</string>
     <string name="fragment_new_delivery_button_take_text">Reprendre des produits</string>
+    <string name="fragment_new_delivery_button_sell">Vente directe</string>
     <string name="fragment_new_delivery_">Selection des dépots/reprises</string>
     <string name="fragment_new_delivery_divider_deliver">Livreur</string>
     <string name="fragment_new_delivery_hint_deliver_comment">Remarques...</string>
@@ -30,8 +31,27 @@
     <string name="fragment_new_delivery_divider_documens">Documents</string>
     <string name="fragment_new_delivery_divider_signature">Signature</string>
     <string name="fragment_new_delivery_hint_note">Note d\'envoi</string>
+    <string name="fragment_new_delivery_vat_applicable">TVA applicable</string>
 
     <string name="fragment_new_delivery_snackbar_notreadytosign">Avant de signer vous devez générer la note d\'envoi</string>
+
+
+
+    <!-- Select products-->
+    <string name="fragment_select_products_title">Sélection des produits</string>
+    <string name="fragment_select_product_filter_hint">Filtrer les produits</string>
+    <string name="fragment_select_product_switch_only_label">Selection</string>
+
+
+
+
+    <string name="fragment_select_products_custom_name_hint">Nom du produit</string>
+    <string name="fragment_select_products_custom_price_hint">Prix TVAC</string>
+    <string name="fragment_select_products_custom_vat_hint">TVA %</string>
+    <string name="fragment_select_products_custom_quantity_hint">Quantité</string>
+    <string name="fragment_select_products_custom_button_delete">Supprimer</string>
+    <string name="fragment_select_products_custom_button_save">Enregistrer</string>
+
 
     <!-- note -->
     <string name="pdf_note_creator_file_generated">Fichier PDF créé!</string>
@@ -59,9 +79,10 @@
     <string name="pdf_note_product_detail_header_type">Presta</string>
     <string name="pdf_note_product_detail_header_quantity">Qti</string>
     <string name="pdf_note_product_detail_header_discount">%</string>
-    <string name="pdf_note_product_detail_header_priceht_unit">PU TVAC</string>
-    <string name="pdf_note_product_detail_header_priceht_total">Prix HTVA</string>
+    <string name="pdf_note_product_detail_header_pu_hvat">PU HTVA</string>
+    <string name="pdf_note_product_detail_header_pt_hvat">PT HTVA</string>
     <string name="pdf_note_product_detail_header_vat">TVA %</string>
+    <string name="pdf_note_product_detail_header_pt_vat">PT TVA</string>
 
     <!-- menu -->
     <string name="menu_action_settings_title">Paramètres</string>
@@ -102,7 +123,6 @@
     <string name="pdf_note_client_total_ht_label">Total HTVA</string>
     <string name="pdf_note_client_total_taxes_label">Total TVA</string>
     <string name="pdf_note_client_total_label">TOTAL</string>
-    <string name="pdf_note_product_detail_header_priceht_discount">%</string>
 
     <!-- Google Sign in-->
     <string name="fragment_google_sign_in_title">Connection au compte Google</string>
@@ -115,6 +135,14 @@
     <string name="fragment_google_sheet_select_name_hint">Nom de la Google SpreadSheet </string>
     <string name="fragment_google_sheet_select_save">Vérifier et Enregistrer</string>
     <string name="sync_notification_title">Synchronisation</string>
-    <string name="fragment_new_delivery_button_take_sell">Vente sèche</string>
+    <string name="fragment_select_products_custom_discount_hint">Discount</string>
+
+    <!-- sell custom-->
+    <string name="fragment_delivery_products_custom_error_cannot_be_empty">Ce champ est obligatoire</string>
+    <string name="fragment_delivery_products_custom_error_bad_format">Mauvais format de nombre</string>
+    <string name="fragment_delivery_products_custom_new_title">Création d\'une vente</string>
+    <string name="sync_database_worker_offline_error">Hors ligne - Synchro des catalogues impossible</string>
+    <string name="sync_database_worker_success">Synchro des catalogues OK</string>
+
 
 </resources>

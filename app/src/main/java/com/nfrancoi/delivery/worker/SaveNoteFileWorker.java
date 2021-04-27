@@ -26,7 +26,6 @@ public class SaveNoteFileWorker extends Worker {
     private final String fileUriPath;
 
 
-
     public SaveNoteFileWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
@@ -53,28 +52,18 @@ public class SaveNoteFileWorker extends Worker {
 
 
         //save delivery details
-        try {
+      /*  try {
             Repository.getInstance().saveDeliveryDetailsToGoogleSpreadSheet(deliveryId);
         } catch (IOException e) {
             e.printStackTrace();
             Result.failure();
-        }
+        }*/
 
-
-        try {
-            GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Result.failure();
-        }
 
         int nbrUpdated = Repository.getInstance().updateDeliveryNoteSentSync(deliveryId);
-        if(nbrUpdated !=1){
-            throw new IllegalStateException("deliveryId not exists?:"+ deliveryId);
+        if (nbrUpdated != 1) {
+            throw new IllegalStateException("deliveryId not exists?:" + deliveryId);
         }
-
-
-
 
 
         return Result.success();

@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
         Delivery.class,
         DeliveryProductsJoin.class,
         Company.class},
-        version = 68)
+        version = 72)
 
 @TypeConverters({RoomCalendarConverter.class, RoomBigDecimalConverter.class})
 public abstract class DeliveryDatabase extends RoomDatabase {

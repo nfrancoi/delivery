@@ -13,6 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,40 +23,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.activity.NoteProductDetailsListAdapter;
-import com.nfrancoi.delivery.room.entities.Company;
 import com.nfrancoi.delivery.room.entities.Delivery;
-import com.nfrancoi.delivery.room.entities.DeliveryProductsJoin;
+import com.nfrancoi.delivery.viewmodel.data.NoteData;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.List;
 
-public class NotePDFCreator {
+public class NotePDFCreator extends NoteCreator {
 
 
     private Activity activity;
+    private Fragment fragment;
 
-    private Delivery delivery;
-    private Company company;
-    private List<DeliveryProductsJoin> details;
-    private BigDecimal totalHt, totalTaxes, total;
-
-    public NotePDFCreator(Activity activity, Company company, Delivery delivery, List<DeliveryProductsJoin> detail, BigDecimal totalHt, BigDecimal totalTaxes, BigDecimal total) {
-        this.activity = activity;
-        this.company = company;
-        this.delivery = delivery;
-        this.details = detail;
-        this.totalHt = totalHt;
-        this.totalTaxes = totalTaxes;
-        this.total = total;
+     public NotePDFCreator(Fragment fragment, Delivery delivery) {
+        super(delivery);
+        this.fragment = fragment;
+        this.activity = fragment.requireActivity();
 
     }
 
 
-    public File createClientNotePdf() {
+    private File createClientNotePdf(NoteData noteData) {
 
         PrintAttributes printAttrs = new PrintAttributes.Builder().
                 setColorMode(PrintAttributes.COLOR_MODE_COLOR).
@@ -82,26 +74,26 @@ public class NotePDFCreator {
         // Binding
         //
         TextView date = view.findViewById(R.id.pdf_note_date);
-        date.setText(CalendarTools.DDMMYYYY.format(delivery.startDate.getTime()));
+        date.setText(CalendarTools.DDMMYYYY.format(noteData.delivery.startDate.getTime()));
 
         TextView id = view.findViewById(R.id.pdf_note_id);
-        id.setText(delivery.noteId);
+        id.setText(noteData.delivery.noteId);
 
         TextView pod = view.findViewById(R.id.pdf_note_point_of_delivery);
-        pod.setText(delivery.pointOfDelivery.name + "\n"
-                + delivery.pointOfDelivery.address);
+        pod.setText(noteData.delivery.pointOfDelivery.name + "\n"
+                +noteData.delivery.pointOfDelivery.address);
 
         TextView companyTextView = view.findViewById(R.id.pdf_note_company);
-        companyTextView.setText(company.name + "\n"
-                + company.address + "\n"
-                + company.phoneNumber1
-                + "\n" + company.phoneNumber2);
+        companyTextView.setText(noteData.company.name + "\n"
+                + noteData.company.address + "\n"
+                + noteData.company.phoneNumber1
+                + "\n" + noteData.company.phoneNumber2);
 
         //list
 
         RecyclerView recyclerView = view.findViewById(R.id.pdf_note_recyclerview);
         NoteProductDetailsListAdapter adapter = new NoteProductDetailsListAdapter(activity);
-        adapter.setNoteDeliveryProductDetails(details);
+        adapter.setNoteDeliveryProductDetails(noteData.deliveryProductNoteDetails);
         recyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
@@ -111,31 +103,31 @@ public class NotePDFCreator {
 
 
         TextView deliverName = view.findViewById(R.id.pdf_note_name_delivery);
-        deliverName.setText(delivery.employee.name);
+        deliverName.setText(noteData.delivery.employee.name);
         TextView deliverComment = view.findViewById(R.id.pdf_note_comments_delivery);
-        deliverComment.setText(delivery.commentDelivery);
+        deliverComment.setText(noteData.delivery.commentDelivery);
 
 
         TextView receiverName = view.findViewById(R.id.pdf_note_name_receiver);
-        receiverName.setText(delivery.receiverName);
+        receiverName.setText(noteData.delivery.receiverName);
         TextView receiverComment = view.findViewById(R.id.pdf_note_comments_receiver);
-        receiverComment.setText(delivery.commentReceiver);
+        receiverComment.setText(noteData.delivery.commentReceiver);
 
         //TOTALS
         TextView totalHtText = view.findViewById(R.id.pdf_note_client_total_ht_text);
-        totalHtText.setText(NumberFormat.getCurrencyInstance().format(this.totalHt.doubleValue()));
+        totalHtText.setText(NumberFormat.getCurrencyInstance().format(noteData.totalVatExcl.doubleValue()));
 
         TextView totalTaxesText = view.findViewById(R.id.pdf_note_client_total_taxes_text);
-        totalTaxesText.setText(NumberFormat.getCurrencyInstance().format(this.totalTaxes.doubleValue()));
+        totalTaxesText.setText(NumberFormat.getCurrencyInstance().format(noteData.totalTaxes.doubleValue()));
 
         TextView totalText = view.findViewById(R.id.pdf_note_client_total_text);
-        totalText.setText(NumberFormat.getCurrencyInstance().format(this.total.doubleValue()));
+        totalText.setText(NumberFormat.getCurrencyInstance().format(noteData.total.doubleValue()));
 
 
         //signature
         ImageView signatureImageView = view.findViewById(R.id.pdf_note_signature);
-        if (delivery.signatureBytes != null) {
-            Bitmap signatureBitmap = BitmapTools.byteArrayToBitmap(delivery.signatureBytes);
+        if (noteData.delivery.signatureBytes != null) {
+            Bitmap signatureBitmap = BitmapTools.byteArrayToBitmap(noteData.delivery.signatureBytes);
             signatureImageView.setImageBitmap(signatureBitmap);
         }
 
@@ -163,7 +155,7 @@ public class NotePDFCreator {
 
         // write the document content
         File externalFilesDir = DeliveryApplication.getApplicationExternalStorageDirectory();
-        File file = new File(externalFilesDir, delivery.noteId + ".pdf" );
+        File file = new File(externalFilesDir, noteData.delivery.noteId + ".pdf");
 
         try {
             document.writeTo(new FileOutputStream(file.getPath()));
@@ -181,4 +173,16 @@ public class NotePDFCreator {
     }
 
 
+    @Override
+    public LiveData<File> createNote() {
+        MutableLiveData<File> fileLiveData = new MutableLiveData<>();
+        super.getNoteData().observe(fragment, noteData -> {
+
+            File note = this.createClientNotePdf(noteData);
+            fileLiveData.postValue(note);
+
+        });
+
+        return fileLiveData;
+    }
 }

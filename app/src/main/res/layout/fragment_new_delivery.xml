@@ -34,6 +34,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <Switch
+                    android:id="@+id/fragment_new_delivery_swith_vat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/fragment_new_delivery_vat_applicable"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_text_select_pod" />
+
                 <AutoCompleteTextView
                     android:id="@+id/fragment_new_delivery_text_select_pod"
                     android:layout_width="match_parent"
@@ -79,7 +90,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/fragment_new_delivery_text_deposit"
+                    android:id="@+id/fragment_new_delivery_text_deposit_quantity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/small_padding"
@@ -100,7 +111,7 @@
                     android:textSize="@dimen/text_medium"
                     app:layout_constraintBottom_toBottomOf="@+id/fragment_new_delivery_button_deposit"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_text_deposit"
+                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_text_deposit_quantity"
                     app:layout_constraintTop_toTopOf="@+id/fragment_new_delivery_button_deposit" />
 
                 <Button
@@ -113,7 +124,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_button_deposit" />
 
                 <TextView
-                    android:id="@+id/fragment_new_delivery_text_take"
+                    android:id="@+id/fragment_new_delivery_text_take_quantity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
 
@@ -135,14 +146,14 @@
                     app:layout_constraintBottom_toBottomOf="@+id/fragment_new_delivery_button_take"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.516"
-                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_text_take"
+                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_text_take_quantity"
                     app:layout_constraintTop_toTopOf="@+id/fragment_new_delivery_button_take" />
 
                 <Button
                     android:id="@+id/fragment_new_delivery_button_sell"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/fragment_new_delivery_button_take_sell"
+                    android:text="@string/fragment_new_delivery_button_sell"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/guideline6"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -150,7 +161,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_button_take" />
 
                 <TextView
-                    android:id="@+id/fragment_new_delivery_text_sell"
+                    android:id="@+id/fragment_new_delivery_text_sell_quantity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
 
@@ -172,7 +183,7 @@
                     app:layout_constraintBottom_toBottomOf="@+id/fragment_new_delivery_button_sell"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.516"
-                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_text_sell"
+                    app:layout_constraintStart_toEndOf="@+id/fragment_new_delivery_text_sell_quantity"
                     app:layout_constraintTop_toTopOf="@+id/fragment_new_delivery_button_sell" />
 
                 <androidx.constraintlayout.widget.Guideline
@@ -190,7 +201,6 @@
                     app:layout_constraintGuide_percent="0.76642334" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/fragment_new_delivery_layout_total"

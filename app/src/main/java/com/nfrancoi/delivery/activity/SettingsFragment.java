@@ -101,7 +101,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         //
         // Products
         //
-        Preference employeesCat = findPreference("employees_modify");
+        Preference employeesCat = findPreference("employee_default");
 
         employeesCat.setOnPreferenceClickListener(preference -> {
             Log.d(TAG, "click on preference employee");

@@ -41,9 +41,11 @@ public class Delivery {
     public boolean isMailSent;
     public boolean isNoteSaved;
 
+    //vat
+    public boolean isVatApplicable;
 
     public Delivery(){
-        startDate = Calendar.getInstance();
+        startDate = Calendar.getInstance(); isVatApplicable = true;
     }
 
 

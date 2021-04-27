@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_google_sheet_select_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
+        android:id="@+id/fragment_select_custom_products_rv_layout_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -18,37 +19,34 @@
             android:layout_height="wrap_content"
             android:drawableRight="@android:drawable/ic_menu_search"
             android:hint="@string/fragment_google_sheet_select_name_hint"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_google_sheet_select_layout"
             tools:layout_editor_absoluteX="-18dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
         android:id="@+id/fragment_google_sheet_select_not_allowed"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="100dp"
         android:tooltipText="@string/fragment_google_sign_in_account_not_allowed_hint"
-        app:layout_constraintBottom_toTopOf="@+id/fragment_google_sheet_select_save_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_select_custom_products_rv_layout_name"
         app:srcCompat="@android:drawable/presence_busy" />
 
     <ImageView
         android:id="@+id/fragment_google_sheet_select_allowed"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="100dp"
         android:tooltipText="@string/fragment_google_sign_in_account_allowed_hint"
-        app:layout_constraintBottom_toBottomOf="@+id/fragment_google_sheet_select_not_allowed"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_select_custom_products_rv_layout_name"
         app:srcCompat="@android:drawable/presence_online" />
 
     <Button
         android:id="@+id/fragment_google_sheet_select_save_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="152dp"
         android:background="@color/colorPrimary"
         android:text="@string/fragment_google_sheet_select_save"
         android:textColor="@color/buttonLabel"
@@ -56,7 +54,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_google_sheet_select_not_allowed" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
