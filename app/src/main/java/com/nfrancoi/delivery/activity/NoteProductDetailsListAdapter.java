@@ -76,7 +76,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
             holder.type.setText(typeName);
 
             holder.productName.setText(current.productName);
-            holder.puHvat.setText(""+current.priceUnitVatIncl);
+            holder.puHvat.setText(""+current.priceUnitVatExcl);
             holder.discount.setText(""+current.discount);
 
             holder.ptHvat.setText(""+current.priceTotVatExclDiscounted);
