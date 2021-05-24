@@ -41,8 +41,11 @@ public class DeliveryApplication extends Application {
 
 
     ///storage/emulated/0/
-    public static File getApplicationExternalStorageDirectory(){
-        File directory = new File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID);
+    public static File getApplicationExternalStorageDirectoryDocument(){
+
+       // File directory = new File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID);
+        File directory = getInstance().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+
         if(!directory.exists()){
             directory.mkdir();
         }

@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -303,7 +304,14 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
                     LiveData<Employee> defaultEmployeeLD = deliveryViewModel.getEmployeeByDefault();
                     defaultEmployeeLD.observe(getViewLifecycleOwner(), defaultEmployee -> {
                         int selectedEmployeePosition = employeeAdapter.getPosition(defaultEmployee);
-                        deliveryViewModel.onSelectedEmployee(defaultEmployee);
+                        if (selectedEmployeePosition >= 0) {
+                            deliveryViewModel.onSelectedEmployee(defaultEmployee);
+                        }else{
+                            deliveryViewModel.onSelectedEmployee(employeeAdapter.getItem(0));
+                            Toast.makeText(requireActivity().getApplicationContext(), "Le livreur par défaut paramétré n'existe pas",
+                                    Toast.LENGTH_LONG).show();
+                        }
+
                     });
                 }
                 //previously selected

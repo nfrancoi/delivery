@@ -1,7 +1,6 @@
 package com.nfrancoi.delivery.room;
 
 import android.content.Context;
-import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -10,6 +9,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.room.converter.RoomBigDecimalConverter;
 import com.nfrancoi.delivery.room.converter.RoomCalendarConverter;
 import com.nfrancoi.delivery.room.dao.CompanyDao;
@@ -25,9 +25,7 @@ import com.nfrancoi.delivery.room.entities.Employee;
 import com.nfrancoi.delivery.room.entities.PointOfDelivery;
 import com.nfrancoi.delivery.room.entities.Product;
 
-import java.io.File;
 import java.math.BigDecimal;
-import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,7 +36,7 @@ import java.util.concurrent.Executors;
         Delivery.class,
         DeliveryProductsJoin.class,
         Company.class},
-        version = 72)
+        version = 73)
 
 @TypeConverters({RoomCalendarConverter.class, RoomBigDecimalConverter.class})
 public abstract class DeliveryDatabase extends RoomDatabase {
@@ -59,8 +57,8 @@ public abstract class DeliveryDatabase extends RoomDatabase {
 
     private static volatile DeliveryDatabase INSTANCE;
 
-    private static final String DATABASE_NAME = Environment.getExternalStorageDirectory() + File.separator + "/Euroflor/" + File.separator
-            + "Delivery.db";
+    private static final String DATABASE_NAME = DeliveryApplication.getApplicationExternalStorageDirectoryDocument().getAbsolutePath() + "Delivery.db";
+
     private static final int NUMBER_OF_THREADS = 4;
 
 
@@ -74,6 +72,9 @@ public abstract class DeliveryDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             DeliveryDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration().addCallback(onOpenCallBack)
                             .build();
+
+                  /* INSTANCE=  Room.databaseBuilder(context.getApplicationContext(),
+                            DeliveryDatabase.class, "Delivery").fallbackToDestructiveMigration().addCallback(onOpenCallBack).build();*/
                 }
             }
         }
@@ -97,12 +98,12 @@ public abstract class DeliveryDatabase extends RoomDatabase {
 
     private static void initDB() {
         CompanyDao companyDao = INSTANCE.getCompanyDao();
-        if(companyDao.countSync() == 0){
+        if (companyDao.countSync() == 0) {
             populateDB();
         }
     }
 
-    private static void populateDB(){
+    private static void populateDB() {
 
         CompanyDao companyDao = INSTANCE.getCompanyDao();
 
@@ -123,14 +124,12 @@ public abstract class DeliveryDatabase extends RoomDatabase {
         Employee employee1 = new Employee(1l, "JeanPhi", "JP", true);
         employeeDao.insert(employee1).blockingGet();
 
-        Employee employee2 = new Employee(2l,"William", "WL", true);
+        Employee employee2 = new Employee(2l, "William", "WL", true);
         employeeDao.insert(employee2).blockingGet();
 
-        Employee employee3 = new Employee(3l,"Nadine", "ND", true);
+        Employee employee3 = new Employee(3l, "Nadine", "ND", true);
         employee3.isDefault = true;
         employeeDao.insert(employee3).blockingGet();
-
-
 
 
         DeliveryProductsJoinDao deliveryProductJoinDao = INSTANCE.getDeliveryProductJoinDao();
@@ -148,9 +147,9 @@ public abstract class DeliveryDatabase extends RoomDatabase {
 
         Product product = new Product("MonPremierProduit", "Fleur", new BigDecimal(19.18), new BigDecimal(6));
         product.productId = productDao.insert(product).blockingGet();
-        Product product2 = new Product("MonSeconfProduit", "Fleur",new BigDecimal(1.0), new BigDecimal(10));
+        Product product2 = new Product("MonSeconfProduit", "Fleur", new BigDecimal(1.0), new BigDecimal(10));
         product2.productId = productDao.insert(product2).blockingGet();
-        Product product3 = new Product("Mon3Produit", "Plante",new BigDecimal(1.9), new BigDecimal(21));
+        Product product3 = new Product("Mon3Produit", "Plante", new BigDecimal(1.9), new BigDecimal(21));
         product3.productId = productDao.insert(product3).blockingGet();
 
 
@@ -161,6 +160,7 @@ public abstract class DeliveryDatabase extends RoomDatabase {
         PointOfDelivery pod3 = new PointOfDelivery("Super carrouf", "Rue du puis Bruxelles", new BigDecimal(30), "SuperCarrouf@carouf.com");
         pod3.pointOfDeliveryId = podDao.insert(pod3).blockingGet();
 
+        /*
 
         Delivery delivery1 = new Delivery();
         delivery1.pointOfDelivery = pod1;
@@ -173,6 +173,7 @@ public abstract class DeliveryDatabase extends RoomDatabase {
         Delivery delivery3 = new Delivery();
         delivery3.pointOfDelivery = pod2;
         delivery3.deliveryId = deliveryDao.insertReplace(delivery3).blockingGet();
+
 
 
 
@@ -199,6 +200,8 @@ public abstract class DeliveryDatabase extends RoomDatabase {
         deliveryPast2.startDate = deliveryPast1Date;
         deliveryPast2.pointOfDelivery = pod2;
         deliveryDao.insertReplace(deliveryPast2).blockingGet();
+
+         */
     }
 
 }

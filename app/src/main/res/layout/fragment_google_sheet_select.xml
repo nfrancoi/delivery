@@ -23,25 +23,39 @@
             tools:layout_editor_absoluteX="-18dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <ImageView
-        android:id="@+id/fragment_google_sheet_select_not_allowed"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:tooltipText="@string/fragment_google_sign_in_account_not_allowed_hint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_select_custom_products_rv_layout_name"
-        app:srcCompat="@android:drawable/presence_busy" />
 
-    <ImageView
-        android:id="@+id/fragment_google_sheet_select_allowed"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:tooltipText="@string/fragment_google_sign_in_account_allowed_hint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_google_sheet_images_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/fragment_select_custom_products_rv_layout_name"
-        app:srcCompat="@android:drawable/presence_online" />
+        tools:layout_editor_absoluteX="0dp">
+
+        <ImageView
+            android:id="@+id/fragment_google_sheet_select_not_allowed"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:tooltipText="@string/fragment_google_sign_in_account_not_allowed_hint"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/presence_busy" />
+
+        <ImageView
+            android:id="@+id/fragment_google_sheet_select_allowed"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:tooltipText="@string/fragment_google_sign_in_account_allowed_hint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/presence_online" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
         android:id="@+id/fragment_google_sheet_select_save_button"
@@ -54,7 +68,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_google_sheet_select_not_allowed" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_google_sheet_images_layout" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

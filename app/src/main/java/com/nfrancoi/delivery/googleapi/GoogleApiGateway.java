@@ -9,6 +9,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.Scope;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -102,11 +103,12 @@ public class GoogleApiGateway {
         return credential;
     }
 
-    public boolean checkAccountDriveAccess() {
+    public boolean checkAccountDriveAccess() throws UserRecoverableAuthIOException {
 
         try {
             getSpreadSheets();
-
+        } catch (UserRecoverableAuthIOException e) {
+            throw e;
         } catch (IOException e) {
             e.printStackTrace();
             return false;

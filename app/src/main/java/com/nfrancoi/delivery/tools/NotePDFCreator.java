@@ -1,13 +1,17 @@
 package com.nfrancoi.delivery.tools;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
 import android.print.PrintAttributes;
 import android.print.pdf.PrintedPdfDocument;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -47,10 +51,20 @@ public class NotePDFCreator extends NoteCreator {
 
     private File createClientNotePdf(NoteData noteData) {
 
+        WindowManager wm = (WindowManager) DeliveryApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
+
+
+
         PrintAttributes printAttrs = new PrintAttributes.Builder().
                 setColorMode(PrintAttributes.COLOR_MODE_COLOR).
                 setMediaSize(PrintAttributes.MediaSize.ISO_A5).
-                setResolution(new PrintAttributes.Resolution("zooey", "test", 300, 300)).
+                //ratio to manage muultiple resolution screen
+                setResolution(new PrintAttributes.Resolution("zooey", "test", (int)(width*0.3), (int) (width*0.3))).
                 setMinMargins(PrintAttributes.Margins.NO_MARGINS).
                 build();
         PdfDocument document = new PrintedPdfDocument(activity, printAttrs);
@@ -154,7 +168,7 @@ public class NotePDFCreator extends NoteCreator {
 
 
         // write the document content
-        File externalFilesDir = DeliveryApplication.getApplicationExternalStorageDirectory();
+        File externalFilesDir = DeliveryApplication.getApplicationExternalStorageDirectoryDocument();
         File file = new File(externalFilesDir, noteData.delivery.noteId + ".pdf");
 
         try {
@@ -162,6 +176,7 @@ public class NotePDFCreator extends NoteCreator {
             Toast.makeText(activity, R.string.pdf_note_creator_file_generated, Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             Log.e("main", "error " + e.toString());
+            e.printStackTrace();
             Toast.makeText(activity, R.string.pdf_note_creator_file_generated + "\n" + e.toString(), Toast.LENGTH_LONG).show();
         }
         // close the document

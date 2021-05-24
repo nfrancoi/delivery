@@ -85,7 +85,6 @@ public class GoogleSheetSelectFragment extends Fragment implements
 
         Executors.newSingleThreadExecutor().execute(() -> {
             String spreadSheetId = GoogleApiGateway.getInstance().getSpreadSheetIdByName("" + googleSheetNameTextView.getText());
-
             requireActivity().runOnUiThread(() -> {
                 if (spreadSheetId == null) {
                     notAllowedImage.setVisibility(View.VISIBLE);

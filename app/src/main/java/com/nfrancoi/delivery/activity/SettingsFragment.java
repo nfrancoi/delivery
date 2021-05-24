@@ -21,6 +21,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        requireActivity().setTitle("SETTINGS");
         setPreferencesFromResource(R.xml.main_activity_preferences, rootKey);
 
         //

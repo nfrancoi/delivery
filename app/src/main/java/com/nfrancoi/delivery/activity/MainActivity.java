@@ -54,9 +54,7 @@ public class MainActivity extends AppCompatActivity {
                     PermissionActivity.class);
 
             String[] permissions = new String[]{
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.INTERNET,
-                    Manifest.permission.GET_ACCOUNTS};
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
             myIntent.putExtra(PermissionActivity.PERMISSIONS, permissions);
             startActivityForResult(myIntent, ACTIVITY_RESULT_REQUEST_PERMISSIONS);

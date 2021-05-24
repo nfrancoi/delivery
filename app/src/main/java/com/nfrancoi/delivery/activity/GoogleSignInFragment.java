@@ -26,6 +26,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.googleapi.GoogleApiGateway;
 
@@ -37,6 +38,7 @@ public class GoogleSignInFragment extends Fragment implements
 
     private static final String TAG = GoogleSignInFragment.class.toString();
     private static final int GOOGLE_SIGN_IN_REQUEST = 9001;
+    private static final int REQUEST_AUTHORIZATION = 9002;
 
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -77,7 +79,7 @@ public class GoogleSignInFragment extends Fragment implements
 
         //Sign in
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestScopes(GoogleApiGateway.getInstance().scopes[0], GoogleApiGateway.getInstance().scopes[1], GoogleApiGateway.getInstance().scopes[2])
+                .requestScopes(GoogleApiGateway.getInstance().scopes[0], GoogleApiGateway.getInstance().scopes[1], GoogleApiGateway.getInstance().scopes[2], GoogleApiGateway.getInstance().scopes[3])
                 .requestEmail()
                 .build();
 
@@ -97,7 +99,9 @@ public class GoogleSignInFragment extends Fragment implements
 
         // Check if the user is already signed in and all required scopes are granted
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireActivity());
-        if (account != null && GoogleSignIn.hasPermissions(account, GoogleApiGateway.getInstance().scopes)) {
+        if (account != null
+                && GoogleSignIn.hasPermissions(account, GoogleApiGateway.getInstance().scopes)
+        ) {
             updateUI(account);
 
         } else {
@@ -115,6 +119,12 @@ public class GoogleSignInFragment extends Fragment implements
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
+        if (requestCode == REQUEST_AUTHORIZATION) {
+
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+
     }
 
     private void handleSignInResult(@Nullable Task<GoogleSignInAccount> completedTask) {
@@ -177,7 +187,14 @@ public class GoogleSignInFragment extends Fragment implements
             allowedImage.setVisibility(View.GONE);
 
             Executors.newSingleThreadExecutor().execute(() -> {
-                if (GoogleApiGateway.getInstance().checkAccountDriveAccess()) {
+                boolean hasAccess = false;
+                try {
+                    hasAccess = GoogleApiGateway.getInstance().checkAccountDriveAccess();
+                } catch (UserRecoverableAuthIOException e) {
+                    startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
+                }
+
+                if (hasAccess) {
                     requireActivity().runOnUiThread(() -> {
                         notAllowedImage.setVisibility(View.GONE);
                         allowedImage.setVisibility(View.VISIBLE);
@@ -190,6 +207,8 @@ public class GoogleSignInFragment extends Fragment implements
                 }
                 ;
             });
+            notAllowedImage.setVisibility(View.GONE);
+            allowedImage.setVisibility(View.VISIBLE);
 
 
         } else {
