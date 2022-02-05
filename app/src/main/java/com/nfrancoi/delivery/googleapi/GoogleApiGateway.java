@@ -96,10 +96,12 @@ public class GoogleApiGateway {
 
     private GoogleAccountCredential getCredential() {
         GoogleSignInAccount gsoAccount = GoogleSignIn.getLastSignedInAccount(DeliveryApplication.getInstance());
+        if( gsoAccount == null) return null;
         Account account = gsoAccount.getAccount();
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(DeliveryApplication.getInstance(), Arrays.asList(scopeStrings));
         credential.setBackOff(new ExponentialBackOff());
         credential.setSelectedAccount(account);
+
         return credential;
     }
 

@@ -95,7 +95,8 @@ public class NotePDFCreator extends NoteCreator {
 
         TextView pod = view.findViewById(R.id.pdf_note_point_of_delivery);
         pod.setText(noteData.delivery.pointOfDelivery.name + "\n"
-                +noteData.delivery.pointOfDelivery.address);
+                +noteData.delivery.pointOfDelivery.address + "\n"
+        +noteData.delivery.pointOfDelivery.email);
 
         TextView companyTextView = view.findViewById(R.id.pdf_note_company);
         companyTextView.setText(noteData.company.name + "\n"
