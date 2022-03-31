@@ -169,7 +169,7 @@ public class NotePDFCreator extends NoteCreator {
 
 
         // write the document content
-        File externalFilesDir = DeliveryApplication.getApplicationExternalStorageDirectoryDocument();
+        File externalFilesDir = DeliveryApplication.getApplicationNotesStorageDirectory();
         File file = new File(externalFilesDir, noteData.delivery.noteId + ".pdf");
 
         try {

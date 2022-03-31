@@ -4,10 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -23,29 +20,11 @@ import com.nfrancoi.delivery.room.entities.Company;
 import com.nfrancoi.delivery.room.entities.Employee;
 import com.nfrancoi.delivery.room.entities.PointOfDelivery;
 import com.nfrancoi.delivery.room.entities.Product;
-import com.nfrancoi.delivery.tools.CalendarTools;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
-
-class HandlerToast {
-
-    Handler handler = new Handler(Looper.getMainLooper());
-
-    public HandlerToast(Context context, int resId) {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, resId,
-                        Toast.LENGTH_LONG).show();
-            }
-        }, 1000);
-    }
-
-}
 
 
 public class SyncDataBaseWorker extends Worker {
@@ -56,6 +35,8 @@ public class SyncDataBaseWorker extends Worker {
     private static String NOTIFICATION_TITLE = DeliveryApplication.getInstance().getString(R.string.sync_notification_title);
 
 
+    private int logCounter;
+
     public SyncDataBaseWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
@@ -63,63 +44,90 @@ public class SyncDataBaseWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+
         List<String> logs = new ArrayList<>(0);
 
         if (!this.isOnline()) {
             new HandlerToast(getApplicationContext(), R.string.sync_database_worker_offline_error);
             return Result.failure();
         }
+
+        boolean failure = false;
         try {
-            logs.add("Start Companies");
+            Log.i(TAG, "Start company");
             ValueRange resultsCompany = GoogleApiGateway.getInstance().getCompaniesGoogleSheet();
             List<Company> companies = this.mapToCompany(resultsCompany);
             logs.addAll(Repository.getInstance().syncAllCompanies(companies));
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            failure = true;
+            this.reportSynchronisationError("Synchro de la companie" + "\n" + e.getMessage());
 
-            logs.add("Start PointOfDeliveries");
+        }
+
+        try {
+            Log.i(TAG, "Start Point of deliveries");
             ValueRange resultsPod = GoogleApiGateway.getInstance().getPointOfDeliveriesGoogleSheet();
             List<PointOfDelivery> pods = this.mapToPointOfDeliveries(resultsPod);
             logs.addAll(Repository.getInstance().syncAllPointOfDelivery(pods));
+        } catch (Exception e) {
+            e.printStackTrace();
+            failure = true;
+            this.reportSynchronisationError("Synchro des points de livraison" + "\n" + e.getMessage());
 
-            logs.add("Start Products");
+        }
+        try {
+            Log.i(TAG, "Start Produts");
             ValueRange resultsProducts = GoogleApiGateway.getInstance().getProductsGoogleSheet();
             List<Product> products = this.mapToProducts(resultsProducts);
             logs.addAll(Repository.getInstance().syncAllProducts(products));
+        } catch (Exception e) {
+            e.printStackTrace();
+            failure = true;
+            this.reportSynchronisationError("Synchro des produits" + "\n" + e.getMessage());
 
+        }
 
-            logs.add("Start Employees");
+        try {
+            Log.i(TAG, "Start Employees");
             ValueRange resultsEmployees = GoogleApiGateway.getInstance().getEmployeeGoogleSheet();
             List<Employee> employees = this.mapToEmployees(resultsEmployees);
             logs.addAll(Repository.getInstance().syncAllEmployee(employees));
 
         } catch (Exception e) {
             e.printStackTrace();
-            WorkerUtils.makeStatusNotification(NOTIFICATION_TITLE, "Erreur:" + e.getMessage(), getApplicationContext());
-
-            SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(DeliveryApplication.getInstance().getBaseContext()).edit();
-            prefs.putString("sync_start_button", "ERREUR: " + e.getMessage());
-            prefs.commit();
-
-            return Result.failure();
-
+            failure = true;
+            this.reportSynchronisationError("Synchro des employés" + "\n" + e.getMessage());
         }
 
-        logs.stream().forEach(s -> {
-            Log.i(TAG, s);
-        });
+
+        if (failure) {
+            return Result.failure();
+        } else {
+            new HandlerToast(getApplicationContext(), R.string.sync_database_worker_success);
+            SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(DeliveryApplication.getInstance().getBaseContext()).edit();
+            prefs.putString("sync_start_button", getApplicationContext().getString(R.string.sync_database_worker_success));
+            prefs.commit();
+            return Result.success();
+        }
+
+
+    }
+
+    private void reportSynchronisationError(String message) {
+        WorkerUtils.makeStatusNotification(NOTIFICATION_TITLE, message, getApplicationContext());
 
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(DeliveryApplication.getInstance().getBaseContext()).edit();
-        prefs.putString("sync_start_button", CalendarTools.DDMMYYYY.format(Calendar.getInstance().getTime()) + " " + CalendarTools.HHmm.format(Calendar.getInstance().getTime()));
-        prefs.apply();
-
-        new HandlerToast(getApplicationContext(), R.string.sync_database_worker_success);
-
-        return Result.success();
+        prefs.putString("sync_start_button", message);
+        prefs.commit();
     }
 
 
     private List<PointOfDelivery> mapToPointOfDeliveries(ValueRange result) {
         List<List<Object>> resultList = result.getValues();
+
+        this.logCounter = 1;
         List<PointOfDelivery> pods = resultList.stream().skip(1).map(objects -> {
             int i = 0;
             Long podId = Long.valueOf("" + objects.get(i++));
@@ -130,6 +138,9 @@ public class SyncDataBaseWorker extends Worker {
             Boolean isActive = ("" + objects.get(i++)).equals("Oui") ? true : false;
 
             PointOfDelivery pod = new PointOfDelivery(podId, name, address, discountPercentage, mails, isActive);
+
+            this.logCounter++;
+
             return pod;
 
         }).collect(Collectors.toList());
@@ -160,25 +171,32 @@ public class SyncDataBaseWorker extends Worker {
 
     private List<Company> mapToCompany(ValueRange resultsProducts) {
 
-        List<List<Object>> resultList = resultsProducts.getValues();
-        List<Company> companies = resultList.stream().skip(1).map(objects -> {
-            int i = 0;
-            Long id = Long.valueOf("" + objects.get(i++));
-            String name = "" + objects.get(i++);
-            String address = "" + objects.get(i++);
-            String phone1 = "" + objects.get(i++);
-            String phone2 = "" + objects.get(i++);
-            String email = "" + objects.get(i++);
-            String vat = "" + objects.get(i++);
-            String account = "" + objects.get(i++);
-            Boolean isActive = ("" + objects.get(i++)).equals("Oui") ? true : false;
+        try {
+            List<List<Object>> resultList = resultsProducts.getValues();
+            this.logCounter = 1;
+            List<Company> companies = resultList.stream().skip(1).map(objects -> {
+                int i = 0;
+                Long id = Long.valueOf("" + objects.get(i++));
+                String name = "" + objects.get(i++);
+                String address = "" + objects.get(i++);
+                String phone1 = "" + objects.get(i++);
+                String phone2 = "" + objects.get(i++);
+                String email = "" + objects.get(i++);
+                String vat = "" + objects.get(i++);
+                String account = "" + objects.get(i++);
+                Boolean isActive = true;
 
-            Company company = new Company(id, name, address, phone1, phone2, email, vat, account, isActive);
-            return company;
+                Company company = new Company(id, name, address, phone1, phone2, email, vat, account, isActive);
 
-        }).collect(Collectors.toList());
+                this.logCounter++;
+                return company;
 
-        return companies;
+            }).collect(Collectors.toList());
+            return companies;
+        } catch (Exception e) {
+            throw new RuntimeException("Ligne " + this.logCounter, e);
+        }
+
     }
 
 

@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
         Delivery.class,
         DeliveryProductsJoin.class,
         Company.class},
-        version = 73)
+        version = 75)
 
 @TypeConverters({RoomCalendarConverter.class, RoomBigDecimalConverter.class})
 public abstract class DeliveryDatabase extends RoomDatabase {
@@ -88,11 +88,11 @@ public abstract class DeliveryDatabase extends RoomDatabase {
 
             // If you want to keep data through app restarts,
             // comment out the following block
-            databaseWriteExecutor.execute(() -> {
+           // databaseWriteExecutor.execute(() -> {
                 // Populate the database in the background.
                 // If you want to start with more words, just add them.
-                DeliveryDatabase.initDB();
-            });
+           //     DeliveryDatabase.initDB();
+          //  });
         }
     };
 

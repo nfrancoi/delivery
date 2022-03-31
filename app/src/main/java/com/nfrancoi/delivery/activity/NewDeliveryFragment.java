@@ -294,7 +294,7 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
             employeeAdapter.setDropDownViewResource(R.layout.widget_spinner_employee);
 
             employeeNameSpinner.setAdapter(employeeAdapter);
-            deliveryViewModel.getEmployees().observe(getViewLifecycleOwner(), employees -> {
+            deliveryViewModel.getActiveEmployees().observe(getViewLifecycleOwner(), employees -> {
                 //fill drop down list
                 employeeAdapter.addAll(employees);
 
@@ -534,8 +534,11 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
             Constraints networkConstraint = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build();
-            Data inputData = new Data.Builder().putString(SaveNoteFileWorker.PARAM_FILE_URI, fileUriString)
-                    .putLong(SaveNoteFileWorker.PARAM_DELIVERY_ID, currentDelivery.deliveryId).build();
+            Data inputData = new Data.Builder()
+                    .putString(SaveNoteFileWorker.PARAM_FILE_URI, fileUriString)
+                    .putLong(SaveNoteFileWorker.PARAM_DELIVERY_ID, currentDelivery.deliveryId)
+                    .putString(SaveNoteFileWorker.PARAM_GOOGLE_DIRECTORY_NAME, currentDelivery.pointOfDelivery.name)
+                    .build();
 
             OneTimeWorkRequest saveNoteFile = new OneTimeWorkRequest.Builder(SaveNoteFileWorker.class)
                     .setConstraints(networkConstraint).addTag(fileUriString).setInputData(inputData).build();

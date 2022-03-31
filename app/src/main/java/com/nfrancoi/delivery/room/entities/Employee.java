@@ -4,11 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.util.Calendar;
 import java.util.Objects;
 
 @Entity
-public class Employee implements BaseEntity{
+public class Employee implements BaseEntity {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
@@ -16,13 +15,11 @@ public class Employee implements BaseEntity{
     public String name;
     public String notePrefix;
 
-    public Calendar startDate;
-    public Calendar endDate;
     public boolean isActive;
     public boolean isDefault;
 
 
-    public Employee(Long employeeId, String name,  String notePrefix, boolean isActive ) {
+    public Employee(Long employeeId, String name, String notePrefix, boolean isActive) {
         this.employeeId = employeeId;
         this.name = name;
         this.notePrefix = notePrefix;
@@ -40,14 +37,12 @@ public class Employee implements BaseEntity{
                 isDefault == employee.isDefault &&
                 employeeId.equals(employee.employeeId) &&
                 Objects.equals(name, employee.name) &&
-                Objects.equals(notePrefix, employee.notePrefix) &&
-                Objects.equals(startDate, employee.startDate) &&
-                Objects.equals(endDate, employee.endDate);
+                Objects.equals(notePrefix, employee.notePrefix);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(employeeId, name, notePrefix, startDate, endDate, isActive, isDefault);
+        return Objects.hash(employeeId, name, notePrefix, isActive, isDefault);
     }
 
     @Override

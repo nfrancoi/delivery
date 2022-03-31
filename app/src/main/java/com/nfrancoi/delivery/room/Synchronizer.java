@@ -5,6 +5,7 @@ import com.nfrancoi.delivery.room.entities.BaseEntity;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class Synchronizer<Entity extends BaseEntity> {
 
@@ -19,6 +20,8 @@ public class Synchronizer<Entity extends BaseEntity> {
     //
     // logger
     //
+    private String log;
+
     private List<String> logs = new LinkedList<>();
 
     public List<String> getLogs() {
@@ -37,27 +40,33 @@ public class Synchronizer<Entity extends BaseEntity> {
 
         dbEntities.stream().forEach(dbEntity -> {
             Entity foundToSyncEntity = toSyncEntities.stream()
-                    .filter(toSyncEntity -> toSyncEntity.getId() == dbEntity.getId())
+                    .filter(toSyncEntity -> Objects.equals(toSyncEntity.getId(), dbEntity.getId()))
                     .findAny().orElse(null);
             //delete or desactivate
-            if (foundToSyncEntity == null || ! foundToSyncEntity.isActive()) {
-              this.deleteSetInactive(dbEntity);
+            if (foundToSyncEntity == null || (!foundToSyncEntity.isActive() && dbEntity.isActive())) {
+                this.deleteSetInactive(dbEntity);
             }
 
         });
 
         //update or insert rows params
-        toSyncEntities.stream().forEach(toSyncEntity -> {
+        try {
+            toSyncEntities.stream().forEach(toSyncEntity -> {
 
-            Entity foundDbEntity = dbEntities.stream()
-                    .filter(dbEntity -> toSyncEntity.getId() == dbEntity.getId())
-                    .findAny().orElse(null);
-            if(foundDbEntity == null || ! foundDbEntity.equals(toSyncEntity)) {
-                this.updateInsert(toSyncEntity);
-            }else{
-                this.addLog(toSyncEntity.getId(), "already uptodate");
-            }
-        });
+                this.log = toSyncEntity.toString();
+
+                Entity foundDbEntity = dbEntities.stream()
+                        .filter(dbEntity -> Objects.equals(toSyncEntity.getId(), dbEntity.getId()))
+                        .findAny().orElse(null);
+                if (foundDbEntity == null || !foundDbEntity.equals(toSyncEntity)) {
+                    this.updateInsert(toSyncEntity);
+                } else {
+                    this.addLog(toSyncEntity.getId(), "already uptodate");
+                }
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(log, e);
+        }
 
     }
 
@@ -84,14 +93,14 @@ public class Synchronizer<Entity extends BaseEntity> {
         }
     }
 
-    private void updateInsert(Entity entity){
+    private void updateInsert(Entity entity) {
         int nbrUpdate = dao.updateSync(entity);
         if (nbrUpdate == 0) {
             Long id = dao.insertSync(entity);
             if (id < 1l) {
                 this.addLog(entity.getId(), "ERROR cannot insert");
                 throw new IllegalStateException("Cannot insert entity");
-            }else{
+            } else {
                 this.addLog(entity.getId(), "insert");
             }
         } else {

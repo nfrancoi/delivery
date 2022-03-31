@@ -58,7 +58,7 @@ public class Repository {
 
 
     private EmployeeDao employeeDao;
-    private LiveData<List<Employee>> employees;
+    private LiveData<List<Employee>> activeEmployees;
     public LiveData<Employee> employeeByDefault;
 
     public static synchronized Repository getInstance() {
@@ -89,7 +89,7 @@ public class Repository {
         podDao = db.getPointOfDeliveryDao();
 
         employeeDao = db.getEmployeeDao();
-        employees = employeeDao.getEmployee();
+        activeEmployees = employeeDao.getActiveEmployee();
 
         String defaultEmployeeName = PreferenceManager.getDefaultSharedPreferences(DeliveryApplication.getInstance().getApplicationContext()).getString("employee_default", null);
 
@@ -289,8 +289,8 @@ public class Repository {
     //
     // Employees
     //
-    public LiveData<List<Employee>> getEmployees() {
-        return employees;
+    public LiveData<List<Employee>> getActiveEmployees() {
+        return activeEmployees;
     }
 
     public LiveData<Employee> getEmployeeByDefault() {
@@ -370,4 +370,17 @@ public class Repository {
 
 
     }
+
+    //
+    // Reset database
+    //
+    public void resetDatabaseSync(){
+            deliveryProductJoinDao.deleteAll();
+            deliveryDao.deleteAll();
+            employeeDao.deleteAll();
+            podDao.deleteAll();
+            productDao.deleteAll();
+            companyDao.deleteAll();
+    }
+
 }

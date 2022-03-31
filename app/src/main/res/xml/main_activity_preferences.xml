@@ -87,7 +87,27 @@
             android:title="@string/preference_synchronisation_start"
             app:useSimpleSummaryProvider="true" />
 
+        <com.nfrancoi.delivery.activity.widget.TextPreference
+            android:defaultValue=" "
+            android:icon="@drawable/ic_baseline_cloud_upload_24"
+            android:key="sync_upload_notes_button"
+            android:title="@string/preference_synchronisation_upload_notes"
+            app:useSimpleSummaryProvider="true" />
 
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:icon="@drawable/ic_baseline_help_24"
+        android:title="@string/preference_about">
+        <com.nfrancoi.delivery.activity.widget.TextPreference
+            android:key="version_number"
+            android:title="@string/preference_about_version"
+            app:useSimpleSummaryProvider="true" />
+        <com.nfrancoi.delivery.activity.widget.TextPreference
+            android:key="reset_db"
+            android:title="@string/preference_about_reset"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
 

@@ -24,8 +24,8 @@ public abstract class EmployeeDao extends BaseDao<Employee> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract Single<Long> insert(Employee employee);
 
-    @Query("SELECT * FROM Employee ORDER BY name")
-    public abstract LiveData<List<Employee>> getEmployee();
+    @Query("SELECT * FROM Employee WHERE IsActive = 1 ORDER BY name")
+    public abstract LiveData<List<Employee>> getActiveEmployee();
 
     @Query("SELECT * FROM Employee WHERE name = :name")
     public abstract LiveData<Employee> getEmployeeByName(String name);

@@ -58,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
 
             myIntent.putExtra(PermissionActivity.PERMISSIONS, permissions);
             startActivityForResult(myIntent, ACTIVITY_RESULT_REQUEST_PERMISSIONS);
-
-
         }
 
 

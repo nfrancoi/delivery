@@ -36,13 +36,10 @@
     <string name="fragment_new_delivery_snackbar_notreadytosign">Avant de signer vous devez générer la note d\'envoi</string>
 
 
-
     <!-- Select products-->
     <string name="fragment_select_products_title">Sélection des produits</string>
     <string name="fragment_select_product_filter_hint">Filtrer les produits</string>
     <string name="fragment_select_product_switch_only_label">Selection</string>
-
-
 
 
     <string name="fragment_select_products_custom_name_hint">Nom du produit</string>
@@ -85,7 +82,7 @@
     <string name="pdf_note_product_detail_header_pt_vat">PT TVA</string>
 
     <!-- menu -->
-    <string name="menu_action_settings_title">Paramètres</string>
+    <string name="fragment_settings_title">Paramètres</string>
 
     <!-- main_activity_preferences -->
     <string name="preference_organisation_title">Organisation</string>
@@ -113,11 +110,22 @@
     <string name="preference_organisation_bank">Numéro de compte bancaire</string>
     <string name="preference_employee_title">Gestion des livreurs</string>
     <string name="preference_products_title">Gestion des produits</string>
+    <string name="sync_notification_title">Erreur synchronisation</string>
     <string name="preference_synchronisation_title">Synchronisation des catalogues</string>
     <string name="preference_synchronisation_sheet_name">Selection de la Google Sheet</string>
     <string name="preference_synchronisation_sheet_id">Google Sheet ID</string>
     <string name="preference_synchronisation_start">Démarrer la synchronisation</string>
     <string name="preference_synchronisation_account">Selection du compte de synchronisation</string>
+    <string name="preference_about">A propos</string>
+    <string name="preference_about_version">Numéro de version</string>
+    <string name="preference_about_reset">Reset la base de donnée</string>
+    <string name="preference_about_reset_notification_ko">Erreur, ne peut pas reset la base de donnée</string>
+    <string name="preference_about_reset_notification_ok">Base de donnée reset</string>
+
+    <!-- Sync delivery notes upload -->
+    <string name="fragment_sync_notes_fragment_title">Synchronisation des notes d\'envoi PDF</string>
+    <string name="fragment_sync_notes_start_button_title">Démarrer la synchronisation</string>
+
 
 
     <string name="pdf_note_client_total_ht_label">Total HTVA</string>
@@ -134,7 +142,7 @@
 
     <string name="fragment_google_sheet_select_name_hint">Nom de la Google SpreadSheet </string>
     <string name="fragment_google_sheet_select_save">Vérifier et Enregistrer</string>
-    <string name="sync_notification_title">Synchronisation</string>
+
     <string name="fragment_select_products_custom_discount_hint">Discount</string>
 
     <!-- sell custom-->
@@ -143,6 +151,7 @@
     <string name="fragment_delivery_products_custom_new_title">Création d\'une vente</string>
     <string name="sync_database_worker_offline_error">Hors ligne - Synchro des catalogues impossible</string>
     <string name="sync_database_worker_success">Synchro des catalogues OK</string>
+    <string name="preference_synchronisation_upload_notes">Synchro des notes d\'envoi</string>
 
 
 </resources>

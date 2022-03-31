@@ -96,7 +96,7 @@ public class GoogleApiGateway {
 
     private GoogleAccountCredential getCredential() {
         GoogleSignInAccount gsoAccount = GoogleSignIn.getLastSignedInAccount(DeliveryApplication.getInstance());
-        if( gsoAccount == null) return null;
+        if (gsoAccount == null) return null;
         Account account = gsoAccount.getAccount();
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(DeliveryApplication.getInstance(), Arrays.asList(scopeStrings));
         credential.setBackOff(new ExponentialBackOff());
@@ -165,6 +165,56 @@ public class GoogleApiGateway {
 
         }
         return sheetId;
+
+    }
+
+
+    public String createDirectory(String directory, String parentDirectoryId) throws IOException {
+        Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
+                .setApplicationName("Delivery")
+                .build();
+
+        //
+        //check if the directory already exists
+        //
+        String query = parentDirectoryId == null ?
+                "mimeType='application/vnd.google-apps.folder' AND trashed = false AND name = '" + directory + "'"
+                : "mimeType='application/vnd.google-apps.folder' AND trashed = false AND name = '" + directory + "' AND '" + parentDirectoryId + "' in parents";
+        FileList result = driveService.files().list()
+                .setQ(query)
+                .setSpaces("drive")
+                .execute();
+
+        List<File> directories = result.getFiles();
+        if (directories.size() > 0) {
+            return directories.get(0).getId();
+        }
+
+        //
+        //create the directory
+        //
+        if(parentDirectoryId == null) {
+            File fileMetadata = new File();
+            fileMetadata.setName(directory);
+            fileMetadata.setMimeType("application/vnd.google-apps.folder");
+
+
+            File file = driveService.files().create(fileMetadata)
+                    .setFields("id")
+                    .execute();
+            return file.getId();
+        }else{
+            File fileMetadata = new File();
+            fileMetadata.setName(directory);
+            fileMetadata.setMimeType("application/vnd.google-apps.folder");
+            fileMetadata.setParents(Collections.singletonList(parentDirectoryId));
+
+            File file = driveService.files().create(fileMetadata)
+                    .setFields("id, parents")
+                    .execute();
+            return file.getId();
+        }
+
 
     }
 
@@ -253,7 +303,7 @@ public class GoogleApiGateway {
         String pageToken = null;
         do {
             FileList result = driveService.files().list()
-                    .setQ("mimeType='application/vnd.google-apps.spreadsheet' AND name = '" + sheetName + "' AND '" + folderId + "' in parents")
+                    .setQ("mimeType='application/vnd.google-apps.spreadsheet' AND trashed = false AND name = '" + sheetName + "' AND '" + folderId + "' in parents")
                     .setSpaces("drive")
                     .setFields("nextPageToken, files(id, name)")
                     .setPageToken(pageToken)
@@ -270,7 +320,7 @@ public class GoogleApiGateway {
         String pageToken = null;
         do {
             FileList result = driveService.files().list()
-                    .setQ("mimeType='application/vnd.google-apps.folder' AND name = '" + folderName + "'")
+                    .setQ("mimeType='application/vnd.google-apps.folder' AND trashed = false  AND name = '" + folderName + "'")
                     .setSpaces("drive")
                     .setFields("nextPageToken, files(id, name)")
                     .setPageToken(pageToken)
@@ -327,20 +377,74 @@ public class GoogleApiGateway {
 
     }
 
-    public void savePdfFileOnGoogleDrive(java.io.File file) throws IOException {
-        File fileMetadata = new File();
-        fileMetadata.setName(file.getName());
-        //  fileMetadata.setParents(Collections.singletonList(folderId));
+    public boolean isFileExistsByNameOnGoogleDrive(String fileName) throws IOException {
 
-        FileContent mediaContent = new FileContent("application/pdf", file);
+
+        Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
+                .setApplicationName("Delivery")
+                .build();
+        String pageToken = null;
+        do {
+            FileList result = driveService.files().list()
+                    .setQ("trashed = false  AND name = '" + fileName + "'")
+                    .setSpaces("drive")
+                    .setFields("nextPageToken, files(id, name)")
+                    .setPageToken(pageToken)
+                    .execute();
+            for (File file : result.getFiles()) {
+                return true;
+            }
+            pageToken = result.getNextPageToken();
+        } while (pageToken != null);
+        return false;
+
+
+
+
+
+
+/*
+
+
+            FileList result = driveService.files().list()
+                    .setQ("trashed = false AND name = '" + fileName)
+                    .setSpaces("drive")
+                    .setFields("nextPageToken, files(id, name)")
+                    .execute();
+            List<File> files = result.getFiles();
+
+            if(files == null || files.size()==0){
+                return false;
+            }else{
+                return true;
+            }*/
+
+    }
+    public String savePdfFileOnGoogleDrive(java.io.File file, String parentDirectory) throws IOException {
 
         Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
 
-        File driveFile = driveService.files().create(fileMetadata, mediaContent)
-                .setFields("id")
-                .execute();
+        FileContent mediaContent = new FileContent("application/pdf", file);
+        if (parentDirectory == null) {
+            File fileMetadata = new File();
+            fileMetadata.setName(file.getName());
+
+            File driveFile = driveService.files().create(fileMetadata, mediaContent)
+                    .setFields("id")
+                    .execute();
+            return driveFile.getId();
+        } else {
+            File fileMetadata = new File();
+            fileMetadata.setName(file.getName());
+            fileMetadata.setParents(Collections.singletonList(parentDirectory));
+            File driveFile = driveService.files().create(fileMetadata, mediaContent)
+                    .setFields("id, parents")
+                    .execute();
+            return driveFile.getId();
+
+        }
     }
 
     public ValueRange saveNoteDetailsOnGoogleDrive() throws IOException {

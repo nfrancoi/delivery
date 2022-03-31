@@ -24,7 +24,7 @@ public class PreferencesViewModel extends AndroidViewModel {
         mRepository = Repository.getInstance();
         products = mRepository.getProducts();
         company = mRepository.getFirstCompany();
-        employees = mRepository.getEmployees();
+        employees = mRepository.getActiveEmployees();
     }
 
     public LiveData<List<Product>> getProducts() {

@@ -6,7 +6,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
+import java.util.Objects;
 
 @Entity
 public class Product implements BaseEntity {
@@ -19,9 +19,6 @@ public class Product implements BaseEntity {
     public BigDecimal priceUnitVatIncl;
     public BigDecimal vat;
 
-
-    public Calendar startDate;
-    public Calendar endDate;
     public boolean isActive;
 
     @Ignore
@@ -30,7 +27,6 @@ public class Product implements BaseEntity {
         this.type = type;
         this.priceUnitVatIncl = priceUnitVatIncl;
         this.vat = vat;
-        this.startDate = Calendar.getInstance();
         this.isActive = true;
 
     }
@@ -41,7 +37,6 @@ public class Product implements BaseEntity {
         this.type = type;
         this.priceUnitVatIncl = priceUnitVatIncl;
         this.vat = vat;
-        this.startDate = Calendar.getInstance();
         this.isActive = isActive;
 
     }
@@ -59,5 +54,30 @@ public class Product implements BaseEntity {
     @Override
     public boolean isActive() {
         return isActive;
+    }
+
+    @Override
+    public String toString() {
+        return productId + " " +name;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return isActive == product.isActive &&
+                productId.equals(product.productId) &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(type, product.type) &&
+                Objects.equals(priceUnitVatIncl, product.priceUnitVatIncl) &&
+                Objects.equals(vat, product.vat);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(productId, name, type, priceUnitVatIncl, vat,isActive);
     }
 }

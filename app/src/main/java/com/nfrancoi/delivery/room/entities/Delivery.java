@@ -48,6 +48,11 @@ public class Delivery {
         startDate = Calendar.getInstance(); isVatApplicable = true;
     }
 
+    @Override
+    public String toString() {
+        return deliveryId + "";
+    }
+
 
 }
 

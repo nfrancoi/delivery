@@ -23,7 +23,6 @@ public abstract class NoteCreator {
 
 
     public NoteCreator(Delivery delivery) {
-
         this.delivery = delivery;
         this.noteDataLiveData = new MediatorLiveData<>();
 

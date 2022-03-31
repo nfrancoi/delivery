@@ -41,7 +41,8 @@ public interface DeliveryProductsJoinDao {
             " p.priceUnitVatIncl AS priceUnitVatIncl, dp.quantity AS quantity, p.vat AS vat, dp.discount AS discount " +
             "FROM  Product p, Delivery d " +
             "LEFT JOIN DeliveryProductsJoin dp ON d.deliveryId = dp.deliveryId AND p.productId = dp.productId AND (dp.type IS NULL OR dp.type = :type) " +
-            "WHERE d.deliveryId = :deliveryId ")
+            "WHERE d.deliveryId = :deliveryId " +
+            "AND p.isActive = 1")
     LiveData<List<DeliveryProductsJoin>> loadDeliveryProducts(@NonNull Long deliveryId, String type);
 
     @Query("SELECT dp.deliveryProductsId, dp.deliveryId AS deliveryId, dp.type AS type, dp.productName AS productName," +

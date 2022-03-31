@@ -14,5 +14,6 @@
     --mm2ps=*2.83465
     <dimen name="pdf_page_a5_width_ps">420</dimen>
     <dimen name="pdf_page_a5_height_ps">595</dimen>
+    <dimen name="text_margin">16dp</dimen>
 
 </resources>

@@ -40,10 +40,14 @@ public class DeliveryApplication extends Application {
     }
 
 
+    public static File getApplicationNotesStorageDirectory(){
+        return getApplicationExternalStorageDirectoryDocument();
+    }
+
     ///storage/emulated/0/
     public static File getApplicationExternalStorageDirectoryDocument(){
 
-       // File directory = new File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID);
+        // File directory = new File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID);
         File directory = getInstance().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
 
         if(!directory.exists()){

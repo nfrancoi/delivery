@@ -31,7 +31,7 @@ public class DeliveryViewModel extends AndroidViewModel {
     private LiveData<Delivery> selectedDelivery;
 
     private LiveData<List<PointOfDelivery>> pointOfDeliveries;
-    private LiveData<List<Employee>> employees;
+    private LiveData<List<Employee>> activeEmployees;
     private LiveData<Employee> employeeByDefault;
 
 
@@ -68,7 +68,7 @@ public class DeliveryViewModel extends AndroidViewModel {
         mRepository = Repository.getInstance();
 
         selectedDelivery = mRepository.getDelivery(deliveryId);
-        employees = mRepository.getEmployees();
+        activeEmployees = mRepository.getActiveEmployees();
         employeeByDefault = mRepository.getEmployeeByDefault();
 
         pointOfDeliveries = mRepository.getPointOfDeliveries();
@@ -335,8 +335,8 @@ public class DeliveryViewModel extends AndroidViewModel {
     //Employees
     //
 
-    public LiveData<List<Employee>> getEmployees() {
-        return employees;
+    public LiveData<List<Employee>> getActiveEmployees() {
+        return activeEmployees;
     }
 
     public LiveData<Employee> getEmployeeByDefault() {

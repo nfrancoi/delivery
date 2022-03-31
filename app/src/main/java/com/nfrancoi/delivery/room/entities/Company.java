@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.util.Objects;
+
 @Entity
 public class Company implements BaseEntity {
     @PrimaryKey(autoGenerate = true)
@@ -55,6 +57,32 @@ public class Company implements BaseEntity {
     @Override
     public boolean isActive() {
         return isActive;
+    }
+
+    @Override
+    public String toString() {
+        return companyId + " " +name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Company company = (Company) o;
+        return isActive == company.isActive &&
+                companyId.equals(company.companyId) &&
+                Objects.equals(name, company.name) &&
+                Objects.equals(address, company.address) &&
+                Objects.equals(phoneNumber1, company.phoneNumber1) &&
+                Objects.equals(phoneNumber2, company.phoneNumber2) &&
+                Objects.equals(email, company.email) &&
+                Objects.equals(vatNumber, company.vatNumber) &&
+                Objects.equals(bankAccount, company.bankAccount);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(companyId, name, address, phoneNumber1, phoneNumber2, email, vatNumber, bankAccount, isActive);
     }
 }
 
