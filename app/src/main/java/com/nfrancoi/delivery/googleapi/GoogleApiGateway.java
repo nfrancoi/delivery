@@ -338,7 +338,7 @@ public class GoogleApiGateway {
         Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
-        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "PointsDeLivraison").setKey("AIzaSyCV_8QInXhAn9q92QsfJhRcaIRndDswOMc").execute();
+        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "PointsDeLivraison").execute();
 
         return result;
     }
@@ -349,7 +349,8 @@ public class GoogleApiGateway {
         Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
-        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Produits").setKey("AIzaSyCV_8QInXhAn9q92QsfJhRcaIRndDswOMc").execute();
+       // ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Produits").setKey("AIzaSyCV_8QInXhAn9q92QsfJhRcaIRndDswOMc").execute();
+        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Produits").execute();
         return result;
     }
 
@@ -358,7 +359,7 @@ public class GoogleApiGateway {
         Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
-        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Entreprise").setKey("AIzaSyCV_8QInXhAn9q92QsfJhRcaIRndDswOMc").execute();
+        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Entreprise").execute();
         return result;
     }
 
@@ -367,7 +368,7 @@ public class GoogleApiGateway {
         Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
-        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Livreurs").setKey("AIzaSyCV_8QInXhAn9q92QsfJhRcaIRndDswOMc").execute();
+        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Livreurs").execute();
         return result;
     }
 
@@ -452,7 +453,7 @@ public class GoogleApiGateway {
         Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
-        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Entreprise").setKey("AIzaSyCV_8QInXhAn9q92QsfJhRcaIRndDswOMc").execute();
+        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Entreprise").execute();
         return result;
     }
 
