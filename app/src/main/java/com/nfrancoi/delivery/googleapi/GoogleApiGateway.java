@@ -193,7 +193,7 @@ public class GoogleApiGateway {
         //
         //create the directory
         //
-        if(parentDirectoryId == null) {
+        if (parentDirectoryId == null) {
             File fileMetadata = new File();
             fileMetadata.setName(directory);
             fileMetadata.setMimeType("application/vnd.google-apps.folder");
@@ -203,7 +203,7 @@ public class GoogleApiGateway {
                     .setFields("id")
                     .execute();
             return file.getId();
-        }else{
+        } else {
             File fileMetadata = new File();
             fileMetadata.setName(directory);
             fileMetadata.setMimeType("application/vnd.google-apps.folder");
@@ -349,7 +349,7 @@ public class GoogleApiGateway {
         Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
-       // ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Produits").setKey("AIzaSyCV_8QInXhAn9q92QsfJhRcaIRndDswOMc").execute();
+        // ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Produits").setKey("AIzaSyCV_8QInXhAn9q92QsfJhRcaIRndDswOMc").execute();
         ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Produits").execute();
         return result;
     }
@@ -378,7 +378,14 @@ public class GoogleApiGateway {
 
     }
 
-    public boolean isFileExistsByNameOnGoogleDrive(String fileName) throws IOException {
+    public void deleteFileByIdOnGoogleDrive(String fileId) throws IOException {
+        Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
+                .setApplicationName("Delivery")
+                .build();
+
+        driveService.files().delete(fileId).execute();
+    }
+    public String getFileIdByNameOnGoogleDrive(String fileName) throws IOException {
 
 
         Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
@@ -393,20 +400,13 @@ public class GoogleApiGateway {
                     .setPageToken(pageToken)
                     .execute();
             for (File file : result.getFiles()) {
-                return true;
+                return file.getId();
             }
             pageToken = result.getNextPageToken();
         } while (pageToken != null);
-        return false;
 
-
-
-
-
-
+        return null;
 /*
-
-
             FileList result = driveService.files().list()
                     .setQ("trashed = false AND name = '" + fileName)
                     .setSpaces("drive")
@@ -421,6 +421,7 @@ public class GoogleApiGateway {
             }*/
 
     }
+
     public String savePdfFileOnGoogleDrive(java.io.File file, String parentDirectory) throws IOException {
 
         Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())

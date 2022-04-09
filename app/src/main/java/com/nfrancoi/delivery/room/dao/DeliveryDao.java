@@ -28,6 +28,9 @@ public abstract class DeliveryDao extends BaseDao<Delivery> {
     @Query("SELECT * FROM Delivery d WHERE d.deliveryId = :deliveryId")
     public abstract Delivery getDeliverySync(Long deliveryId);
 
+    @Query("SELECT * FROM Delivery d WHERE d.noteURI LIKE'%' || :noteFileName || '%'")
+    public abstract Delivery getDeliveryFromNoteFileNameSync(String noteFileName);
+
     @Query("UPDATE Delivery SET isNoteSaved = 1 WHERE deliveryId = :deliveryId")
     public abstract int updateDeliveryNoteSent(Long deliveryId) ;
 }

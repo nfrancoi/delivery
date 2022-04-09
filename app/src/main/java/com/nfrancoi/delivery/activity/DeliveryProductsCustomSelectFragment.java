@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -66,7 +66,7 @@ public class DeliveryProductsCustomSelectFragment extends Fragment {
         DeliveryViewModelFactory dvmFactory = new DeliveryViewModelFactory(getActivity().getApplication(), this.deliveryId);
         //scope fragment
         String key = this.deliveryId.toString();
-        DeliveryViewModel deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
+        DeliveryViewModel deliveryViewModel = new ViewModelProvider(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
 
         FloatingActionButton fab = view.findViewById(R.id.fragment_delivery_product_custom_select_add_button);
         fab.setOnClickListener(button -> {

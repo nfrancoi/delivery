@@ -136,6 +136,9 @@ public class Repository {
         return deliveryDao.getDeliverySync(deliveryId);
     }
 
+    public Delivery getDeliveryFromNoteFileNameSync(String noteName) {
+        return deliveryDao.getDeliveryFromNoteFileNameSync(noteName);
+    }
 
     public Single<Long> insert(final Delivery delivery) {
         return deliveryDao.insertReplace(delivery);

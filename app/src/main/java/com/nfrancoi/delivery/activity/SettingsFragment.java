@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -18,6 +18,7 @@ import androidx.work.WorkManager;
 import com.nfrancoi.delivery.BuildConfig;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.activity.widget.TextPreference;
+import com.nfrancoi.delivery.viewmodel.PreferenceViewModelFactory;
 import com.nfrancoi.delivery.viewmodel.PreferencesViewModel;
 import com.nfrancoi.delivery.worker.ResetDataBaseWorker;
 import com.nfrancoi.delivery.worker.SyncDataBaseWorker;
@@ -51,8 +52,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         EditTextPreference vatEditText = findPreference("company_vat");
         EditTextPreference bankEditText = findPreference("company_bank");
 
-
-        PreferencesViewModel prefViewModel = ViewModelProviders.of(this).get(PreferencesViewModel.class);
+        PreferenceViewModelFactory pvmFactory = new PreferenceViewModelFactory(getActivity().getApplication());
+        PreferencesViewModel prefViewModel = new ViewModelProvider(requireActivity(), pvmFactory).get(PreferencesViewModel.class);
         prefViewModel.getCompany().observe(this, company -> {
             if (company != null) {
                 companyNameEditText.setText(company.name);

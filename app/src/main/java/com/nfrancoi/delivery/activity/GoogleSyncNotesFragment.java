@@ -1,8 +1,6 @@
 package com.nfrancoi.delivery.activity;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,16 +10,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
-import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.R;
-import com.nfrancoi.delivery.googleapi.GoogleApiGateway;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.Executors;
+import com.nfrancoi.delivery.worker.SyncNotesWorker;
 
 public class GoogleSyncNotesFragment extends Fragment {
 
@@ -51,84 +48,41 @@ public class GoogleSyncNotesFragment extends Fragment {
             public void onClick(View view) {
                 syncNotesFeedback.setText("");
 
-                syncNotes();
+                //save note file
+                Constraints networkConstraint = new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build();
+
+                OneTimeWorkRequest syncNoteFiles = new OneTimeWorkRequest.Builder(SyncNotesWorker.class)
+                        .setConstraints(networkConstraint).addTag("SyncNotesWorker").build();
+
+
+
+                WorkManager.getInstance(requireActivity().getApplicationContext()).getWorkInfoByIdLiveData(syncNoteFiles.getId()).observe(getActivity(), workInfo -> {
+                    if (workInfo != null) {
+                        Data progress = workInfo.getProgress();
+                        int percentage = progress.getInt(SyncNotesWorker.PROGRESS, 0);
+                        syncNotesFeedback.append(percentage + "\n");
+                        String log = progress.getString(SyncNotesWorker.LOG);
+                        if (log != null) {
+                            syncNotesFeedback.append(log + "\n");
+                        }
+                    }
+                });
+
+                WorkManager.getInstance(requireActivity().getApplicationContext()).enqueueUniqueWork("SyncNotesWorker", ExistingWorkPolicy.REPLACE, syncNoteFiles);
+
+
+
+
+
+                syncNotesFeedback.append("Attente du démarrage" + "\n");
+
+
             }
         });
-
 
         return view;
     }
 
-    private void syncNotes() {
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            Handler mainHandler = new Handler(Looper.getMainLooper());
-            //
-            // Create directory
-            //
-            String missingNotesDirectoryId;
-            try {
-                String rootDirectoryId = GoogleApiGateway.getInstance().createDirectory("DeliveryWorkspace", null);
-                missingNotesDirectoryId = GoogleApiGateway.getInstance().createDirectory("NotesManquantes", rootDirectoryId);
-            } catch (IOException e) {
-                e.printStackTrace();
-                mainHandler.post(() -> {
-                    syncNotesFeedback.setText(e.toString());
-                });
-                return;
-            }
-
-            //
-            // Loop on local files
-            //
-            File notesDirectory = DeliveryApplication.getApplicationNotesStorageDirectory();
-            FilenameFilter filenamePdfFilter = (file, name) -> name.toLowerCase().endsWith(".pdf");
-
-            File[] noteFiles = notesDirectory.listFiles(filenamePdfFilter);
-            mainHandler.post(() -> {
-                syncNotesFeedback.append(noteFiles.length + " Notes d'envoi" + "\n");
-            });
-
-            if (noteFiles != null) {
-                Arrays.stream(noteFiles)
-                        .forEach(file -> {
-                            try {
-                                //
-                                // Check if  the note is on the google drive
-                                //
-                                if (!GoogleApiGateway.getInstance().isFileExistsByNameOnGoogleDrive(file.getName())) {
-                                    GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(file, missingNotesDirectoryId);
-                                    mainHandler.post(() -> {
-                                        syncNotesFeedback.append(file.getName() + " MANQUANT ENVOYE !!" + "\n");
-                                    });
-                                }else{
-                                    mainHandler.post(() -> {
-                                        syncNotesFeedback.append(file.getName() + " Synchro \n");
-                                    });
-                                }
-
-                            } catch (IOException e) {
-                                mainHandler.post(() -> {
-                                    syncNotesFeedback.append(file.getAbsolutePath() + " ne peut pas être envoyé \n");
-                                    syncNotesFeedback.append(e.toString());
-                                });
-                                return;
-                            }
-
-
-                        });
-            }
-            mainHandler.post(() -> {
-                syncNotesFeedback.append("Terminé");
-            });
-
-        });
-
-
-    }
-
-    private void sentToGoogleDriveIfNotAlreadyUploaded(File file) {
-
-
-    }
 }

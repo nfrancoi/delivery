@@ -6,20 +6,17 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-public class DeliveryViewModelFactory extends ViewModelProvider.NewInstanceFactory {
+public class PreferenceViewModelFactory implements ViewModelProvider.Factory {
 
-    private Long deliveryId;
     private Application application;
 
-    public DeliveryViewModelFactory(Application application, Long deliveryId) {
-
-        this.deliveryId = deliveryId;
+    public PreferenceViewModelFactory(Application application) {
         this.application = application;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        return (T) new DeliveryViewModel(application, deliveryId);
+        return (T) new PreferencesViewModel(application);
     }
 }

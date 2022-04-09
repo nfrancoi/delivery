@@ -28,13 +28,18 @@ public class SaveNoteFileWorker extends Worker {
     public static final String PARAM_GOOGLE_DIRECTORY_NAME = "PARAM_GOOGLE_DIRECTORY_URI";
     private final String googleDirectoryName;
 
+    public static final String PARAM_GOOGLE_DIRECTORY_DATE_NAME = "PARAM_GOOGLE_DIRECTORY_DATE_NAME";
+    private final String googleDirectoryDateName;
+
+
     public SaveNoteFileWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         Data inputData = workerParams.getInputData();
         this.fileUriPath = inputData.getString(PARAM_FILE_URI);
-        this.deliveryId = inputData.getLong(PARAM_DELIVERY_ID, 0l);
+        this.deliveryId = inputData.getLong(PARAM_DELIVERY_ID, 0);
         this.googleDirectoryName = inputData.getString(PARAM_GOOGLE_DIRECTORY_NAME);
+        this.googleDirectoryDateName = inputData.getString(PARAM_GOOGLE_DIRECTORY_DATE_NAME);
     }
 
     @NonNull
@@ -47,19 +52,24 @@ public class SaveNoteFileWorker extends Worker {
             return Result.failure();
         }
 
-        if(getRunAttemptCount() > 3){
+        if (getRunAttemptCount() > 3) {
             return Result.failure();
         }
 
         //save pdf file
         try {//create the directory Delivery
 
-           String rootDirectoryId = GoogleApiGateway.getInstance().createDirectory("DeliveryWorkspace", null);
+            String rootDirectoryId = GoogleApiGateway.getInstance().createDirectory("DeliveryWorkspace", null);
+            String pointOfDeliveryDirectoryId = GoogleApiGateway.getInstance().createDirectory(googleDirectoryName, rootDirectoryId);
+            String pointOfDeliveryDateDirectoryId = GoogleApiGateway.getInstance().createDirectory(googleDirectoryDateName, pointOfDeliveryDirectoryId);
 
-           String pointOfDeliveryDirectoryId = GoogleApiGateway.getInstance().createDirectory(googleDirectoryName, rootDirectoryId);
 
+            String existingNoteFileNameId = GoogleApiGateway.getInstance().getFileIdByNameOnGoogleDrive(file.getName());
+            if (existingNoteFileNameId != null) {
+                GoogleApiGateway.getInstance().deleteFileByIdOnGoogleDrive(existingNoteFileNameId);
+            }
 
-            GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(file, pointOfDeliveryDirectoryId);
+            GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(file, pointOfDeliveryDateDirectoryId);
 
 
         } catch (IOException e) {
@@ -68,9 +78,13 @@ public class SaveNoteFileWorker extends Worker {
 
         }
 
-        int nbrUpdated = Repository.getInstance().updateDeliveryNoteSentSync(deliveryId);
-        if (nbrUpdated != 1) {
-            throw new IllegalStateException("deliveryId not exists?:" + deliveryId);
+        if (this.deliveryId != 0) {
+            int nbrUpdated = Repository.getInstance().updateDeliveryNoteSentSync(deliveryId);
+            if (nbrUpdated != 1) {
+                throw new IllegalStateException("deliveryId not exists?:" + deliveryId);
+            }
+        } else {
+            Result.success();
         }
 
 

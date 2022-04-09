@@ -10,7 +10,7 @@ import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -100,67 +100,71 @@ public class DeliveryProductsSelectFragment extends Fragment {
         DeliveryViewModelFactory dvmFactory = new DeliveryViewModelFactory(getActivity().getApplication(), this.deliveryId);
         //scope fragment
         String key = this.deliveryId.toString();
-        this.deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
+        this.deliveryViewModel = new ViewModelProvider(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
+
+        this.deliveryViewModel.getSelectedDelivery().observe(getViewLifecycleOwner(), delivery -> {
+
+            RecyclerView recyclerView = view.findViewById(R.id.fragment_delivery_product_select_rv);
+            final DeliveryProductListAdapter adapter = new DeliveryProductListAdapter(requireActivity());
+            recyclerView.setAdapter(adapter);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(requireActivity());
+            recyclerView.setLayoutManager(layoutManager);
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                    layoutManager.getOrientation());
+            recyclerView.addItemDecoration(dividerItemDecoration);
+
+            if (type.equals("D")) {
+                deliveryViewModel.getFilterDepositLD().observe(getViewLifecycleOwner(), filter -> {
+                    filterEditText.removeTextChangedListener(filterTextWatcher);
+                    filterEditText.setText("");
+                    filterEditText.append(filter);
+                    filterEditText.addTextChangedListener(filterTextWatcher);
+                });
+
+                deliveryViewModel.getFilteredDepositDeliveryProducts().observe(getViewLifecycleOwner(), deliveryProductDetails -> {
+                    adapter.setDeliveryProductDetails(deliveryProductDetails);
+
+                });
+
+                // zero quantity filter
+                deliveryViewModel.getFilterDepositZeroQuantity().observe(getViewLifecycleOwner(), isFilter -> {
+                    this.switchSelection.setChecked(isFilter);
+                });
+                switchSelection.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    deliveryViewModel.setFilterDepositZeroQuantity(isChecked);
+                });
+
+            }
+
+            if (type.equals("T")) {
+                deliveryViewModel.getFilterTakeLD().observe(getViewLifecycleOwner(), filter -> {
+                    filterEditText.removeTextChangedListener(filterTextWatcher);
+                    filterEditText.setText("");
+                    filterEditText.append(filter);
+                    filterEditText.addTextChangedListener(filterTextWatcher);
+                });
+
+                deliveryViewModel.getFilteredTakeDeliveryProducts().observe(getViewLifecycleOwner(), deliveryProductDetails -> {
+                    System.out.println(deliveryProductDetails);
+
+                    adapter.setDeliveryProductDetails(deliveryProductDetails);
+                });
+
+                // zero quantity filter
+                deliveryViewModel.getFilterTakeZeroQuantity().observe(getViewLifecycleOwner(), isFilter -> {
+                    this.switchSelection.setChecked(isFilter);
+                });
+                switchSelection.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    deliveryViewModel.setFilterTakeZeroQuantity(isChecked);
+                });
+            }
 
 
-        RecyclerView recyclerView = view.findViewById(R.id.fragment_delivery_product_select_rv);
-        final DeliveryProductListAdapter adapter = new DeliveryProductListAdapter(requireActivity());
-        recyclerView.setAdapter(adapter);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(requireActivity());
-        recyclerView.setLayoutManager(layoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
-
-        if (type.equals("D")) {
-            deliveryViewModel.getFilterDepositLD().observe(getViewLifecycleOwner(), filter -> {
-                filterEditText.removeTextChangedListener(filterTextWatcher);
-                filterEditText.setText("");
-                filterEditText.append(filter);
-                filterEditText.addTextChangedListener(filterTextWatcher);
+            adapter.setQuantityValueChangeListener(deliveryProductDetail -> {
+                deliveryViewModel.saveProductDetail(deliveryProductDetail);
             });
 
-            deliveryViewModel.getFilteredDepositDeliveryProducts().observe(getViewLifecycleOwner(), deliveryProductDetails -> {
-                adapter.setDeliveryProductDetails(deliveryProductDetails);
 
-            });
-
-            // zero quantity filter
-            deliveryViewModel.getFilterDepositZeroQuantity().observe(getViewLifecycleOwner(), isFilter -> {
-                this.switchSelection.setChecked(isFilter);
-            });
-            switchSelection.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                deliveryViewModel.setFilterDepositZeroQuantity(isChecked);
-            });
-
-        }
-
-        if (type.equals("T")) {
-            deliveryViewModel.getFilterTakeLD().observe(getViewLifecycleOwner(), filter -> {
-                filterEditText.removeTextChangedListener(filterTextWatcher);
-                filterEditText.setText("");
-                filterEditText.append(filter);
-                filterEditText.addTextChangedListener(filterTextWatcher);
-            });
-
-            deliveryViewModel.getFilteredTakeDeliveryProducts().observe(getViewLifecycleOwner(), deliveryProductDetails -> {
-                System.out.println(deliveryProductDetails);
-
-                adapter.setDeliveryProductDetails(deliveryProductDetails);
-            });
-
-            // zero quantity filter
-            deliveryViewModel.getFilterTakeZeroQuantity().observe(getViewLifecycleOwner(), isFilter -> {
-                this.switchSelection.setChecked(isFilter);
-            });
-            switchSelection.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                deliveryViewModel.setFilterTakeZeroQuantity(isChecked);
-            });
-        }
-
-
-        adapter.setQuantityValueChangeListener(deliveryProductDetail -> {
-            deliveryViewModel.saveProductDetail(deliveryProductDetail);
         });
 
 

@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Calendar;
 
-public class DeliveryByDateViewModelFactory extends ViewModelProvider.NewInstanceFactory {
+public class DeliveryByDateViewModelFactory implements ViewModelProvider.Factory {
 
     private Calendar calendarDay;
     private Application application;

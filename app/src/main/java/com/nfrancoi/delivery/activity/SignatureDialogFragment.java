@@ -13,7 +13,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.github.gcacace.signaturepad.views.SignaturePad;
 import com.nfrancoi.delivery.R;
@@ -94,7 +94,7 @@ public class SignatureDialogFragment extends DialogFragment {
         DeliveryViewModelFactory dvmFactory = new DeliveryViewModelFactory(getActivity().getApplication(), this.deliveryId);
         //scope fragment
         String key = this.deliveryId.toString();
-        DeliveryViewModel deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
+        DeliveryViewModel deliveryViewModel = new ViewModelProvider(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
         saveButton.setOnClickListener(button -> {
 
             byte[] signatureBytes = BitmapTools.bitmapToByteArray(signaturePad.getSignatureBitmap());

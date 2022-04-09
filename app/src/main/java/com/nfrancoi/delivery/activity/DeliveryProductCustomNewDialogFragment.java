@@ -10,7 +10,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -125,7 +125,9 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
         DeliveryViewModelFactory dvmFactory = new DeliveryViewModelFactory(getActivity().getApplication(), deliveryId);
         //scope fragment
         String key = deliveryId.toString();
-        DeliveryViewModel deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
+
+        androidx.lifecycle.ViewModelProvider e;
+        DeliveryViewModel deliveryViewModel = new ViewModelProvider(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
 
         DeliveryProductsJoin editDeliveryProdcutsJoin = deliveryViewModel.getEditDeliveryProductsJoin();
 
@@ -160,7 +162,7 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
 
             try {
                 price = BigDecimal.valueOf(StringTools.PriceFormat.parse(priceEditText.getText().toString()).doubleValue()).setScale(2, RoundingMode.HALF_UP);
-            } catch (ParseException e) {
+            } catch (ParseException e2) {
                 priceInputLayout.setError(getString(R.string.fragment_delivery_products_custom_error_bad_format));
                 validated = false;
             }
@@ -173,7 +175,7 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
             }
             try {
                 vat = BigDecimal.valueOf(StringTools.PercentageFormat.parse(vatEditText.getText().toString()).longValue());
-            } catch (ParseException e) {
+            } catch (ParseException e3) {
                 vatInputLayout.setError(getString(R.string.fragment_delivery_products_custom_error_bad_format));
                 validated = false;
             }
@@ -187,7 +189,7 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
             }
             try {
                quantity = Integer.parseInt(quantityEditText.getText().toString());
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException e2) {
                 quantityInputLayout.setError(getString(R.string.fragment_delivery_products_custom_error_bad_format));
                 validated = false;
             }
@@ -201,7 +203,7 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
             }
             try {
                 discount = BigDecimal.valueOf(StringTools.PercentageFormat.parse(discountEditText.getText().toString()).longValue());
-            } catch (ParseException e) {
+            } catch (ParseException e4) {
                 discountInputLayout.setError(getString(R.string.fragment_delivery_products_custom_error_bad_format));
                 validated = false;
             }

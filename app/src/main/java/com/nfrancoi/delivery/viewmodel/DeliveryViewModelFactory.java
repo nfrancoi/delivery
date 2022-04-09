@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-public class DeliveryViewModelFactory extends ViewModelProvider.NewInstanceFactory {
+public class DeliveryViewModelFactory implements ViewModelProvider.Factory {
 
     private Long deliveryId;
     private Application application;

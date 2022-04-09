@@ -27,7 +27,7 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.NetworkType;
@@ -42,6 +42,7 @@ import com.nfrancoi.delivery.room.entities.Delivery;
 import com.nfrancoi.delivery.room.entities.Employee;
 import com.nfrancoi.delivery.room.entities.PointOfDelivery;
 import com.nfrancoi.delivery.tools.BitmapTools;
+import com.nfrancoi.delivery.tools.CalendarTools;
 import com.nfrancoi.delivery.tools.FilterWithSpaceAdapter;
 import com.nfrancoi.delivery.tools.NoteCreator;
 import com.nfrancoi.delivery.tools.NotePDFCreator;
@@ -254,7 +255,7 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
         DeliveryViewModelFactory dvmFactory = new DeliveryViewModelFactory(getActivity().getApplication(), this.deliveryId);
         //scope fragment
         String key = this.deliveryId.toString();
-        deliveryViewModel = ViewModelProviders.of(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
+        deliveryViewModel = new ViewModelProvider(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
 
 
         //
@@ -538,6 +539,7 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
                     .putString(SaveNoteFileWorker.PARAM_FILE_URI, fileUriString)
                     .putLong(SaveNoteFileWorker.PARAM_DELIVERY_ID, currentDelivery.deliveryId)
                     .putString(SaveNoteFileWorker.PARAM_GOOGLE_DIRECTORY_NAME, currentDelivery.pointOfDelivery.name)
+                    .putString(SaveNoteFileWorker.PARAM_GOOGLE_DIRECTORY_DATE_NAME, CalendarTools.YYYYMM.format(currentDelivery.startDate.getTime()))
                     .build();
 
             OneTimeWorkRequest saveNoteFile = new OneTimeWorkRequest.Builder(SaveNoteFileWorker.class)
@@ -619,8 +621,6 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
                 this.openPDF(selectedDelivery.noteURI);
             }
         });
-
-
     }
 
 
