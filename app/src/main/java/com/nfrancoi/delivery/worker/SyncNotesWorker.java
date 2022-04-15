@@ -1,40 +1,41 @@
 package com.nfrancoi.delivery.worker;
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.work.Data;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.googleapi.GoogleApiGateway;
 import com.nfrancoi.delivery.repository.Repository;
 import com.nfrancoi.delivery.room.entities.Delivery;
 import com.nfrancoi.delivery.tools.CalendarTools;
+import com.nfrancoi.delivery.viewmodel.SyncNotesViewModel;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 
 
-public class SyncNotesWorker extends Worker {
+public class SyncNotesWorker {
 
 
     private static final String TAG = SyncNotesWorker.class.toString();
-    public static final String PROGRESS = "PROGRESS";
-    public static final String LOG = "LOG";
 
-    public SyncNotesWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
-        super(context, workerParams);
+    private Fragment fragment;
+
+    public SyncNotesWorker(Fragment fragment) {
+        this.fragment = fragment;
+
     }
 
-    @NonNull
-    @Override
-    public Result doWork() {
 
-        Data.Builder builder = new Data.Builder();
-        //
+    public void doWork() {
+
+
+        SyncNotesViewModel syncNotesViewModel = new ViewModelProvider(fragment.getActivity()).get(SyncNotesViewModel.class);
+
         // Create directory
         //
         String rootDirectoryId;
@@ -43,25 +44,50 @@ public class SyncNotesWorker extends Worker {
             rootDirectoryId = GoogleApiGateway.getInstance().createDirectory("DeliveryWorkspace", null);
             missingNotesDirectoryId = GoogleApiGateway.getInstance().createDirectory("_NotesManquantes", rootDirectoryId);
         } catch (IOException e) {
-            setProgressAsync(builder.putString(LOG, e.getMessage()).build());
-            return Result.failure();
+            syncNotesViewModel.addLog(e.getMessage());
+            return;
         }
-        setProgressAsync(builder.putString(LOG, "Répertoire créés").build());
+
+        syncNotesViewModel.addLog("Répertoire créés");
 
         //
         // Loop on local files
         //
         File notesDirectory = DeliveryApplication.getApplicationNotesStorageDirectory();
-        FilenameFilter filenamePdfFilter = (file, name) -> name.toLowerCase().endsWith(".pdf");
+        Calendar fromCalendar = syncNotesViewModel.getFromDateLiveData().getValue();
+
+        syncNotesViewModel.addLog("Recherche des notes d'envoi depuis: " + CalendarTools.YYYYMMDD.format(fromCalendar.getTime()));
+
+        FilenameFilter filenamePdfFilter = (file, name) -> {
+            if (!name.toLowerCase().endsWith(".pdf")) {
+                return false;
+            }
+            try {
+                Date fileDate = CalendarTools.YYYYMMDD.parse(name.toLowerCase().substring(0, 8));
+                Calendar fileCalendar = Calendar.getInstance();
+                fileCalendar.setTime(fileDate);
+
+                if (fileCalendar.getTimeInMillis() < fromCalendar.getTimeInMillis()) {
+                    return false;
+                } else {
+                    return true;
+                }
+
+
+            } catch (ParseException e) {
+                syncNotesViewModel.addLog(e.getMessage());
+                return false;
+            }
+
+        };
 
         File[] noteFiles = notesDirectory.listFiles(filenamePdfFilter);
         if (noteFiles != null) {
             int totalCountNoteFiles = noteFiles.length;
-            setProgressAsync(builder.putString(LOG, totalCountNoteFiles + "Notes d'envoi").build());
+            syncNotesViewModel.addLog(totalCountNoteFiles + "Notes d'envoi");
 
-            for (int i = 0; totalCountNoteFiles > i; i++) {
-                setProgressAsync(builder.putInt(PROGRESS, i).build());
-
+            syncNotesViewModel.setProgress(0);
+            for (int i = 0; i < totalCountNoteFiles; i++) {
 
                 try {
                     //
@@ -69,7 +95,7 @@ public class SyncNotesWorker extends Worker {
                     //
                     File currentFile = noteFiles[i];
                     if (GoogleApiGateway.getInstance().getFileIdByNameOnGoogleDrive(currentFile.getName()) != null) {
-                        setProgressAsync(builder.putString(LOG, currentFile.getName() + " Synchro").build());
+                        syncNotesViewModel.addLog(currentFile.getName() + " Synchro");
                     } else {
 
                         //
@@ -79,13 +105,13 @@ public class SyncNotesWorker extends Worker {
 
                         if (delivery == null) {
                             //save pdf file in missing notes
-                            setProgressAsync(builder.putString(LOG, currentFile.getName() + " MANQUANTE sur le drive et la db").build());
+                            syncNotesViewModel.addLog(currentFile.getName() + " MANQUANTE sur drive et db");
                             GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(currentFile, missingNotesDirectoryId);
                         } else {
                             String podDirectoryId = GoogleApiGateway.getInstance().createDirectory(delivery.pointOfDelivery.name, rootDirectoryId);
                             String podDirectoryDateId = GoogleApiGateway.getInstance().createDirectory(CalendarTools.YYYYMM.format(delivery.startDate.getTime()), podDirectoryId);
 
-                            setProgressAsync(builder.putString(LOG, currentFile.getName() + " MANQUANTE sur le drive").build());
+                            syncNotesViewModel.addLog(currentFile.getName() + " MANQUANTE sur le drive");
                             GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(currentFile, podDirectoryDateId);
 
                             Repository.getInstance().updateDeliveryNoteSentSync(delivery.deliveryId);
@@ -94,16 +120,19 @@ public class SyncNotesWorker extends Worker {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    setProgressAsync(builder.putString(LOG, e.getMessage()).build());
-                    return Result.failure();
+                    syncNotesViewModel.addLog(e.getMessage());
+                    return;
                 }
+
+                int progress = Math.round((Float.valueOf(i) / Float.valueOf(totalCountNoteFiles)) * 100);
+                syncNotesViewModel.setProgress(progress);
             }
-            setProgressAsync(builder.putString(LOG, "Terminé").build());
-
-
+            syncNotesViewModel.setProgress(100);
         }
-        return Result.success();
+        syncNotesViewModel.addLog("Terminé");
 
     }
+
 }
+
+

@@ -14,7 +14,8 @@
         android:layout_marginStart="4dp"
         android:layout_marginBottom="3dp"
         android:text="@string/pdf_note_product_detail_header_type"
-        android:textSize="10sp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/pdf_note_product_detail_header_product_name"
         app:layout_constraintHorizontal_bias="0.0"
@@ -27,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.10" />
+        app:layout_constraintGuide_percent="0.08" />
 
     <TextView
         android:id="@+id/pdf_note_product_detail_header_product_name"
@@ -37,7 +38,8 @@
         android:layout_marginStart="3dp"
         android:layout_marginBottom="3dp"
         android:text="@string/pdf_note_product_detail_header_product_name"
-        android:textSize="10sp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintHorizontal_bias="0.0"
@@ -50,21 +52,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.30" />
+        app:layout_constraintGuide_percent="0.25" />
+
+    <TextView
+        android:id="@+id/pdf_note_product_detail_header_pu_vat"
+
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="3dp"
+        android:text="@string/pdf_note_product_detail_header_pu_vat"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/pdf_note_product_detail_header_product_name"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4.1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.34" />
 
     <TextView
         android:id="@+id/pdf_note_product_detail_header_quantity"
 
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="3dp"
         android:layout_marginBottom="3dp"
         android:text="@string/pdf_note_product_detail_header_quantity"
-        android:textSize="10sp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/pdf_note_product_detail_header_product_name"
+        app:layout_constraintStart_toStartOf="@+id/guideline4.1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
@@ -80,10 +105,10 @@
 
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="3dp"
         android:layout_marginBottom="3dp"
         android:text="@string/pdf_note_product_detail_header_pu_hvat"
-        android:textSize="10sp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline6"
         app:layout_constraintHorizontal_bias="0.0"
@@ -103,11 +128,10 @@
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
         android:layout_marginBottom="3dp"
         android:text="@string/pdf_note_product_detail_header_discount"
-        android:textAlignment="center"
-        android:textSize="10sp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline7"
         app:layout_constraintHorizontal_bias="0.0"
@@ -127,10 +151,10 @@
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
         android:layout_marginBottom="3dp"
         android:text="@string/pdf_note_product_detail_header_pt_hvat"
-        android:textSize="10sp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.0"
@@ -148,12 +172,12 @@
     <TextView
         android:id="@+id/pdf_note_product_detail_header_vat"
 
-        android:layout_width="40dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
         android:layout_marginBottom="3dp"
         android:text="@string/pdf_note_product_detail_header_vat"
-        android:textSize="10sp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline10"
         app:layout_constraintHorizontal_bias="0.0"
@@ -166,22 +190,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.8515815" />
+        app:layout_constraintGuide_percent="0.9" />
 
     <TextView
         android:id="@+id/pdf_note_product_detail_header_vpt_tva"
 
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="3dp"
-        android:layout_marginEnd="4dp"
         android:layout_marginBottom="3dp"
         android:text="@string/pdf_note_product_detail_header_pt_vat"
-        android:textSize="10sp"
+        android:textAlignment="textStart"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/pdf_note_product_detail_header_vat"
+        app:layout_constraintStart_toStartOf="@+id/guideline10"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 

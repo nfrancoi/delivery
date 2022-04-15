@@ -20,6 +20,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
 
         private final TextView type;
         private final TextView productName;
+        private final TextView puVat;
         private final TextView quantity;
         private final TextView puHvat;
         private final TextView discount;
@@ -31,6 +32,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
         private NoteDeliveryProductDetailViewHolder(View itemView) {
             super(itemView);
             productName = itemView.findViewById(R.id.pdf_note_product_detail_item_name);
+            puVat = itemView.findViewById(R.id.pdf_note_product_detail_item_pu_vat);
             puHvat = itemView.findViewById(R.id.pdf_note_product_detail_item_pu_hvat);
             discount = itemView.findViewById(R.id.pdf_note_product_detail_item_discount);
             ptHvat = itemView.findViewById(R.id.pdf_note_product_detail_item_pt_hvat);
@@ -76,6 +78,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
             holder.type.setText(typeName);
 
             holder.productName.setText(current.productName);
+            holder.puVat.setText(""+current.priceUnitVatIncl);
             holder.puHvat.setText(""+current.priceUnitVatExcl);
             holder.discount.setText(""+current.discount);
 
