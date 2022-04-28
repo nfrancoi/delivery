@@ -42,13 +42,12 @@ import com.nfrancoi.delivery.room.entities.Delivery;
 import com.nfrancoi.delivery.room.entities.Employee;
 import com.nfrancoi.delivery.room.entities.PointOfDelivery;
 import com.nfrancoi.delivery.tools.BitmapTools;
-import com.nfrancoi.delivery.tools.CalendarTools;
 import com.nfrancoi.delivery.tools.FilterWithSpaceAdapter;
 import com.nfrancoi.delivery.tools.NoteCreator;
 import com.nfrancoi.delivery.tools.NotePDFCreator;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModelFactory;
-import com.nfrancoi.delivery.worker.SaveNoteFileWorker;
+import com.nfrancoi.delivery.worker.UploadNoteWorker;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -377,7 +376,7 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
             signatureImageView.setOnClickListener(imageView -> {
                 //reset signature
                 selectedDelivery.signatureBytes = null;
-                deliveryViewModel.updateDeliverySync(selectedDelivery);
+                deliveryViewModel.updateDelivery(selectedDelivery);
                 signatureImageView.setImageBitmap(null);
 
 
@@ -520,7 +519,11 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
             Delivery currentDelivery = deliveryViewModel.getSelectedDelivery().getValue();
             currentDelivery.sentDate = Calendar.getInstance();
             currentDelivery.isMailSent = true;
-            deliveryViewModel.updateDeliverySync(currentDelivery);
+            currentDelivery.isNoteSaved = false;
+            currentDelivery.isAccountingDataSent = false;
+            currentDelivery.syncErrorMessage = null;
+
+            deliveryViewModel.updateDelivery(currentDelivery);
 
 
             String emailPointOfDelivery = currentDelivery.pointOfDelivery.email;
@@ -536,13 +539,10 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build();
             Data inputData = new Data.Builder()
-                    .putString(SaveNoteFileWorker.PARAM_FILE_URI, fileUriString)
-                    .putLong(SaveNoteFileWorker.PARAM_DELIVERY_ID, currentDelivery.deliveryId)
-                    .putString(SaveNoteFileWorker.PARAM_GOOGLE_DIRECTORY_NAME, currentDelivery.pointOfDelivery.name)
-                    .putString(SaveNoteFileWorker.PARAM_GOOGLE_DIRECTORY_DATE_NAME, CalendarTools.YYYYMM.format(currentDelivery.startDate.getTime()))
+                    .putLong(UploadNoteWorker.PARAM_DELIVERY_ID, currentDelivery.deliveryId)
                     .build();
 
-            OneTimeWorkRequest saveNoteFile = new OneTimeWorkRequest.Builder(SaveNoteFileWorker.class)
+            OneTimeWorkRequest saveNoteFile = new OneTimeWorkRequest.Builder(UploadNoteWorker.class)
                     .setConstraints(networkConstraint).addTag(fileUriString).setInputData(inputData).build();
 
             WorkManager.getInstance(requireActivity().getApplicationContext()).enqueue(saveNoteFile);
@@ -612,10 +612,10 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
 
         // sort by type
         NoteCreator notePdfCreator = new NotePDFCreator(this, selectedDelivery);
-        notePdfCreator.createNote().observe(this, file -> {
+        notePdfCreator.createNote().observe(getViewLifecycleOwner(), file -> {
             selectedDelivery.noteURI = file.toString();
 
-            deliveryViewModel.updateDeliverySync(selectedDelivery);
+            deliveryViewModel.updateDelivery(selectedDelivery);
 
             if (isAndOpen) {
                 this.openPDF(selectedDelivery.noteURI);

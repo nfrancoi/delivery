@@ -100,7 +100,7 @@ public class SignatureDialogFragment extends DialogFragment {
             byte[] signatureBytes = BitmapTools.bitmapToByteArray(signaturePad.getSignatureBitmap());
             Delivery selectedDelivery = deliveryViewModel.getSelectedDelivery().getValue();
             selectedDelivery.signatureBytes = signatureBytes;
-            deliveryViewModel.updateDeliverySync(selectedDelivery);
+            deliveryViewModel.updateDelivery(selectedDelivery);
 
             dismiss();
             // getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
@@ -130,7 +130,7 @@ public class SignatureDialogFragment extends DialogFragment {
                 public void onClear() {
                     deliveryViewModel.getSelectedDelivery().getValue();
                     selectedDelivery.signatureBytes = null;
-                    deliveryViewModel.updateDeliverySync(selectedDelivery);
+                    deliveryViewModel.updateDelivery(selectedDelivery);
                 }
             });
 

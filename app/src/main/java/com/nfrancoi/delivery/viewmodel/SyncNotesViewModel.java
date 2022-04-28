@@ -28,7 +28,7 @@ public class SyncNotesViewModel extends AndroidViewModel {
     }
 
     public void deleteLog() {
-        logsLiveData.postValue(new LinkedList<>());
+        logsLiveData.setValue(new LinkedList<>());
 
     }
 

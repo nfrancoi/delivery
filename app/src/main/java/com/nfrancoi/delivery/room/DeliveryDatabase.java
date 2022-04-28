@@ -3,6 +3,7 @@ package com.nfrancoi.delivery.room;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.room.AutoMigration;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -29,14 +30,19 @@ import java.math.BigDecimal;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {
-        Employee.class,
-        PointOfDelivery.class,
-        Product.class,
-        Delivery.class,
-        DeliveryProductsJoin.class,
-        Company.class},
-        version = 75)
+@Database(
+        entities = {
+                Employee.class,
+                PointOfDelivery.class,
+                Product.class,
+                Delivery.class,
+                DeliveryProductsJoin.class,
+                Company.class
+        },
+        version = 76,
+        autoMigrations = {@AutoMigration(from = 75, to = 76)},
+        exportSchema = true
+)
 
 @TypeConverters({RoomCalendarConverter.class, RoomBigDecimalConverter.class})
 public abstract class DeliveryDatabase extends RoomDatabase {
@@ -88,11 +94,11 @@ public abstract class DeliveryDatabase extends RoomDatabase {
 
             // If you want to keep data through app restarts,
             // comment out the following block
-           // databaseWriteExecutor.execute(() -> {
-                // Populate the database in the background.
-                // If you want to start with more words, just add them.
-           //     DeliveryDatabase.initDB();
-          //  });
+            // databaseWriteExecutor.execute(() -> {
+            // Populate the database in the background.
+            // If you want to start with more words, just add them.
+            //     DeliveryDatabase.initDB();
+            //  });
         }
     };
 

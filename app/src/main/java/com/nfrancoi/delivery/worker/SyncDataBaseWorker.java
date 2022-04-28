@@ -129,13 +129,12 @@ public class SyncDataBaseWorker extends Worker {
 
         this.logCounter = 1;
         List<PointOfDelivery> pods = resultList.stream().skip(1).map(objects -> {
-            int i = 0;
-            Long podId = Long.valueOf("" + objects.get(i++));
-            String name = "" + objects.get(i++);
-            String address = "" + objects.get(i++);
-            String mails = "" + objects.get(i++);
-            BigDecimal discountPercentage = BigDecimal.valueOf(Double.parseDouble("" + objects.get(i++)));
-            Boolean isActive = ("" + objects.get(i++)).equals("Oui") ? true : false;
+            Long podId = Long.valueOf("" + objects.get(0));
+            String name = "" + objects.get(1);
+            String address = "" + objects.get(2);
+            String mails = "" + objects.get(3);
+            BigDecimal discountPercentage = BigDecimal.valueOf(Double.parseDouble("" + objects.get(4)));
+            Boolean isActive = ("" + objects.get(5)).equals("Oui") ? true : false;
 
             PointOfDelivery pod = new PointOfDelivery(podId, name, address, discountPercentage, mails, isActive);
 

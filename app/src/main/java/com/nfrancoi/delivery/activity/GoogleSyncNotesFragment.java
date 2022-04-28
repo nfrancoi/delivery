@@ -92,7 +92,6 @@ public class GoogleSyncNotesFragment extends Fragment {
 
             if (strings != null && strings.size() > 0) {
                 syncNotesFeedback.setText("");
-
                 StringBuilder textStringBuilder = new StringBuilder();
                 for (String string : strings) {
                     textStringBuilder.append(string + "\n");

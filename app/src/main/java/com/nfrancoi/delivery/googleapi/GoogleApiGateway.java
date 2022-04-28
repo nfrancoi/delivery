@@ -24,17 +24,24 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AddSheetRequest;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.DeleteDimensionRequest;
+import com.google.api.services.sheets.v4.model.DimensionRange;
 import com.google.api.services.sheets.v4.model.Request;
+import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.nfrancoi.delivery.DeliveryApplication;
+import com.nfrancoi.delivery.tools.StringTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class GoogleApiGateway {
 
@@ -42,6 +49,7 @@ public class GoogleApiGateway {
     // Singleton
     //
     private static GoogleApiGateway googleApiGateway;
+
 
     public static synchronized GoogleApiGateway getInstance() {
         if (googleApiGateway == null) {
@@ -53,8 +61,6 @@ public class GoogleApiGateway {
     private GoogleApiGateway() {
 
     }
-
-    private String spreadSheetId;
 
     private JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private NetHttpTransport HTTP_TRANSPORT = new com.google.api.client.http.javanet.NetHttpTransport();
@@ -106,7 +112,6 @@ public class GoogleApiGateway {
     }
 
     public boolean checkAccountDriveAccess() throws UserRecoverableAuthIOException {
-
         try {
             getSpreadSheets();
         } catch (UserRecoverableAuthIOException e) {
@@ -118,8 +123,9 @@ public class GoogleApiGateway {
         return true;
     }
 
-    public String getSpreadSheetIdByName(String spreadSheetName) {
 
+
+    public String getSpreadSheetIdByName(String spreadSheetName) {
         try {
             Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                     .setApplicationName("Delivery")
@@ -150,26 +156,15 @@ public class GoogleApiGateway {
         }
     }
 
-    public String getOrCreateSpreadSheetId(String pathFromRoot, String spreadSheetName) throws IOException {
 
-        Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
-                .setApplicationName("Delivery")
-                .build();
-        String parentFolderId = getFolderIdFromPath(driveService, pathFromRoot);
-        if (parentFolderId == null) {
-            throw new IllegalStateException("Folder Notes not created in google drive");
-        }
-        String sheetId = getSheetIdInFolder(driveService, parentFolderId, spreadSheetName);
-        if (sheetId == null) {
-            sheetId = this.createSheetIdInFolder(driveService, parentFolderId, spreadSheetName);
-
-        }
-        return sheetId;
-
-    }
-
-
+    private Map<String, String> directoryAndParentCacheMap = new HashMap<>();
     public String createDirectory(String directory, String parentDirectoryId) throws IOException {
+
+        String directoryId = directoryAndParentCacheMap.get(directory+parentDirectoryId);
+        if(directoryId != null){
+            return directoryId;
+        }
+
         Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
@@ -187,6 +182,7 @@ public class GoogleApiGateway {
 
         List<File> directories = result.getFiles();
         if (directories.size() > 0) {
+            directoryAndParentCacheMap.put(directory+parentDirectoryId, directories.get(0).getId());
             return directories.get(0).getId();
         }
 
@@ -202,6 +198,9 @@ public class GoogleApiGateway {
             File file = driveService.files().create(fileMetadata)
                     .setFields("id")
                     .execute();
+
+            directoryAndParentCacheMap.put(directory+parentDirectoryId, file.getId());
+
             return file.getId();
         } else {
             File fileMetadata = new File();
@@ -212,47 +211,80 @@ public class GoogleApiGateway {
             File file = driveService.files().create(fileMetadata)
                     .setFields("id, parents")
                     .execute();
+
+            directoryAndParentCacheMap.put(directory+parentDirectoryId, file.getId());
             return file.getId();
         }
 
 
     }
 
+    public List<Integer> findLinesInSpreadsheet(String spreadSheetId, String sheetName, String value, String columnIndex) throws IOException {
 
-    private String createSheetIdInFolder(Drive driveService, String parentFolderId, String fileName) throws IOException {
-        File fileMetadata = new File();
-        fileMetadata.setName(fileName);
-        fileMetadata.setParents(Collections.singletonList(parentFolderId));
-        fileMetadata.setMimeType("application/vnd.google-apps.spreadsheet");
-        File file = driveService.files().create(fileMetadata)
-                .setFields("id, parents")
+        List<Integer> returnIndexes = new LinkedList<>();
+
+        Sheets sheetService = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
+                .setApplicationName("Delivery")
+                .build();
+        String range = sheetName + "!" + columnIndex + ":" + columnIndex;
+        ValueRange response = sheetService.spreadsheets().values()
+                .get(spreadSheetId, range)
                 .execute();
-        return file.getId();
+
+        List<List<Object>> values = response.getValues();
+        if (values != null && !values.isEmpty()) {
+            for (int i = 0; i < values.size(); i++) {
+                if (values.get(i) != null && !values.get(i).isEmpty() && StringTools.Equals(values.get(i).get(0) + "", value)) {
+                    returnIndexes.add(i);
+                }
+            }
+        }
+
+        return returnIndexes;
     }
 
-
-    public void appendToSpreadSheet(String spreadSheetId, String sheetName, List<List<Object>> values) throws IOException {
+    public void deleteLinesInSpreadsheet(String spreadSheetId, String sheetName, List<Integer> linesIds) throws IOException {
         Sheets sheetService = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
 
-        //check if sheetName exists
+        linesIds.sort(Collections.reverseOrder());
+
         Spreadsheet spreadSheet = sheetService.spreadsheets().get(spreadSheetId).execute();
-        boolean sheetNameExists = spreadSheet.getSheets().stream().filter(sheet -> sheet.getProperties().getTitle().equals(sheetName)).findAny().map(sheet -> true).orElse(false);
-        if (!sheetNameExists) {
-            this.addSheetToSpreadSheet(spreadSheetId, sheetName);
+        Sheet sheet = spreadSheet.getSheets().stream().filter(sheetlocal -> sheetlocal.getProperties().getTitle().equals(sheetName)).findFirst().get();
+        Integer sheetId = sheet.getProperties().getSheetId();
+
+        BatchUpdateSpreadsheetRequest content = new BatchUpdateSpreadsheetRequest();
+
+        List<Request> requests = new ArrayList<Request>();
+        for (Integer lineId : linesIds) {
+            Request request = new Request();
+            DeleteDimensionRequest deleteDimensionRequest = new DeleteDimensionRequest();
+            DimensionRange dimensionRange = new DimensionRange();
+            dimensionRange.setDimension("ROWS");
+            dimensionRange.setStartIndex(lineId);
+            dimensionRange.setEndIndex(lineId + 1);
+            dimensionRange.setSheetId(sheetId);
+            deleteDimensionRequest.setRange(dimensionRange);
+            request.setDeleteDimension(deleteDimensionRequest);
+
+            requests.add(request);
         }
 
-        //clear data if already updated
-        /* not working withdata filter
-        DataFilter clearFilter = new DataFilter();
+        content.setRequests(requests);
 
-        clearFilter.setA1Range("" + values.get(0).get(0));
+        sheetService.spreadsheets().batchUpdate(spreadSheetId, content).execute();
 
-        BatchClearValuesByDataFilterRequest batchClear = new BatchClearValuesByDataFilterRequest();
-        batchClear.setDataFilters(Arrays.asList(clearFilter));
-        BatchClearValuesByDataFilterResponse response = sheetService.spreadsheets().values().batchClearByDataFilter(spreadSheetId, batchClear).execute();*/
 
+    }
+
+    public int appendToSpreadSheet(String spreadSheetId, String sheetName, List<List<Object>> values) throws IOException {
+        if (values == null || values.size() == 0) {
+            return 0;
+        }
+        Sheets sheetService = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
+                .setApplicationName("Delivery")
+                .build();
         //append
         ValueRange body = new ValueRange()
                 .setValues(values);
@@ -260,13 +292,24 @@ public class GoogleApiGateway {
                 sheetService.spreadsheets().values().append(spreadSheetId, sheetName, body)
                         .setValueInputOption("RAW")
                         .execute();
+        Integer updatedRows = result.getUpdates().getUpdatedRows();
 
-        int cellUpdated = result.getUpdates().getUpdatedRows();
-        System.out.printf("%d cells appended.", cellUpdated);
+        return updatedRows == null ? 0 : updatedRows;
+
+    }
+
+    public boolean isSheetExistInSpreadSheet(String spreadSheetId, String sheetName) throws IOException {
+        Sheets sheetService = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
+                .setApplicationName("Delivery")
+                .build();
+        Spreadsheet spreadSheet = sheetService.spreadsheets().get(spreadSheetId).execute();
+        boolean sheetNameExists = spreadSheet.getSheets().stream().filter(sheet -> sheet.getProperties().getTitle().equals(sheetName)).findAny().map(sheet -> true).orElse(false);
+
+        return sheetNameExists;
     }
 
 
-    private void addSheetToSpreadSheet(String spreadSheetId, String newSheetName) throws IOException {
+    public void addSheetToSpreadSheet(String spreadSheetId, String newSheetName) throws IOException {
 
         //Create a new AddSheetRequest
         AddSheetRequest addSheetRequest = new AddSheetRequest();
@@ -299,11 +342,14 @@ public class GoogleApiGateway {
     }
 
 
-    private String getSheetIdInFolder(Drive driveService, String folderId, String sheetName) throws IOException {
+    public String getOrCreateSpreadSheetIdInFolder(String parentFolderId, String sheetName) throws IOException {
+        Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
+                .setApplicationName("Delivery")
+                .build();
         String pageToken = null;
         do {
             FileList result = driveService.files().list()
-                    .setQ("mimeType='application/vnd.google-apps.spreadsheet' AND trashed = false AND name = '" + sheetName + "' AND '" + folderId + "' in parents")
+                    .setQ("mimeType='application/vnd.google-apps.spreadsheet' AND trashed = false AND name = '" + sheetName + "' AND '" + parentFolderId + "' in parents")
                     .setSpaces("drive")
                     .setFields("nextPageToken, files(id, name)")
                     .setPageToken(pageToken)
@@ -313,7 +359,16 @@ public class GoogleApiGateway {
             }
             pageToken = result.getNextPageToken();
         } while (pageToken != null);
-        return null;
+
+        //not found
+        File fileMetadata = new File();
+        fileMetadata.setName(sheetName);
+        fileMetadata.setParents(Collections.singletonList(parentFolderId));
+        fileMetadata.setMimeType("application/vnd.google-apps.spreadsheet");
+        File file = driveService.files().create(fileMetadata)
+                .setFields("id, parents")
+                .execute();
+        return file.getId();
     }
 
     private String getFolderIdFromPath(Drive driveService, String folderName) throws IOException {
@@ -333,6 +388,9 @@ public class GoogleApiGateway {
         return null;
     }
 
+    //
+    // TODO remove delivery specific code from the gateway
+    //
     public ValueRange getPointOfDeliveriesGoogleSheet() throws IOException {
         String spreadsheetId = getConfigSpreadSheetIdFromPrefs();
         Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
@@ -385,9 +443,8 @@ public class GoogleApiGateway {
 
         driveService.files().delete(fileId).execute();
     }
+
     public String getFileIdByNameOnGoogleDrive(String fileName) throws IOException {
-
-
         Drive driveService = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
                 .setApplicationName("Delivery")
                 .build();
@@ -406,19 +463,7 @@ public class GoogleApiGateway {
         } while (pageToken != null);
 
         return null;
-/*
-            FileList result = driveService.files().list()
-                    .setQ("trashed = false AND name = '" + fileName)
-                    .setSpaces("drive")
-                    .setFields("nextPageToken, files(id, name)")
-                    .execute();
-            List<File> files = result.getFiles();
 
-            if(files == null || files.size()==0){
-                return false;
-            }else{
-                return true;
-            }*/
 
     }
 
@@ -447,15 +492,6 @@ public class GoogleApiGateway {
             return driveFile.getId();
 
         }
-    }
-
-    public ValueRange saveNoteDetailsOnGoogleDrive() throws IOException {
-        String spreadsheetId = getConfigSpreadSheetIdFromPrefs();
-        Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential())
-                .setApplicationName("Delivery")
-                .build();
-        ValueRange result = sheets.spreadsheets().values().get(spreadsheetId, "Entreprise").execute();
-        return result;
     }
 
 

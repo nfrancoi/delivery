@@ -24,6 +24,12 @@ public class SyncNotesWorker {
     private static final String TAG = SyncNotesWorker.class.toString();
 
     private Fragment fragment;
+    private SyncNotesViewModel syncNotesViewModel;
+
+
+    private String rootDirectoryId;
+    private String missingNotesDirectoryId;
+
 
     public SyncNotesWorker(Fragment fragment) {
         this.fragment = fragment;
@@ -33,13 +39,12 @@ public class SyncNotesWorker {
 
     public void doWork() {
 
+        syncNotesViewModel = new ViewModelProvider(fragment.getActivity()).get(SyncNotesViewModel.class);
 
-        SyncNotesViewModel syncNotesViewModel = new ViewModelProvider(fragment.getActivity()).get(SyncNotesViewModel.class);
 
+        //
         // Create directory
         //
-        String rootDirectoryId;
-        String missingNotesDirectoryId;
         try {
             rootDirectoryId = GoogleApiGateway.getInstance().createDirectory("DeliveryWorkspace", null);
             missingNotesDirectoryId = GoogleApiGateway.getInstance().createDirectory("_NotesManquantes", rootDirectoryId);
@@ -88,48 +93,77 @@ public class SyncNotesWorker {
 
             syncNotesViewModel.setProgress(0);
             for (int i = 0; i < totalCountNoteFiles; i++) {
-
-                try {
-                    //
-                    // Check if  the note is on the google drive
-                    //
-                    File currentFile = noteFiles[i];
-                    if (GoogleApiGateway.getInstance().getFileIdByNameOnGoogleDrive(currentFile.getName()) != null) {
-                        syncNotesViewModel.addLog(currentFile.getName() + " Synchro");
-                    } else {
-
-                        //
-                        // Save the note
-                        //
-                        Delivery delivery = Repository.getInstance().getDeliveryFromNoteFileNameSync(currentFile.getName());
-
-                        if (delivery == null) {
-                            //save pdf file in missing notes
-                            syncNotesViewModel.addLog(currentFile.getName() + " MANQUANTE sur drive et db");
-                            GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(currentFile, missingNotesDirectoryId);
-                        } else {
-                            String podDirectoryId = GoogleApiGateway.getInstance().createDirectory(delivery.pointOfDelivery.name, rootDirectoryId);
-                            String podDirectoryDateId = GoogleApiGateway.getInstance().createDirectory(CalendarTools.YYYYMM.format(delivery.startDate.getTime()), podDirectoryId);
-
-                            syncNotesViewModel.addLog(currentFile.getName() + " MANQUANTE sur le drive");
-                            GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(currentFile, podDirectoryDateId);
-
-                            Repository.getInstance().updateDeliveryNoteSentSync(delivery.deliveryId);
-
-                        }
-                    }
-
-                } catch (IOException e) {
-                    syncNotesViewModel.addLog(e.getMessage());
-                    return;
-                }
-
+                this.syncNote(noteFiles[i]);
                 int progress = Math.round((Float.valueOf(i) / Float.valueOf(totalCountNoteFiles)) * 100);
                 syncNotesViewModel.setProgress(progress);
             }
             syncNotesViewModel.setProgress(100);
         }
         syncNotesViewModel.addLog("Terminé");
+
+    }
+
+    private StringBuilder syncNote(File noteFile) {
+        StringBuilder log = new StringBuilder(noteFile.getName());
+        try {
+            Delivery delivery = Repository.getInstance().getDeliveryFromNoteFileNameSync(noteFile.getName());
+            boolean isFileOnDrive = GoogleApiGateway.getInstance().getFileIdByNameOnGoogleDrive(noteFile.getName()) != null;
+
+
+            if (!isFileOnDrive) {
+                if (delivery == null) {
+                    //save pdf file only
+                    if (GoogleApiGateway.getInstance().savePdfFileOnGoogleDrive(noteFile, missingNotesDirectoryId) != null) {
+                        log.append(" PDF RENVOYE");
+                    } else {
+                        log.append(" PDF ECHEC");
+                    }
+
+                } else {
+                    //save pdf file & update db
+                    delivery.syncErrorMessage = null;
+                    Repository.getInstance().updateSync(delivery);
+                    if (Repository.getInstance().saveDeliveryNoteToGoogleDrive(delivery)) {
+                        log.append(" PDF RENVOYE");
+                    } else {
+                        log.append(" PDF ECHEC: " + delivery.syncErrorMessage);
+                    }
+
+
+                }
+
+            } else {
+                log.append(" PDF OK");
+            }
+            log.append(" |");
+
+
+            if (delivery != null) {
+                boolean isBillingDataOnDrive = Repository.getInstance().isDeliveryDetailsToGoogleSpreadSheet(delivery);
+                if (isBillingDataOnDrive) {
+                    log.append(" XLS OK");
+                } else {
+                    delivery.syncErrorMessage = null;
+                    Repository.getInstance().updateSync(delivery);
+                    if (Repository.getInstance().saveDeliveryDetailsToGoogleSpreadSheet(delivery)) {
+                        log.append(" XLS RENVOYE");
+                    } else {
+                        log.append(" XLS ECHEC: " + delivery.syncErrorMessage);
+                    }
+                }
+            } else {
+                log.append(" XLS MANQUANT");
+            }
+
+
+            syncNotesViewModel.addLog(log.toString());
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            syncNotesViewModel.addLog(log.toString() + " ERROR: " + e.getMessage());
+        }
+        return log;
 
     }
 

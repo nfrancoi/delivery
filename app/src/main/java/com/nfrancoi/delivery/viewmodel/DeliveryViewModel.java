@@ -351,11 +351,7 @@ public class DeliveryViewModel extends AndroidViewModel {
 
     public void updateSelectedDelivery() {
         Delivery currentDelivery = selectedDelivery.getValue();
-        mRepository.updateSync(currentDelivery);
-    }
-
-    public void updateDeliverySync(Delivery delivery) {
-        mRepository.updateSync(delivery);
+        mRepository.update(currentDelivery);
     }
 
 

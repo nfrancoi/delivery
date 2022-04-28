@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.room.entities.Delivery;
 import com.nfrancoi.delivery.tools.CalendarTools;
+import com.nfrancoi.delivery.tools.StringTools;
 
 import java.util.List;
 
@@ -25,8 +27,12 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
         private final TextView dateEndTextView;
         private final CheckBox statusMailCheckBox;
         private final CheckBox statusSaveCheckBox;
+        private final CheckBox statusBillingCheckBox;
 
         private final TextView pointOfDeliveryNameTextView;
+
+        private final ImageView errorImageView;
+        private final TextView errorTextView;
 
         private DeliveryViewHolder(View itemView) {
             super(itemView);
@@ -35,9 +41,11 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
             dateEndTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_date_end);
             statusMailCheckBox = itemView.findViewById(R.id.fragment_delivery_recycleview_item_status_mail);
             statusSaveCheckBox = itemView.findViewById(R.id.fragment_delivery_recycleview_item_status_save);
+            statusBillingCheckBox = itemView.findViewById(R.id.fragment_delivery_recycleview_item_status_billing);
             pointOfDeliveryNameTextView = itemView.findViewById(R.id.fragment_delivery_recycleview_item_pointOfDelivery_name);
 
-
+            errorImageView = itemView.findViewById(R.id.fragment_delivery_list_item_error_icon);
+            errorTextView = itemView.findViewById(R.id.fragment_delivery_list_item_error_text);
         }
     }
 
@@ -83,11 +91,12 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
             }
 
 
-            holder.deliveryIdTextView.setText(current.noteId == null?"": current.noteId);
+            holder.deliveryIdTextView.setText(current.noteId == null ? "" : current.noteId);
 
 
             holder.statusMailCheckBox.setChecked(current.isMailSent);
             holder.statusSaveCheckBox.setChecked(current.isNoteSaved);
+            holder.statusBillingCheckBox.setChecked(current.isAccountingDataSent);
 
 
             holder.pointOfDeliveryNameTextView.setText(current.pointOfDelivery == null ? "" : current.pointOfDelivery.name);
@@ -96,6 +105,26 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
                     onItemClickListener.onItemClick(current);
                 }
             });
+
+            //error management
+            if (StringTools.IsEmpty(current.syncErrorMessage)) {
+                holder.errorImageView.setVisibility(View.GONE);
+                holder.errorTextView.setVisibility(View.GONE);
+            } else {
+                holder.errorTextView.setText(current.syncErrorMessage);
+                holder.errorImageView.setVisibility(View.VISIBLE);
+                holder.errorImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (holder.errorTextView.getVisibility() == View.VISIBLE) {
+                            holder.errorTextView.setVisibility(View.GONE);
+                        } else {
+                            holder.errorTextView.setVisibility(View.VISIBLE);
+                        }
+
+                    }
+                });
+            }
 
 
         } else {

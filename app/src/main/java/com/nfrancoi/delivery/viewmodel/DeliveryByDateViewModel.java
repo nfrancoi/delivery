@@ -46,7 +46,7 @@ public class DeliveryByDateViewModel extends AndroidViewModel {
     }
 
     public Single<Long> insert(@NonNull Delivery deliveryP) {
-        Single<Long> observable = mRepository.insert(deliveryP);
+        Single<Long> observable = mRepository.insertReplace(deliveryP);
         observable = observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
         return observable;
     }

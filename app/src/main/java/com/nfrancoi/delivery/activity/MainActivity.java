@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
             myIntent.putExtra(PermissionActivity.PERMISSIONS, permissions);
             startActivityForResult(myIntent, ACTIVITY_RESULT_REQUEST_PERMISSIONS);
+
+
         }
 
 
@@ -121,15 +123,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showGoogleSignInFragment() {
-        GoogleSignInFragment googleSignInFragment = GoogleSignInFragment.newInstance();
-        googleSignInFragment.setRetainInstance(true);
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_main_layout, googleSignInFragment, "googlesignin")
-                .addToBackStack(null)
-                .commit();
-
-    }
 
     private void showDeliverySlideFragment() {
         DeliverySwipeFragment deliverySwipeFragment = DeliverySwipeFragment.newInstance(Calendar.getInstance());

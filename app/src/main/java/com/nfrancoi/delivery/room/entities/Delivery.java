@@ -1,6 +1,7 @@
 package com.nfrancoi.delivery.room.entities;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -37,9 +38,14 @@ public class Delivery {
     public PointOfDelivery pointOfDelivery;
 
 
-    //status
+    //sync status
     public boolean isMailSent;
     public boolean isNoteSaved;
+    @ColumnInfo(defaultValue = "false")
+    public boolean isAccountingDataSent;
+    @ColumnInfo(defaultValue = "")
+    public String syncErrorMessage;
+
 
     //vat
     public boolean isVatApplicable;

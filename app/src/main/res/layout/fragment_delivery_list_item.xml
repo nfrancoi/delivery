@@ -55,7 +55,7 @@
         style="@style/list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:clickable="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/fragment_delivery_list_item_mail_icon"
@@ -66,11 +66,22 @@
         style="@style/list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="4dp"
         android:clickable="false"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/fragment_delivery_list_item_cloud_icon" />
+        app:layout_constraintStart_toEndOf="@+id/fragment_delivery_list_item_cloud_icon"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_recycleview_item_status_mail" />
+
+    <CheckBox
+        android:id="@+id/fragment_delivery_recycleview_item_status_billing"
+        style="@style/list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:clickable="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/fragment_delivery_list_item_cloud_icon"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_recycleview_item_status_save" />
 
     <TextView
         android:id="@+id/fragment_delivery_recycleview_item_pointOfDelivery_name"
@@ -115,12 +126,45 @@
         app:layout_constraintTop_toTopOf="@+id/fragment_delivery_recycleview_item_status_save"
         app:srcCompat="@drawable/cloud_upload" />
 
+    <ImageView
+        android:id="@+id/fragment_delivery_list_item_billing_icon"
+        android:layout_width="39dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/fragment_delivery_recycleview_item_status_billing"
+        app:layout_constraintStart_toStartOf="@+id/guideline10"
+        app:layout_constraintTop_toTopOf="@+id/fragment_delivery_recycleview_item_status_billing"
+        app:srcCompat="@drawable/ic_baseline_euro_24" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.77" />
+
+    <ImageView
+        android:id="@+id/fragment_delivery_list_item_error_icon"
+        android:layout_width="51dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="4dp"
+        android:backgroundTintMode="multiply"
+        app:tint="#EA1313"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_recycleview_item_date_begin"
+        app:srcCompat="@drawable/ic_baseline_feedback_24" />
+
+    <TextView
+        android:id="@+id/fragment_delivery_list_item_error_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/fragment_delivery_list_item_error_icon"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_list_item_billing_icon" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

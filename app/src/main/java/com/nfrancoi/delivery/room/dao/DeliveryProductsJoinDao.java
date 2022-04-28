@@ -57,4 +57,5 @@ public interface DeliveryProductsJoinDao {
             "WHERE dp.deliveryId = :deliveryId")
     List<DeliveryProductsJoin> loadNoteDeliveryProductDetailSync(@NonNull Long deliveryId);
 
+
 }
