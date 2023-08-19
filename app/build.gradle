@@ -17,13 +17,13 @@ android {
     }
 
 
-    compileSdkVersion 31
+    compileSdkVersion 33
     defaultConfig {
         applicationId "com.nfrancoi.delivery"
         minSdkVersion 29
-        targetSdkVersion 30
-        versionCode 7
-        versionName "7"
+        targetSdkVersion 33
+        versionCode 9
+        versionName "9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -43,16 +43,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.nfrancoi.delivery'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation "ch.acra:acra-core:$rootProject.acraVersion"
+    implementation "ch.acra:acra-http:$rootProject.acraVersion"
     implementation "ch.acra:acra-mail:$rootProject.acraVersion"
     implementation "ch.acra:acra-toast:$rootProject.acraVersion"
     implementation "ch.acra:acra-dialog:$rootProject.acraVersion"
+    implementation "ch.acra:acra-notification:$rootProject.acraVersion"
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
     implementation 'androidx.preference:preference:1.2.0'
     implementation 'com.google.android.gms:play-services-auth:20.1.0'
@@ -78,7 +81,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel:$rootProject.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata:$rootProject.lifecycleVersion"
-  //  implementation "androidx.lifecycle:lifecycle-common-java8:$rootProject.lifecycleVersion"
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:$rootProject.lifecycleVersion"
 
 
@@ -86,16 +88,16 @@ dependencies {
     implementation "com.google.android.material:material:$rootProject.materialVersion"
 
     // google APIs
-    implementation 'com.google.api-client:google-api-client:1.30.10'
-    implementation 'com.google.api-client:google-api-client-android:1.30.10'
-    implementation('com.google.apis:google-api-services-sheets:v4-rev20200707-1.30.10') {
+    implementation 'com.google.api-client:google-api-client:2.0.0'
+    implementation 'com.google.api-client:google-api-client-android:2.0.0'
+    implementation('com.google.apis:google-api-services-sheets:v4-rev20230808-2.0.0') {
         exclude group: 'org.apache.httpcomponents'
     }
-    implementation('com.google.apis:google-api-services-drive:v3-rev20200723-1.30.10') {
+    implementation('com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0') {
         exclude group: 'org.apache.httpcomponents'
     }
     //Worker
-    implementation 'androidx.work:work-runtime:2.7.1'
+    implementation 'androidx.work:work-runtime:2.8.1'
 
     //Signature widget
     implementation 'com.github.gcacace:signature-pad:1.3.1'

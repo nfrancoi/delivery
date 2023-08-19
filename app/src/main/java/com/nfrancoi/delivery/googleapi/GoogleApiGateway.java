@@ -13,7 +13,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.FileContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
@@ -62,7 +62,7 @@ public class GoogleApiGateway {
 
     }
 
-    private JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private NetHttpTransport HTTP_TRANSPORT = new com.google.api.client.http.javanet.NetHttpTransport();
 
 

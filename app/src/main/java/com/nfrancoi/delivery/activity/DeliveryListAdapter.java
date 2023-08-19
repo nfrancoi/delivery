@@ -80,6 +80,7 @@ public class DeliveryListAdapter extends RecyclerView.Adapter<DeliveryListAdapte
     @Override
     public void onBindViewHolder(DeliveryViewHolder holder, int position) {
         if (deliveries != null) {
+
             final Delivery current = deliveries.get(position);
             holder.dateBeginTextView.setText(CalendarTools.HHmm.format(current.startDate.getTime()));
 
