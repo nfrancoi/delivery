@@ -63,6 +63,7 @@ public class PermissionActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PERMISSIONS_INT: {
 
@@ -84,8 +85,8 @@ public class PermissionActivity extends AppCompatActivity {
     }
 
     private void proceedPermissionsGranted() {
-        Toast.makeText(this.getBaseContext(), "Permissions granted!",
-                Toast.LENGTH_LONG).show();
+        /*Toast.makeText(this.getBaseContext(), "Permissions granted!",
+                Toast.LENGTH_LONG).show();*/
         this.setResult(RESULT_OK);
         finish();
 

@@ -1,6 +1,5 @@
 package com.nfrancoi.delivery.activity;
 
-import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -53,8 +52,7 @@ public class MainActivity extends AppCompatActivity {
             Intent myIntent = new Intent(MainActivity.this,
                     PermissionActivity.class);
 
-            String[] permissions = new String[]{
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            String[] permissions = new String[]{};
 
             myIntent.putExtra(PermissionActivity.PERMISSIONS, permissions);
             startActivityForResult(myIntent, ACTIVITY_RESULT_REQUEST_PERMISSIONS);
