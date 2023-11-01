@@ -38,6 +38,16 @@ public abstract class NoteCreator {
         noteDataLiveData.addSource(this.updateDeliveryProductsJoinsPrices(), deliveryProductsJoins -> {
             noteData.deliveryProductNoteDetails = deliveryProductsJoins;
 
+            for(DeliveryProductsJoin deliveryProductNoteDetail : noteData.deliveryProductNoteDetails){
+                if(deliveryProductNoteDetail.priceTotVatExclDiscounted.compareTo(BigDecimal.ZERO)>0){
+                    noteData.totalDeposVatExcl=noteData.totalDeposVatExcl.add(deliveryProductNoteDetail.priceTotVatExclDiscounted);
+                }else{
+                    noteData.totalTakeVatExcl=noteData.totalTakeVatExcl.add(deliveryProductNoteDetail.priceTotVatExclDiscounted);
+                }
+            }
+            noteData.totalTakeVatExcl = noteData.totalTakeVatExcl.setScale(2, RoundingMode.HALF_UP);
+            noteData.totalDeposVatExcl = noteData.totalDeposVatExcl.setScale(2, RoundingMode.HALF_UP);
+
             //sort
             noteData.deliveryProductNoteDetails = deliveryProductsJoins.stream().sorted((o1, o2) -> o1.type.compareTo(o2.type)).collect(Collectors.toList());
 
@@ -45,6 +55,7 @@ public abstract class NoteCreator {
                     deliveryProductsJoins.stream().map(
                             noteDeliveryProductDetail -> noteDeliveryProductDetail.priceTotVatExclDiscounted).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
             ;
+
             noteData.totalTaxes = deliveryProductsJoins.stream().map(noteDeliveryProductDetail ->
                     noteDeliveryProductDetail.priceTotVatInclDiscounted.add(noteDeliveryProductDetail.priceTotVatExclDiscounted.negate())).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
             ;
@@ -55,6 +66,7 @@ public abstract class NoteCreator {
 
             isCompletedLoad();
         });
+
 
 
     }

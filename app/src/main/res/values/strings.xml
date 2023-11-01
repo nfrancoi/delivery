@@ -68,7 +68,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <!-- Signature dialog-->
+    <!-- PDF note-->
     <string name="fragment_signature_save_button">Valider</string>
     <string name="fragment_signature_dialog_title">Signature...</string>
     <string name="pdf_note_product_list_title_type" />
@@ -81,6 +81,12 @@
     <string name="pdf_note_product_detail_header_pt_hvat">PT HTVA</string>
     <string name="pdf_note_product_detail_header_vat">TVA %</string>
     <string name="pdf_note_product_detail_header_pt_vat">PT TVA</string>
+
+    <string name="pdf_note_client_total_ht_label">Total HTVA</string>
+    <string name="pdf_note_client_total_taxes_label">Total TVA</string>
+    <string name="pdf_note_client_total_label">TOTAL</string>
+    <string name="pdf_note_client_total_depos_ht_label">Dépots HTVA</string>
+    <string name="pdf_note_client_total_reprise_ht_label">Retours HTVA</string>
 
     <!-- menu -->
     <string name="fragment_settings_title">Paramètres</string>
@@ -129,9 +135,7 @@
 
 
 
-    <string name="pdf_note_client_total_ht_label">Total HTVA</string>
-    <string name="pdf_note_client_total_taxes_label">Total TVA</string>
-    <string name="pdf_note_client_total_label">TOTAL</string>
+
 
     <!-- Google Sign in-->
     <string name="fragment_google_sign_in_title">Connection au compte Google</string>
@@ -153,6 +157,7 @@
     <string name="sync_database_worker_offline_error">Hors ligne - Synchro des catalogues impossible</string>
     <string name="sync_database_worker_success">Synchro des catalogues OK</string>
     <string name="preference_synchronisation_upload_notes">Synchro des notes d\'envoi</string>
+
 
 
 </resources>

@@ -15,7 +15,9 @@ public class NoteData {
     public Delivery delivery;
     public Company company;
     public List<DeliveryProductsJoin> deliveryProductNoteDetails;
-    public BigDecimal totalVatExcl;
-    public BigDecimal totalTaxes;
-    public BigDecimal total;
+    public BigDecimal totalDeposVatExcl = new BigDecimal(0);
+    public BigDecimal totalTakeVatExcl = new BigDecimal(0);
+    public BigDecimal totalVatExcl = new BigDecimal(0);
+    public BigDecimal totalTaxes = new BigDecimal(0);
+    public BigDecimal total = new BigDecimal(0);
 }

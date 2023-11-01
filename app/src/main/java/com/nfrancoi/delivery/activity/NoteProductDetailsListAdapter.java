@@ -69,7 +69,7 @@ public class NoteProductDetailsListAdapter extends RecyclerView.Adapter<NoteProd
                     typeName = "Retour";
                     break;
                 case "D":
-                    typeName = "Depos";
+                    typeName = "Depot";
                     break;
                 case "S":
                     typeName = "Vente";

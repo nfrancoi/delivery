@@ -22,8 +22,8 @@ android {
         applicationId "com.nfrancoi.delivery"
         minSdkVersion 33
         targetSdkVersion 33
-        versionCode 12
-        versionName "12"
+        versionCode 13
+        versionName "13"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {

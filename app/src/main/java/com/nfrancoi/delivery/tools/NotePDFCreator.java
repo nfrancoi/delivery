@@ -129,6 +129,12 @@ public class NotePDFCreator extends NoteCreator {
         receiverComment.setText(noteData.delivery.commentReceiver);
 
         //TOTALS
+        TextView totalDeposHtText = view.findViewById(R.id.pdf_note_client_total_depos_ht_text);
+        totalDeposHtText.setText(NumberFormat.getCurrencyInstance().format(noteData.totalDeposVatExcl.doubleValue()));
+
+        TextView totalTakeHtText = view.findViewById(R.id.pdf_note_client_total_reprise_ht_text);
+        totalTakeHtText.setText(NumberFormat.getCurrencyInstance().format(noteData.totalTakeVatExcl.doubleValue()));
+
         TextView totalHtText = view.findViewById(R.id.pdf_note_client_total_ht_text);
         totalHtText.setText(NumberFormat.getCurrencyInstance().format(noteData.totalVatExcl.doubleValue()));
 
