@@ -1,4 +1,4 @@
-package com.nfrancoi.delivery.googleapi;
+package com.nfrancoi.delivery.repository.googleapi;
 
 import android.accounts.Account;
 
@@ -132,7 +132,7 @@ public class GoogleApiGateway {
                     .build();
 
             Drive.Files.List request = driveService.files().list()
-                    .setPageSize(10)
+                    .setPageSize(100)
                     // Available Query parameters here:
                     //https://developers.google.com/drive/v3/web/search-parameters
                     .setQ("mimeType = 'application/vnd.google-apps.spreadsheet'")

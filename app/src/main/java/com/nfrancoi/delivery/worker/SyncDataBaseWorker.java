@@ -14,7 +14,7 @@ import androidx.work.WorkerParameters;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.nfrancoi.delivery.DeliveryApplication;
 import com.nfrancoi.delivery.R;
-import com.nfrancoi.delivery.googleapi.GoogleApiGateway;
+import com.nfrancoi.delivery.repository.googleapi.GoogleApiGateway;
 import com.nfrancoi.delivery.repository.Repository;
 import com.nfrancoi.delivery.room.entities.Company;
 import com.nfrancoi.delivery.room.entities.Employee;

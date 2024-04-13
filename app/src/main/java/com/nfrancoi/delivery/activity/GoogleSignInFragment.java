@@ -28,7 +28,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.nfrancoi.delivery.R;
-import com.nfrancoi.delivery.googleapi.GoogleApiGateway;
+import com.nfrancoi.delivery.repository.googleapi.GoogleApiGateway;
 
 import java.util.concurrent.Executors;
 

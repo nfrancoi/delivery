@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.viewmodel.SyncNotesViewModel;
-import com.nfrancoi.delivery.worker.SyncNotesWorker;
+import com.nfrancoi.delivery.worker.SyncNotes;
 
 import java.util.Calendar;
 import java.util.concurrent.Executors;
@@ -122,7 +122,7 @@ public class GoogleSyncNotesFragment extends Fragment {
                 syncNotesViewModel.setProgress(0);
 
                 Executors.newSingleThreadExecutor().execute(() -> {
-                            SyncNotesWorker worker = new SyncNotesWorker(GoogleSyncNotesFragment.this);
+                            SyncNotes worker = new SyncNotes(GoogleSyncNotesFragment.this);
                             worker.doWork();
                         }
                 );

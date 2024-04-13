@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.nfrancoi.delivery.R;
-import com.nfrancoi.delivery.googleapi.GoogleApiGateway;
+import com.nfrancoi.delivery.repository.googleapi.GoogleApiGateway;
 
 import java.util.concurrent.Executors;
 

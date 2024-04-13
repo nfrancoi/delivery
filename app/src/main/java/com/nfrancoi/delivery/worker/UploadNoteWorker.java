@@ -45,7 +45,7 @@ public class UploadNoteWorker extends Worker {
             return Result.retry();
         }
 
-        IsProcessOk =  Repository.getInstance().saveDeliveryDetailsToGoogleSpreadSheet(delivery);
+        IsProcessOk =  Repository.getInstance().saveDeliveryDetailsToBackendApi(delivery);
         if (!IsProcessOk) {
             return Result.retry();
         }

@@ -9,7 +9,10 @@ import androidx.preference.PreferenceManager;
 import androidx.room.Transaction;
 
 import com.nfrancoi.delivery.DeliveryApplication;
-import com.nfrancoi.delivery.googleapi.GoogleApiGateway;
+import com.nfrancoi.delivery.repository.googleapi.GoogleApiGateway;
+import com.nfrancoi.delivery.repository.retrofit.DeliveryBackendApiGateway;
+import com.nfrancoi.delivery.repository.retrofit.model.DeliveryJson;
+import com.nfrancoi.delivery.repository.retrofit.model.DeliveryProductJson;
 import com.nfrancoi.delivery.room.DeliveryDatabase;
 import com.nfrancoi.delivery.room.Synchronizer;
 import com.nfrancoi.delivery.room.dao.CompanyDao;
@@ -31,6 +34,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -223,7 +228,7 @@ public class Repository {
         List<Integer> rowsIds;
         try {
             rowsIds = GoogleApiGateway.getInstance().findLinesInSpreadsheet(spreadSheetId, sheetName, delivery.noteId, "E");
-        }catch  (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
@@ -232,6 +237,67 @@ public class Repository {
         return false;
 
 
+    }
+
+    public boolean saveDeliveryDetailsToBackendApi(Delivery delivery) {
+
+
+
+        DeliveryJson deliveryJson = new DeliveryJson();
+        deliveryJson.setStartDate(delivery.startDate.getTime());
+        deliveryJson.setSentDate(delivery.sentDate.getTime());
+        deliveryJson.setReceiverName(delivery.receiverName);
+        deliveryJson.setCommentDelivery(delivery.commentDelivery);
+        deliveryJson.setCommentReceiver(delivery.commentReceiver);
+        deliveryJson.setNoteId(delivery.noteId);
+        deliveryJson.setEmployeeId(delivery.employee.employeeId);
+        deliveryJson.setEmployee(delivery.employee.name);
+        deliveryJson.setPointOfDeliveryId(delivery.pointOfDelivery.pointOfDeliveryId);
+        deliveryJson.setPointOfDelivery(delivery.pointOfDelivery.name);
+        deliveryJson.setVatApplicable(delivery.isVatApplicable);
+
+
+        List<DeliveryProductsJoin> dpJoins = this.deliveryProductJoinDao.loadNoteDeliveryProductDetailSync(delivery.deliveryId);
+
+        List<DeliveryProductJson> dpJsons = new ArrayList<>(dpJoins.size());
+        for(DeliveryProductsJoin dpj : dpJoins){
+            DeliveryProductJson dpJson = new DeliveryProductJson();
+
+            dpJson.setProductId(dpj.productId);
+
+            dpJson.setType(dpj.type); // D:Deposit, T:Take, S:Sell
+
+            dpJson.setProductName(dpj.productName);
+            dpJson.setQuantity(dpj.quantity);
+
+            dpJson.setPriceUnitVatIncl(dpj.priceUnitVatIncl);
+            dpJson.setVat(dpj.vat);
+
+            dpJson.setVatApplicable(dpj.vatApplicable);
+            dpJson.setPriceUnitVatExcl(dpj.priceUnitVatExcl);
+            dpJson.setDiscount(dpj.discount);
+            dpJson.setPriceTotVatExclDiscounted(dpj.priceTotVatExclDiscounted);
+            dpJson.setPriceTotVatInclDiscounted(dpj.priceTotVatInclDiscounted);
+
+            dpJsons.add(dpJson);
+        }
+        deliveryJson.setDeliveryProductJsons(dpJsons);
+
+
+        try {
+            DeliveryBackendApiGateway.getInstance().saveDeliveryDetailsToBackendApi(deliveryJson);
+
+        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+            delivery.isAccountingDataSent = false;
+            delivery.syncErrorMessage = e.getMessage();
+            Repository.getInstance().updateSync(delivery);
+            return false;
+        }
+
+        delivery.isAccountingDataSent = true;
+        Repository.getInstance().updateSync(delivery);
+        return true;
     }
 
     public boolean saveDeliveryDetailsToGoogleSpreadSheet(Delivery delivery) {

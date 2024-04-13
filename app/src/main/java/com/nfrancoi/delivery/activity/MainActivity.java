@@ -7,17 +7,23 @@ import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.material.snackbar.Snackbar;
 import com.nfrancoi.delivery.R;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
+import com.nfrancoi.delivery.viewmodel.SyncNotesViewModel;
 import com.nfrancoi.delivery.worker.SyncDataBaseWorker;
+import com.nfrancoi.delivery.worker.SyncNotesWorker;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,6 +62,18 @@ public class MainActivity extends AppCompatActivity {
 
             myIntent.putExtra(PermissionActivity.PERMISSIONS, permissions);
             startActivityForResult(myIntent, ACTIVITY_RESULT_REQUEST_PERMISSIONS);
+
+            //
+            // Schedule daily sync
+            //
+
+            SyncNotesViewModel syncNotesViewModel = new ViewModelProvider(this).get(SyncNotesViewModel.class);
+            Calendar threeDaysAgo = Calendar.getInstance();
+            threeDaysAgo.add(Calendar.DATE, -3);
+            syncNotesViewModel.setFromDate(threeDaysAgo);
+
+            PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(SyncNotesWorker.class, 1, TimeUnit.MINUTES).build();
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork("Sync notes", ExistingPeriodicWorkPolicy.KEEP, periodicWork);
 
 
         }
@@ -99,14 +117,14 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case ACTIVITY_RESULT_REQUEST_PERMISSIONS:
                 if (resultCode == RESULT_OK) {
-                    if(GoogleSignIn.getLastSignedInAccount(getApplicationContext()) == null){
+                    if (GoogleSignIn.getLastSignedInAccount(getApplicationContext()) == null) {
                         Snackbar.make(findViewById(android.R.id.content), R.string.activity_main_google_account_not_selected, Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
 
                     //Sync
                     WorkManager syncWorkManager = WorkManager.getInstance(this.getApplicationContext());
-                    syncWorkManager.enqueue( OneTimeWorkRequest.from(SyncDataBaseWorker.class));
+                    syncWorkManager.enqueue(OneTimeWorkRequest.from(SyncDataBaseWorker.class));
 
 
                     this.showDeliverySlideFragment();
