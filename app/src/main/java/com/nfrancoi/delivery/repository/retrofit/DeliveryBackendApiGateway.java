@@ -18,9 +18,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DeliveryBackendApiGateway {
     static final String TAG = DeliveryBackendApiGateway.class.getSimpleName();
-    static final String BASE_URL = "http://192.168.100.122:8080/";
-
-    final static String API_KEY = "YOUR_API_KEY";
+    //static final String BASE_URL = "http://192.168.100.122:8080/";
+    static final String BASE_URL = "https://deliverybackendapi-e3e15b0562a6.herokuapp.com/";
 
 
     private static DeliveryBackendApiGateway deliveryBackendApiGateway;
@@ -29,7 +28,7 @@ public class DeliveryBackendApiGateway {
         if (deliveryBackendApiGateway == null) {
             deliveryBackendApiGateway = new DeliveryBackendApiGateway();
 
-            HttpLoggingInterceptor httpLoggingInterceptor = new      HttpLoggingInterceptor();
+            HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
             httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .addInterceptor(httpLoggingInterceptor)
@@ -52,6 +51,19 @@ public class DeliveryBackendApiGateway {
 
     private Retrofit retrofit;
 
+    public DeliveryJson retrieveDeliveryByNoteId(String noteId) throws IOException {
+        DeliveryApiService deliveryApiService = retrofit.create(DeliveryApiService.class);
+
+        Call<DeliveryJson> call = deliveryApiService.retrieveDeliveryByNoteId(noteId);
+
+        Response<DeliveryJson> response = call.execute();
+        if (!response.isSuccessful()) {
+            throw new IOException(response.toString());
+        }
+        DeliveryJson deliveryJson = response.body();
+        return deliveryJson;
+    }
+
 
     public void saveDeliveryDetailsToBackendApi(DeliveryJson deliveryJson) throws IOException {
         DeliveryApiService deliveryApiService = retrofit.create(DeliveryApiService.class);
@@ -61,10 +73,7 @@ public class DeliveryBackendApiGateway {
         Response<ResponseBody> response = call.execute();
         if (!response.isSuccessful()) {
             throw new IOException(response.toString());
-
         }
-
-
     }
 
 

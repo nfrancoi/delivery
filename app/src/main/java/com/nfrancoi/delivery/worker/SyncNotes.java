@@ -139,20 +139,20 @@ public class SyncNotes {
 
 
             if (delivery != null) {
-                boolean isBillingDataOnDrive = Repository.getInstance().isDeliveryDetailsToGoogleSpreadSheet(delivery);
+                boolean isBillingDataOnDrive = Repository.getInstance().isDeliveryDetailsToBackendApi(delivery);
                 if (isBillingDataOnDrive) {
-                    log.append(" XLS OK");
+                    log.append(" API Compta OK");
                 } else {
                     delivery.syncErrorMessage = null;
                     Repository.getInstance().updateSync(delivery);
                     if (Repository.getInstance().saveDeliveryDetailsToBackendApi(delivery)) {
-                        log.append(" XLS RENVOYE");
+                        log.append(" API Compta RENVOYE ");
                     } else {
-                        log.append(" XLS ECHEC: " + delivery.syncErrorMessage);
+                        log.append(" API Compta ECHEC: " + delivery.syncErrorMessage);
                     }
                 }
             } else {
-                log.append(" XLS MANQUANT");
+                log.append(" API manquant");
             }
 
 

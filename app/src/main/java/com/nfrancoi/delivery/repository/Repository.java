@@ -239,6 +239,22 @@ public class Repository {
 
     }
 
+    public boolean isDeliveryDetailsToBackendApi(Delivery delivery)  {
+        try {
+            DeliveryBackendApiGateway.getInstance().retrieveDeliveryByNoteId(delivery.noteId);
+
+        } catch ( IOException | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+            Log.e(TAG, e.toString());
+            delivery.isAccountingDataSent = false;
+            delivery.syncErrorMessage = e.getMessage();
+            Repository.getInstance().updateSync(delivery);
+            return false;
+        }
+
+        return  true;
+    }
+
     public boolean saveDeliveryDetailsToBackendApi(Delivery delivery) {
 
 
@@ -289,6 +305,7 @@ public class Repository {
 
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
+            Log.e(TAG, e.toString());
             delivery.isAccountingDataSent = false;
             delivery.syncErrorMessage = e.getMessage();
             Repository.getInstance().updateSync(delivery);
