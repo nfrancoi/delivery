@@ -79,12 +79,12 @@ public class GoogleSignInFragment extends Fragment implements
 
         //Sign in
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestScopes(GoogleApiGateway.getInstance().scopes[0], GoogleApiGateway.getInstance().scopes[1], GoogleApiGateway.getInstance().scopes[2], GoogleApiGateway.getInstance().scopes[3])
+                .requestScopes(GoogleApiGateway.getInstance().scopes[0], GoogleApiGateway.getInstance().scopes)
+                .requestIdToken("64002358911-pm4jfdbd4jfae9ur4fsd9cp8ho1bvqo8.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
-
         SignInButton signInButton = view.findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
 

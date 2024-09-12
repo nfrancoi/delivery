@@ -253,11 +253,10 @@
                 android:layout_height="wrap_content">
 
 
-                <Spinner
-                    android:id="@+id/fragment_new_delivery_text_select_deliver_name"
+                <TextView
+                    android:id="@+id/fragment_new_delivery_text_employee_name"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:completionThreshold="0"
+                    android:layout_height="wrap_content"
                     android:ems="10"
                     android:gravity="start|top"
                     android:hint="@string/fragment_new_delivery_hint_receiver"
@@ -265,6 +264,7 @@
                     android:paddingHorizontal="@dimen/small_padding"
                     android:paddingVertical="@dimen/small_padding"
                     android:singleLine="true"
+                    android:textSize="20sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -283,7 +283,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_text_select_deliver_name"
+                    app:layout_constraintTop_toBottomOf="@+id/fragment_new_delivery_text_employee_name"
                     android:autofillHints="" />
 
 

@@ -10,24 +10,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.NetworkType;
@@ -45,6 +42,7 @@ import com.nfrancoi.delivery.tools.BitmapTools;
 import com.nfrancoi.delivery.tools.FilterWithSpaceAdapter;
 import com.nfrancoi.delivery.tools.NoteCreator;
 import com.nfrancoi.delivery.tools.NotePDFCreator;
+import com.nfrancoi.delivery.tools.StringTools;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModel;
 import com.nfrancoi.delivery.viewmodel.DeliveryViewModelFactory;
 import com.nfrancoi.delivery.worker.UploadNoteWorker;
@@ -74,7 +72,7 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
     private TextView deliverCommentTextView;
 
     //Select employee
-    private Spinner employeeNameSpinner;
+    private TextView employeeTextView;
     private ArrayAdapter<Employee> employeeAdapter;
 
     //Select PointOfDelivery
@@ -146,7 +144,7 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
         //
         // Select employee
         //
-        employeeNameSpinner = view.findViewById(R.id.fragment_new_delivery_text_select_deliver_name);
+        employeeTextView = view.findViewById(R.id.fragment_new_delivery_text_employee_name);
 
         //
         //Select PointOfDelivery
@@ -233,7 +231,7 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
         receiverNameTextView.setEnabled(isActive);
         receiverCommentTextView.setEnabled(isActive);
         deliverCommentTextView.setEnabled(isActive);
-        employeeNameSpinner.setEnabled(isActive);
+        employeeTextView.setEnabled(isActive);
         podTextView.setEnabled(isActive);
 
 
@@ -290,40 +288,31 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
             //
             //Employee selection
             //
-            employeeAdapter = new ArrayAdapter(requireActivity(), R.layout.widget_spinner_selected_employee, R.id.widget_spinner_employee_text);
-            employeeAdapter.setDropDownViewResource(R.layout.widget_spinner_employee);
+            if (selectedDelivery.employee == null) {
 
-            employeeNameSpinner.setAdapter(employeeAdapter);
-            deliveryViewModel.getActiveEmployees().observe(getViewLifecycleOwner(), employees -> {
-                //fill drop down list
-                employeeAdapter.addAll(employees);
+                String selectedEmployee = PreferenceManager.getDefaultSharedPreferences(DeliveryApplication.getInstance().getBaseContext()).getString("employee_list", "");
 
+                deliveryViewModel.getActiveEmployees().observe(getViewLifecycleOwner(), employees -> {
+                    boolean found = false;
+                    for (Employee employee : employees) {
+                        if (StringTools.Equals(employee.name, selectedEmployee)) {
+                            found = true;
+                            selectedDelivery.employee = employee;
 
-                //chose default if not selected
-                if (selectedDelivery.employee == null) {
-                    LiveData<Employee> defaultEmployeeLD = deliveryViewModel.getEmployeeByDefault();
-                    defaultEmployeeLD.observe(getViewLifecycleOwner(), defaultEmployee -> {
-                        int selectedEmployeePosition = employeeAdapter.getPosition(defaultEmployee);
-                        if (selectedEmployeePosition >= 0) {
-                            deliveryViewModel.onSelectedEmployee(defaultEmployee);
-                        }else{
-                            deliveryViewModel.onSelectedEmployee(employeeAdapter.getItem(0));
-                            Toast.makeText(requireActivity().getApplicationContext(), "Le livreur par défaut paramétré n'existe pas",
-                                    Toast.LENGTH_LONG).show();
+                            break;
                         }
+                    }
+                    if (!found) {
+                        selectedDelivery.employee = employees.get(0);
+                    }
 
-                    });
-                }
-                //previously selected
-                else {
-                    int selectedEmployeePosition = employeeAdapter.getPosition(selectedDelivery.employee);
-                    employeeNameSpinner.setOnItemSelectedListener(null);
-                    employeeNameSpinner.setSelection(selectedEmployeePosition);
-                    employeeNameSpinner.setOnItemSelectedListener(new EmployeeSpinnerOnItemSelectedListener());
-                }
-
-
-            });
+                    employeeTextView.setText(selectedDelivery.employee.name);
+                    deliveryViewModel.onSelectedEmployee(selectedDelivery.employee);
+                });
+            }
+            else {
+                employeeTextView.setText(selectedDelivery.employee.name);
+            }
 
 
             if (selectedDelivery.pointOfDelivery != null) {
@@ -562,29 +551,6 @@ public class NewDeliveryFragment extends Fragment implements DialogInterface.OnD
     //
     // Employee
     //
-    private class EmployeeSpinnerOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
-
-        boolean isFirstTimeCalled = true;
-
-        @Override
-        public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-            if (isFirstTimeCalled) {
-                isFirstTimeCalled = false;
-                return;
-            }
-            Object item = parent.getSelectedItem();
-            if (item instanceof Employee) {
-                Employee employee = (Employee) item;
-                deliveryViewModel.onSelectedEmployee(employee);
-            }
-        }
-
-        @Override
-        public void onNothingSelected(android.widget.AdapterView<?> parent) {
-        }
-    }
-
-
     private void showSelectProductsFragment(String type) {
 
         DeliveryProductsSelectFragment fragment = DeliveryProductsSelectFragment.newInstance(this.deliveryId, type);

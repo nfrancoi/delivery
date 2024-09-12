@@ -4,8 +4,11 @@ import android.accounts.Account;
 
 import androidx.preference.PreferenceManager;
 
+import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.Scope;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -88,12 +91,16 @@ public class GoogleApiGateway {
     public Scope[] scopes = new Scope[]{
             new Scope(SheetsScopes.SPREADSHEETS)
             , new Scope(Scopes.DRIVE_APPFOLDER)
+            , new Scope(Scopes.EMAIL)
+            , new Scope(Scopes.OPEN_ID)
             , new Scope(DriveScopes.DRIVE_FILE)
             , new Scope(DriveScopes.DRIVE_METADATA_READONLY)};
 
     private String[] scopeStrings = new String[]{
             SheetsScopes.SPREADSHEETS
             , Scopes.DRIVE_APPFOLDER
+            , Scopes.EMAIL
+            , Scopes.OPEN_ID
             , DriveScopes.DRIVE_FILE
             , DriveScopes.DRIVE_METADATA_READONLY};
 
@@ -107,9 +114,25 @@ public class GoogleApiGateway {
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(DeliveryApplication.getInstance(), Arrays.asList(scopeStrings));
         credential.setBackOff(new ExponentialBackOff());
         credential.setSelectedAccount(account);
-
         return credential;
     }
+
+    public String getValidIdToken() throws GoogleAuthException, IOException {
+        GoogleSignInAccount gsoAccount = GoogleSignIn.getLastSignedInAccount(DeliveryApplication.getInstance());
+
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(GoogleApiGateway.getInstance().scopes[0], GoogleApiGateway.getInstance().scopes)
+                .requestIdToken("64002358911-pm4jfdbd4jfae9ur4fsd9cp8ho1bvqo8.apps.googleusercontent.com")
+                .build();
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(DeliveryApplication.getInstance(), gso);
+        mGoogleSignInClient.silentSignIn();
+
+
+        String token = gsoAccount.getIdToken();
+        return token;
+    }
+
 
     public boolean checkAccountDriveAccess() throws UserRecoverableAuthIOException {
         try {
@@ -122,7 +145,6 @@ public class GoogleApiGateway {
         }
         return true;
     }
-
 
 
     public String getSpreadSheetIdByName(String spreadSheetName) {
@@ -158,10 +180,11 @@ public class GoogleApiGateway {
 
 
     private Map<String, String> directoryAndParentCacheMap = new HashMap<>();
+
     public String createDirectory(String directory, String parentDirectoryId) throws IOException {
 
-        String directoryId = directoryAndParentCacheMap.get(directory+parentDirectoryId);
-        if(directoryId != null){
+        String directoryId = directoryAndParentCacheMap.get(directory + parentDirectoryId);
+        if (directoryId != null) {
             return directoryId;
         }
 
@@ -182,7 +205,7 @@ public class GoogleApiGateway {
 
         List<File> directories = result.getFiles();
         if (directories.size() > 0) {
-            directoryAndParentCacheMap.put(directory+parentDirectoryId, directories.get(0).getId());
+            directoryAndParentCacheMap.put(directory + parentDirectoryId, directories.get(0).getId());
             return directories.get(0).getId();
         }
 
@@ -199,7 +222,7 @@ public class GoogleApiGateway {
                     .setFields("id")
                     .execute();
 
-            directoryAndParentCacheMap.put(directory+parentDirectoryId, file.getId());
+            directoryAndParentCacheMap.put(directory + parentDirectoryId, file.getId());
 
             return file.getId();
         } else {
@@ -212,7 +235,7 @@ public class GoogleApiGateway {
                     .setFields("id, parents")
                     .execute();
 
-            directoryAndParentCacheMap.put(directory+parentDirectoryId, file.getId());
+            directoryAndParentCacheMap.put(directory + parentDirectoryId, file.getId());
             return file.getId();
         }
 

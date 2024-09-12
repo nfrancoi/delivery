@@ -5,7 +5,6 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.preference.PreferenceManager;
 import androidx.room.Transaction;
 
 import com.nfrancoi.delivery.DeliveryApplication;
@@ -66,7 +65,6 @@ public class Repository {
 
     private EmployeeDao employeeDao;
     private LiveData<List<Employee>> activeEmployees;
-    public LiveData<Employee> employeeByDefault;
 
     public static synchronized Repository getInstance() {
         if (INSTANCE == null) {
@@ -96,12 +94,6 @@ public class Repository {
 
         employeeDao = db.getEmployeeDao();
         activeEmployees = employeeDao.getActiveEmployee();
-
-        String defaultEmployeeName = PreferenceManager.getDefaultSharedPreferences(DeliveryApplication.getInstance().getApplicationContext()).getString("employee_default", null);
-
-
-        employeeByDefault = employeeDao.getEmployeeByName(defaultEmployeeName);
-
     }
 
     //
@@ -239,11 +231,11 @@ public class Repository {
 
     }
 
-    public boolean isDeliveryDetailsToBackendApi(Delivery delivery)  {
+    public boolean isDeliveryDetailsToBackendApi(Delivery delivery) {
         try {
             DeliveryBackendApiGateway.getInstance().retrieveDeliveryByNoteId(delivery.noteId);
 
-        } catch ( IOException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
             Log.e(TAG, e.toString());
             delivery.isAccountingDataSent = false;
@@ -252,11 +244,10 @@ public class Repository {
             return false;
         }
 
-        return  true;
+        return true;
     }
 
     public boolean saveDeliveryDetailsToBackendApi(Delivery delivery) {
-
 
 
         DeliveryJson deliveryJson = new DeliveryJson();
@@ -276,7 +267,7 @@ public class Repository {
         List<DeliveryProductsJoin> dpJoins = this.deliveryProductJoinDao.loadNoteDeliveryProductDetailSync(delivery.deliveryId);
 
         List<DeliveryProductJson> dpJsons = new ArrayList<>(dpJoins.size());
-        for(DeliveryProductsJoin dpj : dpJoins){
+        for (DeliveryProductsJoin dpj : dpJoins) {
             DeliveryProductJson dpJson = new DeliveryProductJson();
 
             dpJson.setProductId(dpj.productId);
@@ -487,10 +478,6 @@ public class Repository {
     //
     public LiveData<List<Employee>> getActiveEmployees() {
         return activeEmployees;
-    }
-
-    public LiveData<Employee> getEmployeeByDefault() {
-        return employeeByDefault;
     }
 
     public List<String> syncAllEmployee(List<Employee> employees) {

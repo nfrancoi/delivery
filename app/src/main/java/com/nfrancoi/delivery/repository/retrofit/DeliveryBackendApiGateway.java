@@ -18,9 +18,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DeliveryBackendApiGateway {
     static final String TAG = DeliveryBackendApiGateway.class.getSimpleName();
+    //DEV
     //static final String BASE_URL = "http://192.168.100.122:8080/";
-    static final String BASE_URL = "https://deliverybackendapi-e3e15b0562a6.herokuapp.com/";
 
+    //PROD
+    //static final String BASE_URL = "https://delivery-backend-tst-f7e2cea8747c.herokuapp.com/";
+
+    //Staging
+    static final String BASE_URL = "https://delivery-backend-prd-a2c3c3cf085b.herokuapp.com/";
 
     private static DeliveryBackendApiGateway deliveryBackendApiGateway;
 
@@ -30,8 +35,13 @@ public class DeliveryBackendApiGateway {
 
             HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
             httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            HttpOauth2Interceptor httpOauth2Interceptor = new HttpOauth2Interceptor();
+
+
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .addInterceptor(httpLoggingInterceptor)
+                    .addInterceptor(httpOauth2Interceptor)
                     .build();
 
             //manage dates

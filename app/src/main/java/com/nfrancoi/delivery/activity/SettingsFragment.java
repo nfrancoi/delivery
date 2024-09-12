@@ -1,7 +1,6 @@
 package com.nfrancoi.delivery.activity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.work.OneTimeWorkRequest;
@@ -116,18 +116,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         });
 
-
-        //
-        // Products
-        //
-        Preference employeesCat = findPreference("employee_default");
-
-        employeesCat.setOnPreferenceClickListener(preference -> {
-            Log.d(TAG, "click on preference employee");
-            return true;
-        });
-
-
         //
         //Google spreadsheet connect
         //
@@ -163,7 +151,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         syncUploadNotesButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-               showGoogleSyncNotesFragment();
+                showGoogleSyncNotesFragment();
                 return true;
             }
         });
@@ -172,7 +160,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         // About
         //
         TextPreference versionNumber = findPreference("version_number");
-        versionNumber.setText(BuildConfig.VERSION_CODE+"");
+        versionNumber.setText(BuildConfig.VERSION_CODE + "");
 
         TextPreference resetDbButton = findPreference("reset_db");
         resetDbButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -183,6 +171,31 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
                 return true;
             }
+        });
+
+        //
+        // Employee
+        //
+        ListPreference employeeListPreference = findPreference("employee_list");
+        employeeListPreference.setTitle("" + employeeListPreference.getValue());
+
+       employeeListPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                employeeListPreference.setTitle("" + newValue);
+                return true;
+            }
+        });
+        prefViewModel.getEmployees().observe(this, employees -> {
+            CharSequence[] charSequenceArray = new CharSequence[employees.size()];
+            for (int i = 0; i < employees.size(); i++) {
+                charSequenceArray[i] = employees.get(i).name;
+            }
+
+
+            employeeListPreference.setEntries(charSequenceArray);
+            employeeListPreference.setEntryValues(charSequenceArray);
+
         });
 
 
