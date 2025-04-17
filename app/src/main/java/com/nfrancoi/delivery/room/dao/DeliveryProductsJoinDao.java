@@ -38,7 +38,7 @@ public interface DeliveryProductsJoinDao {
 
 
     @Query("SELECT dp.deliveryProductsId, d.deliveryId AS deliveryId, p.productId AS productId, :type AS type, p.name AS productName," +
-            " p.priceUnitVatIncl AS priceUnitVatIncl, dp.quantity AS quantity, p.vat AS vat, dp.discount AS discount " +
+            " p.priceUnitVatIncl AS priceUnitVatIncl, priceUnitVatExcl AS priceUnitVatExcl,dp.quantity AS quantity, p.vat AS vat, dp.discount AS discount " +
             "FROM  Product p, Delivery d " +
             "LEFT JOIN DeliveryProductsJoin dp ON d.deliveryId = dp.deliveryId AND p.productId = dp.productId AND (dp.type IS NULL OR dp.type = :type) " +
             "WHERE d.deliveryId = :deliveryId " +
@@ -46,7 +46,7 @@ public interface DeliveryProductsJoinDao {
     LiveData<List<DeliveryProductsJoin>> loadDeliveryProducts(@NonNull Long deliveryId, String type);
 
     @Query("SELECT dp.deliveryProductsId, dp.deliveryId AS deliveryId, dp.type AS type, dp.productName AS productName," +
-            " dp.priceUnitVatIncl AS priceUnitVatIncl, dp.quantity AS quantity, dp.vat AS vat, dp.discount AS discount " +
+            " dp.priceUnitVatIncl AS priceUnitVatIncl, priceUnitVatExcl AS priceUnitVatExcl, dp.quantity AS quantity, dp.vat AS vat, dp.discount AS discount " +
             "FROM  DeliveryProductsJoin dp " +
             "WHERE dp.deliveryId = :deliveryId AND dp.type = 'S'")
     LiveData<List<DeliveryProductsJoin>> loadSellDeliveryProducts(@NonNull Long deliveryId);

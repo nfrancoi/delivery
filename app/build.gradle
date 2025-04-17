@@ -17,13 +17,14 @@ android {
     }
 
 
-    compileSdkVersion 33
+    compileSdkVersion 34
     defaultConfig {
         applicationId "com.nfrancoi.delivery"
-        minSdkVersion 33
-        targetSdkVersion 33
-        versionCode 14
-        versionName "14"
+        minSdkVersion 34
+        //noinspection EditedTargetSdkVersion
+        targetSdkVersion 34
+        versionCode 16
+        versionName "16"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {

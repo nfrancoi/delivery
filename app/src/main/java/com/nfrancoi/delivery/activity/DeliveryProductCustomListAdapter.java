@@ -22,7 +22,8 @@ public class DeliveryProductCustomListAdapter extends RecyclerView.Adapter<Deliv
 
     class DeliveryProductCustomViewHolder extends RecyclerView.ViewHolder {
         private final TextView productName;
-        private final TextInputEditText price;
+        private final TextInputEditText priceHvat;
+
         private final TextInputEditText vat;
         private final TextInputEditText quantity;
         private final TextInputEditText discount;
@@ -34,9 +35,9 @@ public class DeliveryProductCustomListAdapter extends RecyclerView.Adapter<Deliv
             super(itemView);
             productName = itemView.findViewById(R.id.fragment_delivery_products_custom_rv_item_name);
 
-            price = itemView.findViewById(R.id.fragment_delivery_products_custom_rv_item_price);
-            price.setEnabled(false);
-            price.setTextColor(Color.BLACK);
+            priceHvat = itemView.findViewById(R.id.fragment_delivery_products_custom_rv_item_price_hvat);
+            priceHvat.setEnabled(false);
+            priceHvat.setTextColor(Color.BLACK);
 
             vat = itemView.findViewById(R.id.fragment_delivery_products_custom_rv_item_vat);
             vat.setEnabled(false);
@@ -91,7 +92,7 @@ public class DeliveryProductCustomListAdapter extends RecyclerView.Adapter<Deliv
             DeliveryProductsJoin current = deliveryProducts.get(position);
 
             holder.productName.setText(current.productName);
-            holder.price.setText(StringTools.PriceFormat.format(current.priceUnitVatIncl));
+            holder.priceHvat.setText(StringTools.PriceFormat.format(current.priceUnitVatExcl));
             holder.vat.setText(current.vat.longValue() + " %");
             holder.quantity.setText(current.quantity+"");
             holder.discount.setText(current.discount.longValue() +" %");

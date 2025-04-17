@@ -21,11 +21,11 @@ public class DeliveryBackendApiGateway {
     //DEV
     //static final String BASE_URL = "http://192.168.100.122:8080/";
 
-    //PROD
-    //static final String BASE_URL = "https://delivery-backend-tst-f7e2cea8747c.herokuapp.com/";
-
     //Staging
-    static final String BASE_URL = "https://delivery-backend-prd-a2c3c3cf085b.herokuapp.com/";
+    static final String BASE_URL = "https://delivery-backend-tst-f7e2cea8747c.herokuapp.com/";
+
+    //PROD
+   // static final String BASE_URL = "https://delivery-backend-prd-a2c3c3cf085b.herokuapp.com/";
 
     private static DeliveryBackendApiGateway deliveryBackendApiGateway;
 
@@ -85,8 +85,6 @@ public class DeliveryBackendApiGateway {
             throw new IOException(response.toString());
         }
     }
-
-
 
 
 }

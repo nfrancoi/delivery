@@ -35,7 +35,7 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
     private TextInputEditText nameEditText;
     private TextInputLayout nameInputLayout;
 
-    private TextInputEditText priceEditText;
+    private TextInputEditText priceHvatEditText;
     private TextInputLayout priceInputLayout;
 
     private TextInputEditText vatEditText;
@@ -93,7 +93,7 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
         nameEditText = view.findViewById(R.id.fragment_delivery_products_custom_new_name);
         nameInputLayout = view.findViewById(R.id.fragment_delivery_products_custom_new_layout_name);
 
-        priceEditText = view.findViewById(R.id.fragment_delivery_products_custom_new_price);
+        priceHvatEditText = view.findViewById(R.id.fragment_delivery_products_custom_new_price);
         priceInputLayout = view.findViewById(R.id.fragment_delivery_products_custom_new_layout_price);
 
         vatEditText = view.findViewById(R.id.fragment_delivery_products_custom_new_vat);
@@ -129,15 +129,15 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
         androidx.lifecycle.ViewModelProvider e;
         DeliveryViewModel deliveryViewModel = new ViewModelProvider(requireActivity(), dvmFactory).get(key, DeliveryViewModel.class);
 
-        DeliveryProductsJoin editDeliveryProdcutsJoin = deliveryViewModel.getEditDeliveryProductsJoin();
+        DeliveryProductsJoin editDeliveryProductsJoin = deliveryViewModel.getEditDeliveryProductsJoin();
 
-        if (editDeliveryProdcutsJoin != null) {
+        if (editDeliveryProductsJoin != null) {
             //update case
-            nameEditText.setText(editDeliveryProdcutsJoin.productName);
-            priceEditText.setText(StringTools.PriceFormat.format(editDeliveryProdcutsJoin.priceUnitVatIncl));
-            vatEditText.setText(StringTools.PercentageFormat.format(editDeliveryProdcutsJoin.vat));
-            quantityEditText.setText(editDeliveryProdcutsJoin.quantity + "");
-            discountEditText.setText(StringTools.PercentageFormat.format(editDeliveryProdcutsJoin.discount));
+            nameEditText.setText(editDeliveryProductsJoin.productName);
+            priceHvatEditText.setText(StringTools.PriceFormat.format(editDeliveryProductsJoin.priceUnitVatExcl));
+            vatEditText.setText(StringTools.PercentageFormat.format(editDeliveryProductsJoin.vat));
+            quantityEditText.setText(editDeliveryProductsJoin.quantity + "");
+            discountEditText.setText(StringTools.PercentageFormat.format(editDeliveryProductsJoin.discount));
         }
 
 
@@ -154,21 +154,21 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
             }
 
             //validate price
-            BigDecimal price = null;
-            if (priceEditText.getText() == null || priceEditText.getText().toString().length() == 0) {
+            BigDecimal priceHvat = null;
+            if (priceHvatEditText.getText() == null || priceHvatEditText.getText().toString().length() == 0) {
                 priceInputLayout.setError(getString(R.string.fragment_delivery_products_custom_error_cannot_be_empty));
                 validated = false;
             }
 
             try {
-                price = BigDecimal.valueOf(StringTools.PriceFormat.parse(priceEditText.getText().toString()).doubleValue()).setScale(2, RoundingMode.HALF_UP);
+                priceHvat = BigDecimal.valueOf(StringTools.PriceFormat.parse(priceHvatEditText.getText().toString()).doubleValue()).setScale(2, RoundingMode.HALF_UP);
             } catch (ParseException e2) {
                 priceInputLayout.setError(getString(R.string.fragment_delivery_products_custom_error_bad_format));
                 validated = false;
             }
 
             //validate vat
-            BigDecimal  vat = null;
+            BigDecimal vat = null;
             if (vatEditText.getText() == null || vatEditText.getText().toString().length() == 0) {
                 priceInputLayout.setError(getString(R.string.fragment_delivery_products_custom_error_cannot_be_empty));
                 validated = false;
@@ -188,7 +188,7 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
                 validated = false;
             }
             try {
-               quantity = Integer.parseInt(quantityEditText.getText().toString());
+                quantity = Integer.parseInt(quantityEditText.getText().toString());
             } catch (NumberFormatException e2) {
                 quantityInputLayout.setError(getString(R.string.fragment_delivery_products_custom_error_bad_format));
                 validated = false;
@@ -209,16 +209,13 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
             }
 
 
-            if(!validated)
+            if (!validated)
                 return;
 
 
-
-
-
             DeliveryProductsJoin deliveryProduct;
-            if (editDeliveryProdcutsJoin != null) {
-                deliveryProduct = editDeliveryProdcutsJoin;
+            if (editDeliveryProductsJoin != null) {
+                deliveryProduct = editDeliveryProductsJoin;
             } else {
                 deliveryProduct = new DeliveryProductsJoin();
             }
@@ -226,10 +223,15 @@ public class DeliveryProductCustomNewDialogFragment extends DialogFragment {
             deliveryProduct.deliveryId = deliveryId;
             deliveryProduct.type = "S";
             deliveryProduct.productName = name;
-            deliveryProduct.priceUnitVatIncl = price;
             deliveryProduct.vat = vat;
             deliveryProduct.quantity = quantity;
             deliveryProduct.discount = discount;
+
+
+            BigDecimal vatFactor = deliveryProduct.vat.equals(BigDecimal.ZERO) ? BigDecimal.ONE : BigDecimal.ONE.add(deliveryProduct.vat.divide(BigDecimal.valueOf(100l)));
+            deliveryProduct.priceUnitVatExcl = priceHvat.setScale(3, RoundingMode.HALF_UP);
+            //need to store vat included amount to display statistics
+            deliveryProduct.priceUnitVatIncl = deliveryProduct.priceUnitVatExcl.multiply(vatFactor);
 
 
             deliveryViewModel.saveProductDetail(deliveryProduct);

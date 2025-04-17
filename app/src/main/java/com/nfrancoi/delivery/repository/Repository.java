@@ -37,7 +37,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -206,31 +205,6 @@ public class Repository {
     }
 
 
-    public boolean isDeliveryDetailsToGoogleSpreadSheet(Delivery delivery) throws IOException {
-
-
-        String rootDirectoryId = GoogleApiGateway.getInstance().createDirectory("DeliveryWorkspace", null);
-        String billingDirectoryId = GoogleApiGateway.getInstance().createDirectory("_Facturation", rootDirectoryId);
-
-        String spreadSheetId = GoogleApiGateway.getInstance().getOrCreateSpreadSheetIdInFolder(billingDirectoryId, "FacturationNotes");
-        String sheetName = CalendarTools.YYYYMM.format(delivery.startDate.getTime());
-        //
-        // Check if data exists
-        //
-        List<Integer> rowsIds;
-        try {
-            rowsIds = GoogleApiGateway.getInstance().findLinesInSpreadsheet(spreadSheetId, sheetName, delivery.noteId, "E");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        if (rowsIds != null && rowsIds.size() > 0) return true;
-
-        return false;
-
-
-    }
-
     public boolean isDeliveryDetailsToBackendApi(Delivery delivery) {
         try {
             DeliveryBackendApiGateway.getInstance().retrieveDeliveryByNoteId(delivery.noteId);
@@ -248,8 +222,6 @@ public class Repository {
     }
 
     public boolean saveDeliveryDetailsToBackendApi(Delivery delivery) {
-
-
         DeliveryJson deliveryJson = new DeliveryJson();
         deliveryJson.setStartDate(delivery.startDate.getTime());
         deliveryJson.setSentDate(delivery.sentDate.getTime());
@@ -308,86 +280,6 @@ public class Repository {
         return true;
     }
 
-    public boolean saveDeliveryDetailsToGoogleSpreadSheet(Delivery delivery) {
-        List<DeliveryBillingSummary> details = Repository.getInstance().loadDeliveryBillingSummarySync(delivery.deliveryId);
-
-        //
-        //convert data
-        //
-        List<List<Object>> valuess = new ArrayList<>(details.size());
-        String uploadTimeStamp = CalendarTools.YYYYMMDDHHmmss.format(Calendar.getInstance().getTime());
-        for (int i = 0; i < details.size(); i++) {
-            DeliveryBillingSummary billingSummary = details.get(i);
-
-            List<Object> values = new LinkedList<>();
-            values.add(uploadTimeStamp);
-            values.add(billingSummary.pointOfDeliveryId);
-            values.add(billingSummary.pointOfDeliveryName);
-            values.add(CalendarTools.YYYYMMDD.format(billingSummary.deliveryDate.getTime()));
-            values.add(billingSummary.noteId);
-
-            if (billingSummary.vat != null) {
-                values.add(billingSummary.vat.setScale(0, RoundingMode.HALF_UP));
-            } else {
-                values.add(0);
-            }
-
-            if (billingSummary.priceTotVatExclDiscounted != null) {
-                values.add(billingSummary.priceTotVatExclDiscounted.setScale(2, RoundingMode.HALF_UP));
-            } else {
-                values.add(0);
-            }
-
-            if (billingSummary.priceTotVatInclDiscounted != null) {
-                values.add(billingSummary.priceTotVatInclDiscounted.setScale(2, RoundingMode.HALF_UP));
-            } else {
-                values.add(0);
-            }
-
-            valuess.add(values);
-        }
-
-        try {
-            String rootDirectoryId = GoogleApiGateway.getInstance().createDirectory("DeliveryWorkspace", null);
-            String billingDirectoryId = GoogleApiGateway.getInstance().createDirectory("_Facturation", rootDirectoryId);
-
-            String spreadSheetId = GoogleApiGateway.getInstance().getOrCreateSpreadSheetIdInFolder(billingDirectoryId, "FacturationNotes");
-            String sheetName = CalendarTools.YYYYMM.format(delivery.startDate.getTime());
-
-            //
-            // Check if data exists
-            //
-
-            //check the spreadSheet and sheet
-            if (!GoogleApiGateway.getInstance().isSheetExistInSpreadSheet(spreadSheetId, sheetName)) {
-                GoogleApiGateway.getInstance().addSheetToSpreadSheet(spreadSheetId, sheetName);
-
-            }
-
-            List<Integer> rowsIds = GoogleApiGateway.getInstance().findLinesInSpreadsheet(spreadSheetId, sheetName, delivery.noteId, "E");
-            if (rowsIds.size() > 0)
-                GoogleApiGateway.getInstance().deleteLinesInSpreadsheet(spreadSheetId, sheetName, rowsIds);
-
-
-            int linesUpdated = GoogleApiGateway.getInstance().appendToSpreadSheet(spreadSheetId, CalendarTools.YYYYMM.format(delivery.startDate.getTime()), valuess);
-
-            if (linesUpdated != details.size()) {
-                delivery.isAccountingDataSent = false;
-                delivery.syncErrorMessage = "Nombre de lignes de facturations uploaded = " + linesUpdated + "sur un total de " + details.size();
-                Repository.getInstance().updateSync(delivery);
-                return false;
-            } else {
-                delivery.isAccountingDataSent = true;
-                Repository.getInstance().updateSync(delivery);
-                return true;
-            }
-        } catch (Exception e) {
-            delivery.isAccountingDataSent = false;
-            delivery.syncErrorMessage = e.getMessage();
-            Repository.getInstance().updateSync(delivery);
-            return false;
-        }
-    }
 
 
     //
@@ -401,7 +293,7 @@ public class Repository {
 
     @Transaction
     public List<String> syncAllProducts(List<Product> products) {
-        Synchronizer sync = new Synchronizer<Product>(productDao);
+        Synchronizer<Product> sync = new Synchronizer<Product>(productDao);
         sync.syncAll(products);
         return sync.getLogs();
     }
@@ -514,10 +406,18 @@ public class Repository {
             List<DeliveryProductsJoin> deliveryProductsJoinsUpdated =
                     loadNoteDeliveryProductDetailSync(delivery.deliveryId).stream().map(deliveryProductDetailToUpdate -> {
 
-                        BigDecimal priceUnitVatIncl = deliveryProductDetailToUpdate.priceUnitVatIncl.setScale(3, RoundingMode.HALF_UP);
+                        BigDecimal priceUnitVatIncl;
+                        BigDecimal priceUnitVatExcl;
+                        BigDecimal vatFactor = deliveryProductDetailToUpdate.vat.equals(BigDecimal.ZERO) ? BigDecimal.ONE : BigDecimal.ONE.add(deliveryProductDetailToUpdate.vat.divide(BigDecimal.valueOf(100l)));
 
-                        BigDecimal vatDivider = deliveryProductDetailToUpdate.vat.equals(BigDecimal.ZERO) ? BigDecimal.ONE : BigDecimal.ONE.add(deliveryProductDetailToUpdate.vat.divide(BigDecimal.valueOf(100l)));
-                        BigDecimal priceUnitVatExcl = priceUnitVatIncl.divide(vatDivider, 3, RoundingMode.HALF_UP);
+                        if(deliveryProductDetailToUpdate.priceUnitVatIncl != null){
+                            priceUnitVatIncl = deliveryProductDetailToUpdate.priceUnitVatIncl.setScale(3, RoundingMode.HALF_UP);
+                            priceUnitVatExcl = priceUnitVatIncl.divide(vatFactor, 3, RoundingMode.HALF_UP);
+                        }else{
+                            priceUnitVatExcl = deliveryProductDetailToUpdate.priceUnitVatExcl.setScale(3, RoundingMode.HALF_UP);
+                            priceUnitVatIncl = priceUnitVatExcl.multiply(vatFactor);
+                        }
+
                         deliveryProductDetailToUpdate.priceUnitVatExcl = priceUnitVatExcl.setScale(2, RoundingMode.HALF_UP);
 
                         BigDecimal discountMultiplicator = BigDecimal.ONE.add(deliveryProductDetailToUpdate.discount.negate().divide(BigDecimal.valueOf(100l), 3, RoundingMode.HALF_UP));

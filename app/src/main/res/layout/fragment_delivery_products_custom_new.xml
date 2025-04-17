@@ -34,9 +34,9 @@
             android:id="@+id/fragment_delivery_products_custom_new_price"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/fragment_select_products_custom_price_hint"
-            android:inputType="numberDecimal"
-            android:digits="0123456789," />
+            android:digits="0123456789,"
+            android:hint="@string/fragment_select_products_custom_price_hvat_hint"
+            android:inputType="numberDecimal" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

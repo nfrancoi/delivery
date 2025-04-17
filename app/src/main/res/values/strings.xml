@@ -43,8 +43,9 @@
 
 
     <string name="fragment_select_products_custom_name_hint">Nom du produit</string>
-    <string name="fragment_select_products_custom_price_hint">Prix TVAC</string>
+    <string name="fragment_select_products_custom_price_hvat_hint">Prix HTVA</string>
     <string name="fragment_select_products_custom_vat_hint">TVA %</string>
+    <string name="fragment_select_products_custom_price_vat_hint">Prix TVAC</string>
     <string name="fragment_select_products_custom_quantity_hint">Quantité</string>
     <string name="fragment_select_products_custom_button_delete">Supprimer</string>
     <string name="fragment_select_products_custom_button_save">Enregistrer</string>

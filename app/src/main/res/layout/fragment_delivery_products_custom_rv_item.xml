@@ -64,7 +64,7 @@
         app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_products_custom_rv_item_name">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_delivery_products_custom_rv_item_layout_price"
+            android:id="@+id/fragment_delivery_products_custom_rv_item_layout_price_hvat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="@dimen/small_padding"
@@ -73,10 +73,10 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragment_delivery_products_custom_rv_item_price"
+                android:id="@+id/fragment_delivery_products_custom_rv_item_price_hvat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/fragment_select_products_custom_price_hint" />
+                android:hint="@string/fragment_select_products_custom_price_hvat_hint" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -87,7 +87,7 @@
             android:padding="@dimen/small_padding"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_products_custom_rv_item_layout_price">
+            app:layout_constraintTop_toBottomOf="@+id/fragment_delivery_products_custom_rv_item_layout_price_hvat">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_delivery_products_custom_rv_item_vat"
@@ -96,6 +96,9 @@
                 android:hint="@string/fragment_select_products_custom_vat_hint" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/fragment_delivery_products_custom_rv_item_layout_quantity"
